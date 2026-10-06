@@ -1,6 +1,6 @@
 # 接口定义
 
-Stage 0 冻结。本文件定义 Snake-RL 的 Environment API、动作空间、状态表示、`info` 字段、随机种子控制、默认参数与实验输出约定。
+Stage 0 冻结。本文件定义 Snake-RL 的 Environment API、动作空间、状态表示、`info` 字段、随机种子控制、默认参数、实验输出约定与 Agent API。速查版见根目录 `QUICKSTART.md`。
 
 冻结后调用方不得单方面修改。如需变更，按 `AI_DEVELOPMENT_RULES.md` §20 执行：说明原因、列出影响文件、给出方案、等待确认，然后更新全部调用方与文档、完成集成测试，并在 `PROJECT_STATUS.md` 记录。
 
@@ -314,9 +314,81 @@ mean_episode_length
 
 ---
 
+## 12. Agent API
+
+Stage 0 冻结。DQN / Double DQN / Dueling DQN 共用同一接口，差异只放在网络结构、target 计算与算法特有配置（`AI_DEVELOPMENT_RULES.md` §10）。
+
+本节把 §10 的推荐接口细化为明确签名。B 实现时如发现签名需要调整，按 §20 流程变更。
+
+### 构造
+
+```python
+agent = DQNAgent(state_dim, n_actions, config)
+```
+
+| 参数 | 类型 | 说明 |
+|---|---|---|
+| `state_dim` | `int` | 状态维度，取自 `env.state_dim`（V1 为 11） |
+| `n_actions` | `int` | 动作数，取自 `env.n_actions`（3） |
+| `config` | `common.config.Config` | 超参数 |
+
+### 方法
+
+```python
+action = agent.select_action(state, training=True)
+loss = agent.update(batch)
+agent.save(path)
+agent.load(path)
+```
+
+| 方法 | 返回 | 说明 |
+|---|---|---|
+| `select_action(state, training=True)` | `int` | 取值 ∈ {0, 1, 2}。`training=True` 时按 ε-greedy 探索；`training=False` 时纯贪心，**评估阶段必须用 `False`**（`EXPERIMENT_PROTOCOL.md` 第五节） |
+| `update(batch)` | `float \| None` | 反向传播一次，返回 loss。Replay Buffer 未达 `min_buffer_size` 时返回 `None` 且不更新 |
+| `save(path)` | `None` | 保存网络权重与 optimizer 状态 |
+| `load(path)` | `None` | 加载并覆盖当前状态 |
+
+Replay Buffer 由调用方（训练循环）持有，`update` 接收采样好的 batch。
+
+### `batch` 结构
+
+每条转移必须保留 `terminated` 与 `truncated` 两个独立标记：
+
+```python
+(state, action, reward, next_state, terminated, truncated)
+```
+
+Bellman target：
+
+```python
+target = reward + (1 - terminated) * gamma * max_a Q_target(next_state, a)
+```
+
+`truncated` **不参与**该式 —— 截断时蛇仍然活着，仍应 bootstrap。把截断当作真终止会让 Q 值被系统性低估（见 §1）。
+
+batch 的具体容器类型（tuple / dict / tensor）由 B 决定。
+
+### 生命周期约束
+
+`terminated or truncated` 为 True 后不得再调用 `select_action`，必须先 `env.reset()`。
+
+### 责任边界
+
+| 内容 | 负责 |
+|---|---|
+| `select_action` / `update` / `save` / `load` 的实现 | B（DQN）、C（Double DQN / Dueling DQN） |
+| Replay Buffer 类与 batch 容器类型 | B |
+| 训练循环中 buffer 的写入与采样时机 | B（`train.py`） |
+| `state_dim` / `n_actions` / 5 元组 / 生命周期 | A（`env/`） |
+
+三种算法不得各建独立训练逻辑（`AI_DEVELOPMENT_RULES.md` §10、§13）。
+
+---
+
 ## 变更记录
 
 | 日期 | 内容 |
 |---|---|
 | 10-06 | 初版。Stage 0 冻结 Environment API、动作空间、State V1（11 维）、`info` 字段、seed 控制与默认参数。 |
 | 10-07 | 新增第 11 节：实验输出约定（目录、run 命名、产出文件、指标列）。 |
+| 10-07 | 新增第 12 节：Agent API（构造、方法签名、batch 结构、责任边界）。 |

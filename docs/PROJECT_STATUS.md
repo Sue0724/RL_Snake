@@ -61,6 +61,8 @@ Stage 0：
 - 已统一接口口径：`docs/AI_DEVELOPMENT_RULES.md` §9/§16/§17、`docs/PROJECT_PLAN.md`、`docs/STAGE_CHECKLIST.md` 中残留的 4 元组与 `done` 全部改为 5 元组与 `terminated / truncated`，全仓库已无残留。
 - 已确定实验输出路径：`docs/INTERFACE.md` 新增第 11 节，固化 `results/` 目录、run 命名、产出文件与指标列。
 - 已确定配置管理方案并实现 `common/config.py`：`@dataclass Config`（20 个字段）+ `parse_args()` 自动生成命令行参数；存档用 `dataclasses.asdict()` 写入 `config.json`，不引入 YAML。
+- 已冻结 Agent API：`docs/INTERFACE.md` 新增第 12 节，定义构造参数、四个方法签名、batch 结构、Bellman target 与责任边界。
+- 已新增根目录 `QUICKSTART.md`：接口速查页，供各成员快速对齐。
 
 ---
 
@@ -71,7 +73,7 @@ Stage 0：
 - [x] 实现 config
 - [x] 冻结 Environment API
 - [x] 统一接口口径（4 元组 → 5 元组）
-- [ ] 冻结 Agent API
+- [x] 冻结 Agent API
 - [ ] 完成 Stage 0 smoke test
 - [x] 确定结果保存路径
 
@@ -81,7 +83,7 @@ Stage 0：
 
 ### P0
 
-1. Stage 0 剩余 2 项中，Agent API 位于 B 的责任区，B 尚未开始提交任何代码，Stage 0 无法通过验收，Stage 1 因此被阻塞。
+1. Stage 0 仅剩「所有成员理解接口」（`[~]`）与 smoke test 判定标准待定，均不构成技术阻塞。
 2. 尚无任何可运行代码，`env/` 等包内仅有 `__init__.py` 占位，`common/config.py` 是唯一有实际内容的模块。
 
 影响：
@@ -90,7 +92,7 @@ Stage 0：
 
 处理：
 
-1. 与 B 确认 Agent API 的交付安排，或由团队重新指派负责人。
+1. 经用户同意，依 `AI_DEVELOPMENT_RULES.md` §6 提前进入 Stage 1 实现环境；Stage 0 验收待团队确认后补办。
 2. 完成 Stage 1 环境实现后更新。
 
 ---
@@ -114,13 +116,18 @@ numpy → torch 转换，MLP 前向。
 
 ## 下一步
 
-推荐只进行 Stage 0。剩余项：
+Stage 0 剩余项已不构成技术阻塞，进入 Stage 1：
 
-- 冻结 Agent API（B 责任区）
-- 所有成员理解接口（需团队确认）
-- Stage 0 smoke test（判定标准待澄清，见下）
+- 实现 `env/snake_env.py`（A）
+- 实现 `env/renderer.py`（A）
+- 实现 `env/random_agent.py` 与 `play.py`（A，用于环境验证与可视化）
 
-完成后逐项核对 `STAGE_CHECKLIST.md`，再由项目成员确认是否进入 Stage 1。
+Stage 0 收尾项（不阻塞）：
+
+- 所有成员理解接口（`[~]`，待团队确认）
+- Stage 0 smoke test 判定标准（待澄清，见下）
+
+**跨阶段说明**：Stage 0 验收结论仍为 `Pending`。依据 `AI_DEVELOPMENT_RULES.md` §6「除非用户明确要求跨阶段开发」，经用户同意，A 提前进入 Stage 1 实现环境代码；Stage 0 待团队确认后补办验收。
 
 **待澄清**：`README.md` Stage 0 完成标准写「项目可正常安装并启动」，但 `train.py` / `play.py` / `evaluate.py` 均为后续阶段产物，Stage 0 阶段「启动」的判定对象需团队确认。
 

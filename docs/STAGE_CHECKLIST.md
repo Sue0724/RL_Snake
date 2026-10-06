@@ -8,6 +8,7 @@
 [ ] 未完成
 [x] 已完成
 [!] 存在问题
+[~] 待团队确认，不阻塞后续阶段
 ```
 
 ---
@@ -19,17 +20,18 @@
 - [x] Python 环境可运行
 - [x] requirements 或环境说明完成
 - [x] Environment API 已确定
-- [ ] Agent API 已确定
+- [x] Agent API 已确定
 - [x] 配置管理方案已确定
 - [x] seed 控制已设计
 - [x] 结果保存路径已确定
-- [ ] 所有成员理解接口
+- [~] 所有成员理解接口
 
 验收结论：`Pending`
 
 问题：
 
-- 剩余 2 项：Agent API（B 责任区）、所有成员理解接口（需团队确认）。
+- 「所有成员理解接口」标记为 `[~]`：接口文档已就绪（`docs/INTERFACE.md`、`QUICKSTART.md`），待各成员确认，不阻塞 Stage 1。
+- Agent API 规格已冻结（`docs/INTERFACE.md` §12），B 实现时如需调整按 `AI_DEVELOPMENT_RULES.md` §20 流程变更。
 
 ---
 

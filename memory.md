@@ -49,10 +49,14 @@
 - 更新 `docs/STAGE_CHECKLIST.md`：Stage 0 勾选 5 项，写明剩余 3 项。
 - 更新 `docs/PROJECT_STATUS.md`：最后更新改 10-07，已完成 / 待完成 / P0 / 最近一次测试 / 下一步同步。
 - 确定配置管理方案并实现 `common/config.py`：`@dataclass Config`（20 个字段）+ `parse_args()` 自动生成命令行参数，写入 `docs/AI_DEVELOPMENT_RULES.md` §12 与 `docs/INTERFACE.md` §10。
+- 冻结 Agent API：`docs/INTERFACE.md` 新增第 12 节，定义构造参数、四个方法签名、batch 结构、Bellman target 与责任边界。
+- 新增根目录 `QUICKSTART.md`：接口速查页（环境搭建、环境 API、State V1、配置、Agent、实验输出）。
+- `docs/STAGE_CHECKLIST.md` 新增 `[~] 待团队确认，不阻塞后续阶段` 符号，「所有成员理解接口」标记为 `[~]`。
+- `docs/PROJECT_STATUS.md` 记录跨阶段说明：经用户同意，依 `AI_DEVELOPMENT_RULES.md` §6 提前进入 Stage 1，Stage 0 验收待团队确认后补办。
 
 涉及文件：
 - `docs/AI_DEVELOPMENT_RULES.md`、`docs/PROJECT_PLAN.md`、`docs/INTERFACE.md`、`docs/PROJECT_STATUS.md`、`docs/STAGE_CHECKLIST.md`
-- `common/config.py`（新增）
+- `common/config.py`、`QUICKSTART.md`（新增）
 
 执行 / 验证：
 - 全仓库检索 `done`、`reward, done`、`done, info`，确认无残留。
