@@ -198,3 +198,33 @@ YYYY-MM-DD HH:MM +08:00
 
 后续影响：
 - 后续每次实际项目操作完成后，都需要追加一条新的时间记录。
+
+## 2026-10-06 21:45 +08:00
+
+操作类型：Git
+结果：Passed
+
+操作内容：
+- 本地 `Snake-RL/` 初始化 git 仓库（`git init -b main`）并关联远程 `Sue0724/RL_Snake`。
+- 将现有 11 份项目文档作为首个 commit 推送至 `main`。
+
+验证：
+- `git ls-remote origin main` → `d37ce77`，与本地 HEAD 一致。
+
+备注：
+- commit `d37ce77`，11 files changed，2737 insertions(+)。
+- 后续代码开发应在 feature 分支进行，不直接改 main。
+
+## 2026-10-06 22:17 +08:00
+
+操作类型：Docs
+结果：Passed
+
+操作内容：
+- 从 `docs/COLLABORATION_RULES.md` 的分支建议中删除 `dev`，保留 `main` + `feature/*`。
+
+验证：
+- 全仓库检索 `dev`，确认无其他残留引用。
+
+备注：
+- 4 人课程项目使用 main + feature/* 已足够。

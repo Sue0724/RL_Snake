@@ -76,7 +76,6 @@
 
 ```text
 main
-dev
 feature/env
 feature/dqn
 feature/double-dqn
