@@ -57,13 +57,14 @@ Stage 0：
 - 已建立 git 仓库并关联远程 `Sue0724/RL_Snake`，文档入库。
 - 已建立代码包骨架：`env/`、`algorithms/`、`common/`、`experiments/`。
 - 已冻结 Environment API、动作空间、State V1（11 维）、`info` 字段、seed 控制与默认参数，见 `docs/INTERFACE.md`。
+- 已建立依赖环境：conda 环境 `snake-rl`（Python 3.10）+ `requirements.txt`，`README.md` 补充「环境搭建」一节，并新增 `.gitignore`。
 
 ---
 
 ## 待完成
 
 - [x] 创建真实代码仓库结构
-- [ ] 创建依赖环境
+- [x] 创建依赖环境
 - [ ] 实现 config
 - [x] 冻结 Environment API
 - [ ] 冻结 Agent API
@@ -76,7 +77,7 @@ Stage 0：
 
 ### P0
 
-尚无任何可运行代码，依赖环境未搭建。
+尚无任何可运行代码，`env/` 等包内仅有 `__init__.py` 占位。
 
 影响：
 
@@ -108,7 +109,6 @@ None
 
 推荐只进行 Stage 0。剩余项：
 
-- 创建依赖环境（conda + requirements）
 - 实现 `common/config.py`
 - 冻结 Agent API
 - 确定结果保存路径

@@ -1,0 +1,19 @@
+# Snake-RL 依赖
+#
+# Python 3.10，conda 环境名 snake-rl，每位成员在本地各建一份。
+#
+#   conda create -n snake-rl python=3.10 -y
+#   conda activate snake-rl
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+#   pip install -r requirements.txt
+#
+# torch 默认 CPU 版：本项目网络为 11 维输入的小型 MLP（实测约 1900 参数），
+# CPU 前向为微秒级，GPU 无收益。
+# 如需 GPU 版，按本机驱动选择对应 CUDA 版本，参考 PyTorch 官方安装页：
+#   https://pytorch.org/get-started/locally/
+
+numpy>=1.24
+torch>=2.0
+pygame>=2.5
+matplotlib>=3.7
+pandas>=2.0

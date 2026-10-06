@@ -16,8 +16,8 @@
 
 - [ ] 原有文件和目录名称保持不变
 - [ ] 新增公共目录合理
-- [ ] Python 环境可运行
-- [ ] requirements 或环境说明完成
+- [x] Python 环境可运行
+- [x] requirements 或环境说明完成
 - [ ] Environment API 已确定
 - [ ] Agent API 已确定
 - [ ] 配置管理方案已确定

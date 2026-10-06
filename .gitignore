@@ -1,0 +1,24 @@
+# Python 字节码与缓存
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# 虚拟环境：本项目统一使用 conda 环境 snake-rl，不提交环境目录
+.venv/
+venv/
+
+# 编辑器与系统
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
+
+# 临时文件
+*.tmp
+
+# 以下目录属于最终成果（见 README「最终成果清单」），默认提交，故不忽略：
+#   results/      原始日志与图表
+#   checkpoints/  模型权重
+#   models/       模型权重
+# 若训练产物体积过大，再按需加入此处。
