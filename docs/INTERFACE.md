@@ -1,6 +1,6 @@
 # 接口定义
 
-Stage 0 冻结。本文件定义 Snake-RL 的 Environment API、动作空间、状态表示、`info` 字段、随机种子控制与默认参数。
+Stage 0 冻结。本文件定义 Snake-RL 的 Environment API、动作空间、状态表示、`info` 字段、随机种子控制、默认参数与实验输出约定。
 
 冻结后调用方不得单方面修改。如需变更，按 `AI_DEVELOPMENT_RULES.md` §20 执行：说明原因、列出影响文件、给出方案、等待确认，然后更新全部调用方与文档、完成集成测试，并在 `PROJECT_STATUS.md` 记录。
 
@@ -230,14 +230,87 @@ env.render()
 
 算法与训练相关 key 以 `AI_DEVELOPMENT_RULES.md` §12 为准，本文件不重复。
 
-环境额外使用以下 key，同样集中放在 `common/config.py`：
+环境额外使用以下 4 个 key：
 
 ```text
-board_size
-initial_length
-max_steps_per_episode
-render_mode
+board_size              默认 10
+initial_length          默认 3
+max_steps_per_episode   默认 500
+render_mode             默认 None
 ```
+
+这四个 key 与算法 key 合并在 `common/config.py` 的同一个 `@dataclass Config` 中，组织、覆盖与存档方式见 `AI_DEVELOPMENT_RULES.md` §12。
+
+---
+
+## 11. 实验输出约定
+
+`EXPERIMENT_PROTOCOL.md` 已规定 run 的命名、产出文件与指标字段（第二、六、九、十节）。本节把它们固化为代码可直接照做的目录与文件约定。
+
+### 目录
+
+```text
+results/
+├── logs/      每个 run 一个子目录
+├── figures/   由脚本生成的图表
+└── videos/    Demo 录制
+
+checkpoints/   模型权重
+```
+
+### run 目录命名
+
+```text
+{experiment}_{algorithm}_{state}_{reward}_seed{seed}_{timestamp}
+```
+
+示例：
+
+```text
+algorithm_dqn_statev1_sparse_seed42_20261006_1800
+```
+
+Debug run 在 `experiment` 前加 `debug`，与正式实验区分（`EXPERIMENT_PROTOCOL.md` 第二节）：
+
+```text
+debug_state_dqn_statev1_sparse_seed42_20261006_1800
+```
+
+### run 目录内容
+
+| 文件 | 内容 | 必需 |
+|---|---|---|
+| `config.json` | 该 run 的完整配置 | 是 |
+| `metrics.csv` | 逐步指标 | 是 |
+| `summary.json` | 汇总指标 | 是 |
+| `checkpoint.pt` | 模型权重 | 是 |
+| `train.log` | 训练日志 | 否 |
+
+### `metrics.csv` 列
+
+```text
+episode
+episode_return
+score
+episode_length
+epsilon
+loss
+global_step
+```
+
+### `summary.json` 字段
+
+```text
+mean_score
+std_score
+max_score
+mean_return
+mean_episode_length
+```
+
+### 覆盖保护
+
+每次 run 写入**新建**目录，不得复用已存在的 run 目录。正式实验数据不得被后续 debug run 覆盖。
 
 ---
 
@@ -246,3 +319,4 @@ render_mode
 | 日期 | 内容 |
 |---|---|
 | 10-06 | 初版。Stage 0 冻结 Environment API、动作空间、State V1（11 维）、`info` 字段、seed 控制与默认参数。 |
+| 10-07 | 新增第 11 节：实验输出约定（目录、run 命名、产出文件、指标列）。 |

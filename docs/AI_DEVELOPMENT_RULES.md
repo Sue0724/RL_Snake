@@ -240,21 +240,27 @@ evaluate.py
 
 `env/snake_env.py` 应保持环境与算法解耦。
 
-推荐统一接口：
+接口已冻结，以 `docs/INTERFACE.md` 为准：
 
 ```python
-state = env.reset(seed=seed)
-next_state, reward, done, info = env.step(action)
+env = SnakeEnv(config)
+
+state, info = env.reset(seed=seed)
+next_state, reward, terminated, truncated, info = env.step(action)
 env.render()
 ```
 
-如果后续决定采用 Gymnasium 风格返回值，可以修改，但必须：
+采用 Gymnasium 风格 5 元组返回值。`terminated` 表示撞墙或撞自身，`truncated` 表示达到 `max_steps_per_episode`。
 
-- 先说明影响
-- 获得用户确认
-- 一次性同步所有调用位置
-- 更新相关文档
-- 重新进行集成测试
+两者必须区分：截断时蛇仍然活着，bootstrap 仍应进行：
+
+```python
+target = reward + (1 - terminated) * gamma * max_a Q_target(next_state, a)
+```
+
+若把截断当作真终止，`target = reward`，Q 值被系统性低估。
+
+冻结后如需变更，按 §20 执行。
 
 环境应支持：
 
@@ -360,6 +366,42 @@ hidden_dim
 ```
 
 实验中一次只改变当前研究变量。
+
+### 组织形式
+
+配置集中在 `common/config.py` 的 `@dataclass Config` 中，环境侧 4 个 key（见 `docs/INTERFACE.md` §10）与上表算法 key 合并在同一个类内。
+
+新增字段只需在 `Config` 中加一行，命令行参数自动生成，不需要另行维护参数表。
+
+### 覆盖方式
+
+```python
+from common.config import parse_args
+
+cfg = parse_args()      # 只覆盖显式传入的参数
+```
+
+```bash
+python train.py --algorithm dqn --seed 42
+```
+
+一次只改一个研究变量，正好对应一次一个命令行参数。
+
+### 存档方式
+
+每个 run 保存完整配置：
+
+```python
+import dataclasses
+import json
+
+with open(run_dir / "config.json", "w", encoding="utf-8") as f:
+    json.dump(dataclasses.asdict(cfg), f, indent=2, ensure_ascii=False)
+```
+
+### 不使用 YAML 配置文件
+
+`EXPERIMENT_PROTOCOL.md` 第十节要求的 `config.json` 是每个 run 的输出记录，不是输入。引入 YAML 会多一个依赖、多一个「文件与命令行谁优先」的歧义，并产生两个真相来源。
 
 ---
 
@@ -493,7 +535,7 @@ step_reward
 2. 状态数值与维度
 3. 动作映射
 4. reward
-5. done 条件
+5. terminated / truncated 条件
 6. Replay Buffer
 7. tensor shape
 8. Bellman target
@@ -518,7 +560,7 @@ step_reward
 - 撞自身
 - 食物生成
 - 吃食物增长
-- done
+- terminated / truncated
 - seed
 - 无渲染模式
 - Random Agent smoke test

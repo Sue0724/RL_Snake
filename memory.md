@@ -36,3 +36,32 @@
 - 后续代码开发应在 feature 分支进行，不直接改 main。
 - 依赖环境为本机 conda 环境，各成员需按 `README.md`「环境搭建」自行创建。
 - B/C/D 可依 `docs/INTERFACE.md` 并行开发；Stage 0 剩余项为 `common/config.py`、Agent API、结果保存路径、smoke test。
+
+## 10-07
+
+操作类型：Docs
+结果：Passed
+
+操作内容：
+- 核对 Stage 0 验收清单，确认 5 项已完成、3 项待办（Agent API、配置管理方案、所有成员理解接口）。
+- 统一接口口径：修正 `docs/AI_DEVELOPMENT_RULES.md` §9 的 4 元组与 `done`、§16 调试顺序、§17 环境测试要求，以及 `docs/PROJECT_PLAN.md`、`docs/STAGE_CHECKLIST.md` 中的同类残留，全部改为 5 元组与 `terminated / truncated`。
+- `docs/INTERFACE.md` 新增第 11 节「实验输出约定」：固化 `results/` 目录、run 命名、产出文件与 `metrics.csv` / `summary.json` 字段。
+- 更新 `docs/STAGE_CHECKLIST.md`：Stage 0 勾选 5 项，写明剩余 3 项。
+- 更新 `docs/PROJECT_STATUS.md`：最后更新改 10-07，已完成 / 待完成 / P0 / 最近一次测试 / 下一步同步。
+- 确定配置管理方案并实现 `common/config.py`：`@dataclass Config`（20 个字段）+ `parse_args()` 自动生成命令行参数，写入 `docs/AI_DEVELOPMENT_RULES.md` §12 与 `docs/INTERFACE.md` §10。
+
+涉及文件：
+- `docs/AI_DEVELOPMENT_RULES.md`、`docs/PROJECT_PLAN.md`、`docs/INTERFACE.md`、`docs/PROJECT_STATUS.md`、`docs/STAGE_CHECKLIST.md`
+- `common/config.py`（新增）
+
+执行 / 验证：
+- 全仓库检索 `done`、`reward, done`、`done, info`，确认无残留。
+- 在 `snake-rl` 环境实跑 `common/config.py`：20 个字段默认值正确；`parse_args(['--seed','43','--learning_rate','0.0005','--render_mode','human'])` 正确覆盖 3 个字段，未传入的字段保持默认；`dataclasses.asdict()` 输出 20 个 key 可直接 JSON 序列化。
+
+发现的问题：
+- `docs/AI_DEVELOPMENT_RULES.md` §9 与 `docs/INTERFACE.md` 对 Environment API 的描述不一致（4 元组 vs 5 元组），已修正。
+- `README.md` Stage 0 完成标准「项目可正常安装并启动」的判定对象不明确，待团队澄清。
+
+后续影响：
+- 接口口径已统一，配置系统可用，可据此实现环境。
+- Stage 0 剩余项为 Agent API 与所有成员理解接口，均在 B 侧或需团队确认，Stage 1 仍被阻塞。

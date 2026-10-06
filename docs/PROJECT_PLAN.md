@@ -61,7 +61,7 @@ State V2 等改进方案放入后续实验，不应阻塞基线开发。
 
 ```text
 state + action
--> next_state + reward + done
+-> next_state + reward + terminated + truncated
 ```
 
 不要把神经网络或算法代码写入环境。

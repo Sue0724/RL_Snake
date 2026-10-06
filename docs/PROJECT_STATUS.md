@@ -6,7 +6,7 @@
 
 总体状态：`In Progress`
 
-最后更新：`10-06`
+最后更新：`10-07`
 
 ---
 
@@ -58,6 +58,9 @@ Stage 0：
 - 已建立代码包骨架：`env/`、`algorithms/`、`common/`、`experiments/`。
 - 已冻结 Environment API、动作空间、State V1（11 维）、`info` 字段、seed 控制与默认参数，见 `docs/INTERFACE.md`。
 - 已建立依赖环境：conda 环境 `snake-rl`（Python 3.10）+ `requirements.txt`，`README.md` 补充「环境搭建」一节，并新增 `.gitignore`。
+- 已统一接口口径：`docs/AI_DEVELOPMENT_RULES.md` §9/§16/§17、`docs/PROJECT_PLAN.md`、`docs/STAGE_CHECKLIST.md` 中残留的 4 元组与 `done` 全部改为 5 元组与 `terminated / truncated`，全仓库已无残留。
+- 已确定实验输出路径：`docs/INTERFACE.md` 新增第 11 节，固化 `results/` 目录、run 命名、产出文件与指标列。
+- 已确定配置管理方案并实现 `common/config.py`：`@dataclass Config`（20 个字段）+ `parse_args()` 自动生成命令行参数；存档用 `dataclasses.asdict()` 写入 `config.json`，不引入 YAML。
 
 ---
 
@@ -65,11 +68,12 @@ Stage 0：
 
 - [x] 创建真实代码仓库结构
 - [x] 创建依赖环境
-- [ ] 实现 config
+- [x] 实现 config
 - [x] 冻结 Environment API
+- [x] 统一接口口径（4 元组 → 5 元组）
 - [ ] 冻结 Agent API
 - [ ] 完成 Stage 0 smoke test
-- [ ] 确定结果保存路径
+- [x] 确定结果保存路径
 
 ---
 
@@ -77,31 +81,34 @@ Stage 0：
 
 ### P0
 
-尚无任何可运行代码，`env/` 等包内仅有 `__init__.py` 占位。
+1. Stage 0 剩余 2 项中，Agent API 位于 B 的责任区，B 尚未开始提交任何代码，Stage 0 无法通过验收，Stage 1 因此被阻塞。
+2. 尚无任何可运行代码，`env/` 等包内仅有 `__init__.py` 占位，`common/config.py` 是唯一有实际内容的模块。
 
 影响：
 
-目前只能确认项目设计与接口定义，不能确认任何算法或环境已运行成功。
+只能确认项目设计、接口定义、依赖环境与配置管理，不能确认任何环境或算法已实际运行成功。
 
 处理：
 
-完成 Stage 0 剩余项后更新。
+1. 与 B 确认 Agent API 的交付安排，或由团队重新指派负责人。
+2. 完成 Stage 1 环境实现后更新。
 
 ---
 
 ## 最近一次测试
 
-测试时间：`尚未执行`
+测试时间：`10-06`
 
 测试内容：
 
 ```text
-None
+依赖环境导入与张量互转：numpy / torch / pygame / matplotlib / pandas，
+numpy → torch 转换，MLP 前向。
 ```
 
 结果：
 
-`Not Tested`
+`Passed`
 
 ---
 
@@ -109,12 +116,13 @@ None
 
 推荐只进行 Stage 0。剩余项：
 
-- 实现 `common/config.py`
-- 冻结 Agent API
-- 确定结果保存路径
-- Stage 0 smoke test
+- 冻结 Agent API（B 责任区）
+- 所有成员理解接口（需团队确认）
+- Stage 0 smoke test（判定标准待澄清，见下）
 
 完成后逐项核对 `STAGE_CHECKLIST.md`，再由项目成员确认是否进入 Stage 1。
+
+**待澄清**：`README.md` Stage 0 完成标准写「项目可正常安装并启动」，但 `train.py` / `play.py` / `evaluate.py` 均为后续阶段产物，Stage 0 阶段「启动」的判定对象需团队确认。
 
 ---
 
