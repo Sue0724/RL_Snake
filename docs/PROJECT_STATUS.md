@@ -4,9 +4,9 @@
 
 当前 Stage：`Stage 0 - 工程初始化`
 
-总体状态：`Pending`
+总体状态：`In Progress`
 
-最后更新：`待填写`
+最后更新：`10-06`
 
 ---
 
@@ -14,7 +14,7 @@
 
 | Stage | 内容 | 状态 | 负责人 |
 |---|---|---|---|
-| 0 | 工程初始化与接口冻结 | Pending | 全员 |
+| 0 | 工程初始化与接口冻结 | In Progress | 全员 |
 | 1 | Snake 环境与状态 | Pending | A |
 | 2 | DQN Baseline | Pending | B |
 | 3 | 统一训练与评估框架 | Pending | B / 全员 |
@@ -54,17 +54,21 @@ Stage 0：
 - 已确定核心算法方向：DQN、Double DQN、Dueling DQN。
 - 已确定主要实验方向：状态、Reward Shaping、探索/超参数、算法对比。
 - 已建立文档规范。
+- 已建立 git 仓库并关联远程 `Sue0724/RL_Snake`，文档入库。
+- 已建立代码包骨架：`env/`、`algorithms/`、`common/`、`experiments/`。
+- 已冻结 Environment API、动作空间、State V1（11 维）、`info` 字段、seed 控制与默认参数，见 `docs/INTERFACE.md`。
 
 ---
 
 ## 待完成
 
-- [ ] 创建真实代码仓库结构
+- [x] 创建真实代码仓库结构
 - [ ] 创建依赖环境
 - [ ] 实现 config
-- [ ] 冻结 Environment API
+- [x] 冻结 Environment API
 - [ ] 冻结 Agent API
 - [ ] 完成 Stage 0 smoke test
+- [ ] 确定结果保存路径
 
 ---
 
@@ -72,15 +76,15 @@ Stage 0：
 
 ### P0
 
-暂无已验证的真实代码状态。
+尚无任何可运行代码，依赖环境未搭建。
 
 影响：
 
-目前只能确认项目设计，不能确认任何算法或环境已运行成功。
+目前只能确认项目设计与接口定义，不能确认任何算法或环境已运行成功。
 
 处理：
 
-完成工程初始化后更新。
+完成 Stage 0 剩余项后更新。
 
 ---
 
@@ -102,9 +106,15 @@ None
 
 ## 下一步
 
-推荐只进行 Stage 0。
+推荐只进行 Stage 0。剩余项：
 
-完成 Stage 0 并通过 `STAGE_CHECKLIST.md` 后，再由项目成员确认是否进入 Stage 1。
+- 创建依赖环境（conda + requirements）
+- 实现 `common/config.py`
+- 冻结 Agent API
+- 确定结果保存路径
+- Stage 0 smoke test
+
+完成后逐项核对 `STAGE_CHECKLIST.md`，再由项目成员确认是否进入 Stage 1。
 
 ---
 
