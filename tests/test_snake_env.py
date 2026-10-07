@@ -12,6 +12,7 @@ import numpy as np
 import pytest
 
 from common.config import Config
+from env.random_agent import RandomAgent
 from env.snake_env import DEATH_PENALTY, FOOD_REWARD, LEFT, RIGHT, STRAIGHT, SnakeEnv
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -350,13 +351,10 @@ def test_importing_env_does_not_import_pygame():
 # ---- 连续运行 ----
 
 
-def test_random_rollout_100_episodes():
-    """STAGE_CHECKLIST Stage 1：Random Agent 可连续运行 100 episode 无异常。
-
-    TODO: ``env/random_agent.py`` 落地后改为通过 RandomAgent 驱动。
-    """
+def test_random_agent_rollout_100_episodes():
+    """STAGE_CHECKLIST Stage 1：Random Agent 可连续运行 100 episode 无异常。"""
     env = make_env()
-    rng = np.random.default_rng(0)
+    agent = RandomAgent(env.n_actions, seed=0)
 
     for episode in range(100):
         state, _ = env.reset(seed=episode)
@@ -364,7 +362,8 @@ def test_random_rollout_100_episodes():
 
         steps = 0
         while True:
-            state, reward, terminated, truncated, info = env.step(int(rng.integers(3)))
+            action = agent.select_action(state, training=False)
+            state, reward, terminated, truncated, info = env.step(action)
             steps += 1
 
             assert state.shape == (11,)
