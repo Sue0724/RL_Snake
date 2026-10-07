@@ -52,23 +52,31 @@
 - 冻结 Agent API：`docs/INTERFACE.md` 新增第 12 节，定义构造参数、四个方法签名、batch 结构、Bellman target 与责任边界。
 - 新增根目录 `QUICKSTART.md`：接口速查页（环境搭建、环境 API、State V1、配置、Agent、实验输出）。
 - `docs/STAGE_CHECKLIST.md` 新增 `[~] 待团队确认，不阻塞后续阶段` 符号，「所有成员理解接口」标记为 `[~]`。
-- `docs/PROJECT_STATUS.md` 记录跨阶段说明：经用户同意，依 `AI_DEVELOPMENT_RULES.md` §6 提前进入 Stage 1，Stage 0 验收待团队确认后补办。
 - 新增根目录 `smoke_test.py`：Stage 0 自检脚本，6 项检查（第三方依赖 / 包结构 / 配置默认值 / 配置覆盖 / 配置存档 / 项目目录），并据此判定 `README.md` Stage 0 完成标准「项目可正常安装并启动」。`README.md` 补齐目录树（`smoke_test.py`、`requirements.txt`、`.gitignore`、`QUICKSTART.md`）。
+- 提交并推送 `1091cfd feat: add stage 0 smoke test` 至 `feature/env`。
+- 按用户在 4 个待定项上的决定，补齐 `docs/INTERFACE.md` 4 处缺口：§1 增加 `close()` 与「reset 之前 / done 之后再 step 抛 `RuntimeError`」；§4 增加碰撞判定小节（蛇尾是唯一例外，`danger_*` 与 `step()` 共用同一判定）；§6 增加非法 `reward_mode` 抛 `NotImplementedError`；§8 增加 `initial_head` 参数与初始蛇位置规则；§10 key 数 4 → 5。
+- 引入 pytest：`requirements.txt` 增加 `pytest>=7.0`，新增根目录 `conftest.py`（其所在目录被 pytest 加入 `sys.path`，使 `tests/` 可直接 `import env`）与 `tests/`，`README.md` 增加「测试」一节说明它与 `smoke_test.py` 的分工。
+- `common/config.py` 增加 `initial_head: tuple[int, int] | None = None`（字段数 20 → 21），`_arg_type` 增加 tuple 分支与 `_parse_int_pair`，命令行写法 `--initial_head 4,6`。
+- 实现 `env/snake_env.py`：`reset` / `step` / `render` / `close`、`state_dim` / `n_actions`；`body`（deque）+ `occupied`（set）双结构，只在 `_place_snake` 与 `_advance` 中同时改动；转向用旋转公式而非查表；`reward_mode` / `state_mode` 非法取值在 `__init__` 中硬失败。
+- 实现 `tests/test_snake_env.py`：41 项，覆盖 `docs/STAGE_CHECKLIST.md` Stage 1 的 11 项，含「danger 位与实际 step 结果逐动作比对」的一致性测试。
 
 涉及文件：
 - `docs/AI_DEVELOPMENT_RULES.md`、`docs/PROJECT_PLAN.md`、`docs/INTERFACE.md`、`docs/PROJECT_STATUS.md`、`docs/STAGE_CHECKLIST.md`、`README.md`
-- `common/config.py`、`QUICKSTART.md`、`smoke_test.py`（新增）
+- `common/config.py`、`env/snake_env.py`、`tests/test_snake_env.py`、`conftest.py`、`smoke_test.py`、`QUICKSTART.md`、`requirements.txt`
 
 执行 / 验证：
 - 全仓库检索 `done`、`reward, done`、`done, info`，确认无残留。
-- 在 `snake-rl` 环境实跑 `common/config.py`：20 个字段默认值正确；`parse_args(['--seed','43','--learning_rate','0.0005','--render_mode','human'])` 正确覆盖 3 个字段，未传入的字段保持默认；`dataclasses.asdict()` 输出 20 个 key 可直接 JSON 序列化。
+- 在 `snake-rl` 环境实跑 `common/config.py`：21 个字段默认值正确；`parse_args(['--initial_head','4,6','--seed','43'])` 正确覆盖且未传入字段不变；`--initial_head 4` 被 argparse 拒绝（exit 2）；`dataclasses.asdict()` 输出可直接 JSON 序列化。
+- 在 `snake-rl` 环境实跑 `pytest`：41 passed in 1.43s。
 - 在 `snake-rl` 环境实跑 `smoke_test.py`：6/6 通过，exit=0；分别从仓库根目录与 `C:/` 运行，结果一致，确认无 cwd 依赖。
 
 发现的问题：
 - `docs/AI_DEVELOPMENT_RULES.md` §9 与 `docs/INTERFACE.md` 对 Environment API 的描述不一致（4 元组 vs 5 元组），已修正。
-- `docs/INTERFACE.md` §8 默认参数表未列初始蛇头位置，而 §7 说明该位置由 `np_random` 决定，参数缺失。
-- epsilon 衰减的三个参数未定义「每步衰减」还是「每 episode 衰减」，语义未定。
+- `docs/INTERFACE.md` 实现前存在 4 处缺口（初始位置参数缺失、蛇尾例外未写明、`close()` 未列、非法 `reward_mode` 行为未定义），已全部补齐。
+- `test_initial_head_without_room_raises` 初版写错：`make_env()` 内部就调用了 `reset()`，`ValueError` 在 `pytest.raises` 之前抛出。已改为先构造环境再在 `pytest.raises` 内 `reset()`。
+- epsilon 衰减的三个参数未定义「每步衰减」还是「每 episode 衰减」，语义未定，转入 P1。
+- `env/renderer.py` 尚未实现，`render_mode` 非 `None` 时构造环境会失败，当前只能以默认的 `render_mode=None` 运行。
 
 后续影响：
-- 接口口径已统一，配置系统可用，可据此实现环境。
+- 环境逻辑已可运行并通过测试，Stage 1 仅剩渲染、Random Agent 与 `play.py`。
 - Stage 0 仅剩「所有成员理解接口」（`[~]`，待团队确认），不阻塞 Stage 1。

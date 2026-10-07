@@ -37,25 +37,27 @@
 
 ## Stage 1：Snake 环境
 
-- [ ] reset 正常
-- [ ] step 正常
-- [ ] action 定义正确
-- [ ] 碰墙死亡正确
-- [ ] 撞自身死亡正确
-- [ ] 吃食物后增长正确
-- [ ] 食物不会出现在蛇身
-- [ ] terminated / truncated 正确
-- [ ] 状态维度固定
+- [x] reset 正常
+- [x] step 正常
+- [x] action 定义正确
+- [x] 碰墙死亡正确
+- [x] 撞自身死亡正确
+- [x] 吃食物后增长正确
+- [x] 食物不会出现在蛇身
+- [x] terminated / truncated 正确
+- [x] 状态维度固定
 - [ ] render 正常
-- [ ] 无 render 模式正常
+- [x] 无 render 模式正常
 - [ ] Random Agent 可连续运行
-- [ ] 100 episode smoke test 无异常
+- [x] 100 episode smoke test 无异常
 
 验收结论：`Pending`
 
 问题：
 
-- 待填写
+- `env/snake_env.py` 已实现，`pytest` 41 项通过（`tests/test_snake_env.py`），覆盖上表 11 项。
+- 「render 正常」未验证：`env/renderer.py` 尚未实现。
+- 「Random Agent 可连续运行」未验证：`env/random_agent.py` 尚未实现。100 episode 连续运行已用内联随机策略验证，待 Random Agent 落地后改用其驱动。
 
 ---
 
