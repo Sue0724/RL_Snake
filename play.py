@@ -12,9 +12,14 @@
 
 本脚本用于环境验证与演示，不承担训练职责（``README.md`` 推荐原则）。
 它始终以 ``human`` 模式渲染，传入 ``--render_mode`` 的其它值会被拒绝。
+
+演示脚本不套用 ``Config.seed`` 的默认值：不传 ``--seed`` 时随机取一个并打印，
+否则每次跑出同一条轨迹，演示和人工验证都失去意义。``train.py`` / ``evaluate.py``
+等实验脚本不受此影响，仍严格受 ``Config.seed`` 控制。
 """
 import argparse
 import os
+import random
 import sys
 import time
 
@@ -35,6 +40,16 @@ KEYS = {
     pygame.K_RIGHT: RIGHT,
 }
 QUIT_KEYS = (pygame.K_q, pygame.K_ESCAPE)
+
+
+def _pick_seed(seed):
+    """选定本次运行的种子。
+
+    传了 ``--seed`` 原样使用，用于复现某一次运行；没传则随机取一个，
+    避免每次演示都跑出同一条轨迹。判据是 ``is None`` 而不是真值判断，
+    这样 ``--seed 0`` 也能被当成显式取值。
+    """
+    return seed if seed is not None else random.randrange(1_000_000)
 
 
 def _report(info, terminated):
@@ -59,6 +74,7 @@ def _wait_for_action():
 def _run_human(env):
     env.reset()
     env.render()
+    print("窗口已打开：W/↑ 直行，A/← 左转，D/→ 右转，Q/Esc 退出")
     while True:
         action = _wait_for_action()
         if action is None:
@@ -106,6 +122,10 @@ def main(argv=None):
     if config.render_mode not in (None, "human"):
         parser.error(f"play.py 只支持 human 渲染，收到 --render_mode {config.render_mode}")
     config.render_mode = "human"
+
+    config.seed = _pick_seed(args.seed)
+    if args.seed is None:
+        print(f"本次随机种子：{config.seed}（加 --seed {config.seed} 可复现本次）")
 
     env = SnakeEnv(config)
     agent = None if args.agent == "human" else RandomAgent(env.n_actions, seed=config.seed)

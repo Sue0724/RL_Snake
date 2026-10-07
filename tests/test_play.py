@@ -6,6 +6,7 @@ import pathlib
 import subprocess
 import sys
 
+import play
 from common.config import Config
 from env.random_agent import RandomAgent
 from env.snake_env import SnakeEnv
@@ -47,3 +48,19 @@ def test_random_mode_runs_one_episode_without_a_window():
 
     assert run(env, agent, fps=1000) is True
     env.close()
+
+
+def test_explicit_seed_is_used_as_is():
+    """传了 --seed 就必须原样使用，否则没法复现某一次运行。
+
+    0 也要原样返回：判据是 is None，不是真值判断。
+    """
+    assert play._pick_seed(7) == 7
+    assert play._pick_seed(0) == 0
+
+
+def test_seed_is_randomised_when_not_given():
+    """不传 --seed 时每次应当不同，否则演示和人工验证只会看到同一条轨迹。"""
+    seeds = {play._pick_seed(None) for _ in range(50)}
+
+    assert len(seeds) > 1
