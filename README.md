@@ -89,9 +89,13 @@ Snake-RL/
 ├── train.py
 ├── evaluate.py
 ├── play.py
+├── smoke_test.py
+├── requirements.txt
+├── .gitignore
 ├── memory.md
 ├── codex.md
 ├── claude.md
+├── QUICKSTART.md
 └── README.md
 ```
 
@@ -237,7 +241,7 @@ Reward Shaping 实验再引入：
 
 完成标准：
 
-- 项目可正常安装并启动。
+- 项目可正常安装并启动：`python smoke_test.py` 全部通过。
 - `snake_env.py` 的接口被书面确定。
 - 所有成员理解输入输出约定。
 - 不存在同功能的重复实现。

@@ -63,6 +63,7 @@ Stage 0：
 - 已确定配置管理方案并实现 `common/config.py`：`@dataclass Config`（20 个字段）+ `parse_args()` 自动生成命令行参数；存档用 `dataclasses.asdict()` 写入 `config.json`，不引入 YAML。
 - 已冻结 Agent API：`docs/INTERFACE.md` 新增第 12 节，定义构造参数、四个方法签名、batch 结构、Bellman target 与责任边界。
 - 已新增根目录 `QUICKSTART.md`：接口速查页，供各成员快速对齐。
+- 已新增根目录 `smoke_test.py`：Stage 0 自检脚本，检查第三方依赖、包结构、配置系统与项目目录。`README.md` 的 Stage 0 完成标准「项目可正常安装并启动」判定为该脚本全部通过。
 
 ---
 
@@ -74,7 +75,7 @@ Stage 0：
 - [x] 冻结 Environment API
 - [x] 统一接口口径（4 元组 → 5 元组）
 - [x] 冻结 Agent API
-- [ ] 完成 Stage 0 smoke test
+- [x] 完成 Stage 0 smoke test
 - [x] 确定结果保存路径
 
 ---
@@ -83,7 +84,7 @@ Stage 0：
 
 ### P0
 
-1. Stage 0 仅剩「所有成员理解接口」（`[~]`）与 smoke test 判定标准待定，均不构成技术阻塞。
+1. Stage 0 仅剩「所有成员理解接口」（`[~]`，待团队确认），不构成技术阻塞。
 2. 尚无任何可运行代码，`env/` 等包内仅有 `__init__.py` 占位，`common/config.py` 是唯一有实际内容的模块。
 
 影响：
@@ -99,18 +100,25 @@ Stage 0：
 
 ## 最近一次测试
 
-测试时间：`10-06`
+测试时间：`10-07`
 
 测试内容：
 
 ```text
-依赖环境导入与张量互转：numpy / torch / pygame / matplotlib / pandas，
-numpy → torch 转换，MLP 前向。
+python smoke_test.py（Stage 0 自检）
+  [PASS] 第三方依赖  numpy 2.2.6 / torch 2.14.1+cpu / pygame 2.6.1
+                     / matplotlib 3.10.9 / pandas 2.3.3
+  [PASS] 包结构      env / algorithms / common / experiments
+  [PASS] 配置默认值   20 个字段，board_size=10 seed=42
+  [PASS] 配置覆盖     覆盖与默认值隔离正常
+  [PASS] 配置存档     config.json 可序列化（429 字节）
+  [PASS] 项目目录     env / algorithms / common / experiments / docs
+  6/6 通过
 ```
 
 结果：
 
-`Passed`
+`Passed`（exit=0；从仓库根目录与 `C:/` 分别运行，结果一致）
 
 ---
 
@@ -125,11 +133,8 @@ Stage 0 剩余项已不构成技术阻塞，进入 Stage 1：
 Stage 0 收尾项（不阻塞）：
 
 - 所有成员理解接口（`[~]`，待团队确认）
-- Stage 0 smoke test 判定标准（待澄清，见下）
 
 **跨阶段说明**：Stage 0 验收结论仍为 `Pending`。依据 `AI_DEVELOPMENT_RULES.md` §6「除非用户明确要求跨阶段开发」，经用户同意，A 提前进入 Stage 1 实现环境代码；Stage 0 待团队确认后补办验收。
-
-**待澄清**：`README.md` Stage 0 完成标准写「项目可正常安装并启动」，但 `train.py` / `play.py` / `evaluate.py` 均为后续阶段产物，Stage 0 阶段「启动」的判定对象需团队确认。
 
 ---
 

@@ -53,19 +53,22 @@
 - 新增根目录 `QUICKSTART.md`：接口速查页（环境搭建、环境 API、State V1、配置、Agent、实验输出）。
 - `docs/STAGE_CHECKLIST.md` 新增 `[~] 待团队确认，不阻塞后续阶段` 符号，「所有成员理解接口」标记为 `[~]`。
 - `docs/PROJECT_STATUS.md` 记录跨阶段说明：经用户同意，依 `AI_DEVELOPMENT_RULES.md` §6 提前进入 Stage 1，Stage 0 验收待团队确认后补办。
+- 新增根目录 `smoke_test.py`：Stage 0 自检脚本，6 项检查（第三方依赖 / 包结构 / 配置默认值 / 配置覆盖 / 配置存档 / 项目目录），并据此判定 `README.md` Stage 0 完成标准「项目可正常安装并启动」。`README.md` 补齐目录树（`smoke_test.py`、`requirements.txt`、`.gitignore`、`QUICKSTART.md`）。
 
 涉及文件：
-- `docs/AI_DEVELOPMENT_RULES.md`、`docs/PROJECT_PLAN.md`、`docs/INTERFACE.md`、`docs/PROJECT_STATUS.md`、`docs/STAGE_CHECKLIST.md`
-- `common/config.py`、`QUICKSTART.md`（新增）
+- `docs/AI_DEVELOPMENT_RULES.md`、`docs/PROJECT_PLAN.md`、`docs/INTERFACE.md`、`docs/PROJECT_STATUS.md`、`docs/STAGE_CHECKLIST.md`、`README.md`
+- `common/config.py`、`QUICKSTART.md`、`smoke_test.py`（新增）
 
 执行 / 验证：
 - 全仓库检索 `done`、`reward, done`、`done, info`，确认无残留。
 - 在 `snake-rl` 环境实跑 `common/config.py`：20 个字段默认值正确；`parse_args(['--seed','43','--learning_rate','0.0005','--render_mode','human'])` 正确覆盖 3 个字段，未传入的字段保持默认；`dataclasses.asdict()` 输出 20 个 key 可直接 JSON 序列化。
+- 在 `snake-rl` 环境实跑 `smoke_test.py`：6/6 通过，exit=0；分别从仓库根目录与 `C:/` 运行，结果一致，确认无 cwd 依赖。
 
 发现的问题：
 - `docs/AI_DEVELOPMENT_RULES.md` §9 与 `docs/INTERFACE.md` 对 Environment API 的描述不一致（4 元组 vs 5 元组），已修正。
-- `README.md` Stage 0 完成标准「项目可正常安装并启动」的判定对象不明确，待团队澄清。
+- `docs/INTERFACE.md` §8 默认参数表未列初始蛇头位置，而 §7 说明该位置由 `np_random` 决定，参数缺失。
+- epsilon 衰减的三个参数未定义「每步衰减」还是「每 episode 衰减」，语义未定。
 
 后续影响：
 - 接口口径已统一，配置系统可用，可据此实现环境。
-- Stage 0 剩余项为 Agent API 与所有成员理解接口，均在 B 侧或需团队确认，Stage 1 仍被阻塞。
+- Stage 0 仅剩「所有成员理解接口」（`[~]`，待团队确认），不阻塞 Stage 1。
