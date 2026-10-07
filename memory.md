@@ -72,6 +72,7 @@
 - **Stage 1 正式关闭**：`docs/STAGE_CHECKLIST.md` 中 Stage 1 验收结论由「`Passed`（待项目成员确认）」改为「`Passed`（10-07 由项目成员确认，可进入 Stage 2）」，13 项全部 `[x]`；`docs/PROJECT_STATUS.md` 阶段总览中 Stage 1 改为 `Passed`，当前 Stage 改为 `Stage 2 - DQN Baseline`（Pending，B 尚未开工）。
 - `docs/INTERFACE.md` §12 新增「实现须知」：第 1 条指向 `env/random_agent.py` 作为 `select_action` 签名的参考实现；第 2 条明确禁止硬编码 `state_dim` / `n_actions`，须由 `env.state_dim` / `env.n_actions` 决定，理由为 Stage 4 的 State V2 维度与 V1 不同，写死 `11` 会在切换 `state_mode` 后抛形状错误且报错位置远离原因。变更记录同步。
 - `docs/PROJECT_STATUS.md` 新增 P2（随机初始蛇头贴边的演示观感问题、`stop_text_input()` 无法自动化测试），P1 更新为「阻塞 Stage 2 的 epsilon-greedy 实现」与「Stage 2 尚未开工」。
+- `docs/INTERFACE.md` §4 补写 **State V2 预定方案**（由占位说明扩写为完整规格）：V2 = V1 11 维 + `food_distance`（归一化 Manhattan 距离）+ `local_ring`（蛇头周围 8 格占用环，顺序随朝向旋转），共 20 维；`state_mode` 取值增加 `"v2"`。写明追加这两类信息的理由（V1 看不见蛇身形状、看不见食物距离）、已知代价（一次加两类则 Stage 4 无法归因，缓解方式是 Stage 7 拆 V2a/V2b 补跑）、维度变化对输入层的影响与 Stage 4 实现要点。整节标注「预定方案，尚未冻结，待团队确认」，并注明属规范变更、实施前按 §20 流程走。变更记录同步。
 
 涉及文件：
 - `docs/AI_DEVELOPMENT_RULES.md`、`docs/PROJECT_PLAN.md`、`docs/INTERFACE.md`、`docs/PROJECT_STATUS.md`、`docs/STAGE_CHECKLIST.md`、`README.md`
@@ -89,6 +90,8 @@
 - 行为 A/B（用户实机）：修复前 `play.py --agent human` 完全无响应；修复后一打开即可用字母键与方向键操控。
 - 复现 `play.py --agent random` 三次：初始蛇头恒 `(0, 8)`、食物恒 `(6, 6)`、恒定 3 步结束。300 个种子统计：最小 1 步、中位数 6 步、最大 66 步、均值 11.0 步。
 - 修复后实测种子行为：不传 `--seed` 连跑三次得种子 108758 / 106174 / 897872、步数 9 / 20 / 87；`--seed 7` 连跑两次均为 1 步；`--seed 0` 连跑两次均为 12 步。`pytest` 54 passed（`tests/test_play.py` 由 3 项增至 5 项）。
+- 复核 `docs/INTERFACE.md` §4 的 State V2 与仓库既有代码的口径一致性：`local_ring` 中「前 / 右 / 左」三格与 `danger_straight` / `danger_right` / `danger_left` 的对应关系逐一对齐；蛇尾格的取值沿用 §4「碰撞判定」的蛇尾例外，两边都按「非占用」处理，不产生同格不同义。
+- 核对 A 名下的全部工作项（`docs/PROJECT_PLAN.md` 各 Stage 的负责人标注 + `docs/INTERFACE.md` §12 责任边界表）：除 Stage 4 外无未完成项。
 
 发现的问题：
 - `docs/AI_DEVELOPMENT_RULES.md` §9 与 `docs/INTERFACE.md` 对 Environment API 的描述不一致（4 元组 vs 5 元组），已修正。
@@ -111,3 +114,5 @@
 - 进入 Stage 2 前需由 B 冻结 `epsilon_decay` 的语义与默认取值，决策方案已写入 `docs/AI_DEVELOPMENT_RULES.md` §12。B 尚未开工。
 - 初始蛇头是否避开边缘尚未决定，涉及 `env/snake_env.py` 的 `_random_head` 与既有测试，需用户确认后再动。
 - Stage 0 仅剩「所有成员理解接口」（`[~]`，待团队确认），不阻塞 Stage 1。
+- State V2 方案已按预定方案写入文档，Stage 4 可直接依此实施。若其他成员有不同意见，改动点集中在 `docs/INTERFACE.md` §4，尚未冻结，改动成本低。
+- A 的待办边界（经核对）：**当前可做的只有 Stage 4 的状态实验**，但依赖 Stage 2（DQN）与 Stage 3（`train.py` / `evaluate.py` 统一框架）先行；另有一项属于 A 但排在 Stage 5，即 `env/snake_env.py` 中 `_compute_reward()` 的 shaping 分项（当前恒为 0，注释已标注 Stage 5 实现）。其余 Stage（3 / 7 / 8）A 均为参与角色，Stage 6 不参与实现。

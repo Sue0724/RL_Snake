@@ -53,7 +53,7 @@ Stage 2（负责人 B，尚未开工）：
 
 A 的并行项（仅文档，不写代码）：
 
-- Stage 4 的状态方案设计，见「下一步」。
+- Stage 4 的状态方案设计（State V2 预定方案）**已完成**，写入 `docs/INTERFACE.md` §4，待团队确认后冻结。
 
 ---
 
@@ -84,6 +84,7 @@ A 的并行项（仅文档，不写代码）：
 - 已修复中文输入法吞键导致 `play.py --agent human` 键盘无响应：`env/renderer.py` 建窗后调用 `pygame.key.stop_text_input()`，经行为 A/B 确认。
 - 已修复 `play.py --agent random` 每次演示轨迹完全相同：新增 `_pick_seed()`，不传 `--seed` 时随机取种子并打印复现命令；该行为只作用于 `play.py`，实验脚本仍严格受 `Config.seed` 控制。
 - **Stage 1 验收 13 项全部通过，10-07 由项目成员确认，结论 `Passed`。**
+- 已写出 **State V2 预定方案**（`docs/INTERFACE.md` §4）：V2 = V1 11 维 + `food_distance`（归一化 Manhattan 距离）+ `local_ring`（蛇头周围 8 格占用环），共 20 维；含追加理由、已知代价与实现要点。整节标注未冻结、待团队确认。
 
 ---
 
@@ -123,9 +124,9 @@ Stage 2（负责人 B，尚未开工）：
 - [ ] checkpoint 存取
 - [ ] 基础日志
 
-Stage 4 前置（A，仅文档）：
+Stage 4 前置（A，仅文档，已完成）：
 
-- [ ] State V2 方案设计（见「下一步」）
+- [x] State V2 方案设计，写入 `docs/INTERFACE.md` §4（预定方案，待团队确认后冻结）
 
 ---
 
@@ -199,8 +200,14 @@ Stage 2（阻塞中，负责人 B）：
 
 A 的并行项（仅文档，不写代码，不构成跨阶段开发）：
 
-- 设计 State V2 方案：明确 V2 在 State V1（11 维）之上加什么、维度取值、归一化方式、为什么这样切分变量
-- 方案写入 `docs/INTERFACE.md` §4，作为 Stage 4 的实现依据
+- ~~设计 State V2 方案~~ **已完成**：预定方案写入 `docs/INTERFACE.md` §4，Stage 4 依此实施
+- 方案尚未冻结，其他成员如有异议按 `AI_DEVELOPMENT_RULES.md` §20 提出，Stage 4 开工前定稿
+
+A 的其余工作边界（核对结论）：
+
+- Stage 4 是 A 当前唯一可推进的阶段任务，但依赖 Stage 2（DQN）与 Stage 3（统一框架）先行，暂为 Blocked
+- 另一项属 A 但排在 Stage 5：`env/snake_env.py` 的 `_compute_reward()` 中 shaping 分项（当前恒为 0，注释已标注 Stage 5 实现）
+- Stage 3 / 7 / 8 A 为参与角色，Stage 6 不参与实现
 
 Stage 0 收尾项（不阻塞）：
 
