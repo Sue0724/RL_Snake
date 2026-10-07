@@ -74,7 +74,8 @@
 - `docs/PROJECT_STATUS.md` 新增 P2（随机初始蛇头贴边的演示观感问题、`stop_text_input()` 无法自动化测试），P1 更新为「阻塞 Stage 2 的 epsilon-greedy 实现」与「Stage 2 尚未开工」。
 - `docs/INTERFACE.md` §4 补写 **State V2 预定方案**（由占位说明扩写为完整规格）：V2 = V1 11 维 + `food_distance`（归一化 Manhattan 距离）+ `local_ring`（蛇头周围 8 格占用环，顺序随朝向旋转），共 20 维；`state_mode` 取值增加 `"v2"`。写明追加这两类信息的理由（V1 看不见蛇身形状、看不见食物距离）、已知代价（一次加两类则 Stage 4 无法归因，缓解方式是 Stage 7 拆 V2a/V2b 补跑）、维度变化对输入层的影响与 Stage 4 实现要点。整节标注「预定方案，尚未冻结，待团队确认」，并注明属规范变更、实施前按 §20 流程走。变更记录同步。
 - `docs/COLLABORATION_RULES.md` 的「Git 建议」节扩写为 **「Git 工作流」**：确定 `main` 为已完成阶段的集成线，各阶段一律从 `main` 开分支、验收通过后合回 `main`、下一阶段再从更新后的 `main` 开分支。含三步命令（开工 / 开发推送 / 合并）、四条纪律（未验收不进 `main`、必须基于最新 `main` 开分支、合并前先 pull、一阶段一人合）与冲突高发文件提示（`docs/PROJECT_STATUS.md`、`memory.md`）。
-- **Stage 1 成果合入 `main`**：`git merge --ff-only feature/env` 成功，`main` 由仅含包骨架的 6 个提交前进到含 Stage 1 全部代码与文档的 18 个提交。`feature/env` 分支原样保留，未删除。合并后所在的 commit 记在 `docs/PROJECT_STATUS.md`（本日志按 §21 不记 hash）。
+- **Stage 1 成果合入 `main`**：`git merge --ff-only feature/env` 成功，`main` 由 `1676df6`（仅含包骨架，6 个提交）前进到 `fc04c26`（含 Stage 1 全部代码与文档，18 个提交）。`feature/env` 分支原样保留，未删除。
+- `docs/AI_DEVELOPMENT_RULES.md` §21 的 commit hash 禁令收窄：普通代码 / 文档提交仍不记 hash，但 **Git 合并、回滚、tag 这类以提交为对象的操作必须写明涉及的 commit hash**（fast-forward 合并在 `git log` 里不留痕迹，只写「合到某分支的最新提交」无法核实）。`memory.md` 的两条合并 / 推送记录据此补回 hash。
 - 全量核查文档一致性并修订以下问题：`memory.md` 自身 2 处自相矛盾（「后续影响」中 Stage 1 结论仍写「待项目成员确认」；「发现的问题」中 `human` 视觉效果仍写「尚未人工确认」）、`docs/PROJECT_STATUS.md` 当前状态段把已完成的 State V2 设计写成待办、`docs/INTERFACE.md` 与 `QUICKSTART.md` 各有 2 处把状态维度写死（§1 API 表的 `shape (11,)` 与 `env.state_dim` 的 `11`）、`README.md` 的网络说明写死「11 维输入」、`QUICKSTART.md` 缺 State V2 线索、两处分支合并记录未写实际 commit hash、`docs/INTERFACE.md` 变更记录表行序非时间序。详见「发现的问题」。
 - `docs/AI_DEVELOPMENT_RULES.md` §21「日志规则」新增「**追加时回头核对**」：同日追加前必须先扫一遍已有的「发现的问题」与「后续影响」，把被本次操作推翻或已解决的句子就地改掉，并说明这两段属于当前状态、而「操作内容」中的阶段性结论属于合法历史不受此约束。
 
@@ -119,8 +120,8 @@
   - **`docs/PROJECT_STATUS.md` 当前状态段**写「A 可并行进行 Stage 4 状态方案的纸面设计」，但该设计已完成，读起来像待办。
   - **状态维度被写死 5 处**：`docs/INTERFACE.md` §1 的 API 表 `shape (11,)` 与 `env.state_dim # 11`、`QUICKSTART.md` 的同两项、`README.md` 的「11 维输入的小型 MLP」。§4 已定义 `state_mode="v2"` 为 20 维，这些写法与 §12「实现须知」第 2 条（禁止硬编码 `state_dim`）自相削弱 —— 文档自己写死维度，却要求代码不许写死。
   - **`QUICKSTART.md` 通篇无 State V2 线索**：速查页是全组对齐用的，组员查它无从得知维度会变。已补 State V2 一行摘要与「不要写死 `11` / `3`」的警示。
-  - **合并记录写成了不可核实的表述**：`memory.md` 与 `docs/PROJECT_STATUS.md` 只写「`feature/env` 的最新提交」，一旦 `feature/env` 再前进就无法核实当时合到了哪。已在 `docs/PROJECT_STATUS.md` 写明具体 commit（fast-forward 在 `git log` 里不留合并痕迹，只有 hash 能核实）。`memory.md` 按 §21「不记录 commit hash」的规则**不写**，只记操作与结果。
-  - **由此暴露 §21 与可核实性的冲突（未擅自处理，待确认）**：§21 禁止 `memory.md` 记录 commit hash，理由是「`git log` 已是权威记录」；但 fast-forward 合并在 `git log` 里不产生合并提交，该理由在此场景不成立。另一个更早的违反实例是 `memory.md`「操作内容」中的「提交并推送 `1091cfd feat: add stage 0 smoke test`」。
+  - **合并记录写成了不可核实的表述**：`memory.md` 与 `docs/PROJECT_STATUS.md` 只写「`feature/env` 的最新提交」，一旦 `feature/env` 再前进就无法核实当时合到了哪。已在两处都补上具体 commit。
+  - **由此暴露并修复 §21 自身的规则漏洞**：§21 原禁止记录任何 commit hash，理由是「`git log` 已是权威记录」；但 fast-forward 合并在 `git log` 里不产生合并提交、不留痕迹，该理由在此场景不成立——规则与「可核实」直接冲突。已把禁令收窄为「普通提交不记 hash，Git 合并 / 回滚 / tag 必须写明 hash」。`memory.md`「操作内容」中既有的「提交并推送 `1091cfd ...`」按新规则不再违规，未删除。
   - **`docs/INTERFACE.md` 变更记录表行序非时间序**：「新增第 12 节」排在「第 12 节新增实现须知」之后。已重排。
   - 另核对确认**不是**问题、无需修改的有：`memory.md`「操作内容」中按时间顺序记录的「结论 `Passed`（待项目成员确认）」（后续已有条目说明改为已确认，属合法历史）、`docs/PROJECT_STATUS.md` 阶段总览中 Stage 0 `In Progress` 而 Stage 1 `Passed`（P0 段已解释原因）、`docs/INTERFACE.md` §12 的「（V1 为 11）」已带限定故不改。
 
