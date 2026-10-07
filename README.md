@@ -86,12 +86,16 @@ Snake-RL/
 │   ├── COLLABORATION_RULES.md
 │   └── PROJECT_STATUS.md
 │
+├── tests/
+│   └── test_snake_env.py
+│
 ├── train.py
 ├── evaluate.py
 ├── play.py
 ├── smoke_test.py
 ├── requirements.txt
 ├── .gitignore
+├── conftest.py
 ├── memory.md
 ├── codex.md
 ├── claude.md
@@ -140,6 +144,17 @@ pip install -r requirements.txt
 torch 默认使用 CPU 版：本项目网络为 11 维输入的小型 MLP，CPU 前向为微秒级，GPU 无收益。如需 GPU 版，参考 `requirements.txt` 顶部说明。
 
 依赖清单见 `requirements.txt`。正式实验开始前应固定各依赖版本，保证不同成员结果可复现。
+
+---
+
+## 测试
+
+```bash
+python smoke_test.py   # Stage 0 自检：依赖、包结构、配置、目录
+pytest                 # 代码测试，见 tests/
+```
+
+两者分工不同，不要合并：`smoke_test.py` 用于环境刚装完、还不知道依赖是否齐全时自检，本身不依赖 pytest；`tests/` 是环境就绪后的代码测试，由 pytest 驱动。
 
 ---
 
