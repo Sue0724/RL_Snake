@@ -408,6 +408,24 @@ batch 的具体容器类型（tuple / dict / tensor）由 B 决定。
 
 `terminated or truncated` 为 True 后不得再调用 `select_action`，必须先 `env.reset()`。
 
+### 实现须知
+
+**1. 签名参考实现见 `env/random_agent.py`。**
+
+`RandomAgent` 已按本节实现 `select_action(state, training=True)`，签名与返回类型可直接对照。DQN 的 `select_action` 与它保持同签名，则 `play.py` / `evaluate.py` 把随机策略换成 DQN 时**不需要修改调用代码**。
+
+`RandomAgent` 没有 `save` / `load`：随机策略没有需要持久化的状态。
+
+**2. 禁止硬编码状态维度与动作数。**
+
+网络输入层必须由 `env.state_dim` 决定，输出层由 `env.n_actions` 决定 ——
+
+```python
+agent = DQNAgent(env.state_dim, env.n_actions, config)
+```
+
+不要写死 `11` 和 `3`。Stage 4 会引入 State V2，其维度与 V1 不同（`env.state_dim` 届时按 `state_mode` 返回对应值）；写死 `11` 的代码在切换 `state_mode` 后会直接抛形状错误，且报错位置离原因很远。
+
 ### 责任边界
 
 | 内容 | 负责 |
@@ -427,5 +445,6 @@ batch 的具体容器类型（tuple / dict / tensor）由 B 决定。
 |---|---|
 | 10-06 | 初版。Stage 0 冻结 Environment API、动作空间、State V1（11 维）、`info` 字段、seed 控制与默认参数。 |
 | 10-07 | 新增第 11 节：实验输出约定（目录、run 命名、产出文件、指标列）。 |
+| 10-07 | 第 12 节新增「实现须知」：指向 `env/random_agent.py` 作为签名参考实现；明确禁止硬编码 `state_dim` / `n_actions`（Stage 4 的 State V2 维度与 V1 不同）。 |
 | 10-07 | 新增第 12 节：Agent API（构造、方法签名、batch 结构、责任边界）。 |
 | 10-07 | 实现前补齐 4 处缺口：§1 增加 `close()` 与生命周期硬失败约定；§4 增加碰撞判定（蛇尾例外）与非法 `state_mode` 行为；§6 增加非法 `reward_mode` 行为；§8 增加 `initial_head` 参数与初始蛇位置规则；§10 key 数由 4 改为 5。 |

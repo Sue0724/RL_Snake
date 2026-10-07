@@ -2,11 +2,13 @@
 
 ## 当前状态
 
-当前 Stage：`Stage 1 - Snake 环境`（Stage 0 验收待团队补办，见「下一步」）
+当前 Stage：`Stage 2 - DQN Baseline`（负责人 B，尚未开工）
 
-总体状态：`In Progress`
+总体状态：`Pending`
 
 最后更新：`10-07`
+
+Stage 1 已于 10-07 通过验收。Stage 2 未启动前，A 可并行进行 Stage 4 状态方案的纸面设计（仅文档，不写代码），不构成跨阶段开发。
 
 ---
 
@@ -15,7 +17,7 @@
 | Stage | 内容 | 状态 | 负责人 |
 |---|---|---|---|
 | 0 | 工程初始化与接口冻结 | In Progress | 全员 |
-| 1 | Snake 环境与状态 | In Progress | A |
+| 1 | Snake 环境与状态 | Passed | A |
 | 2 | DQN Baseline | Pending | B |
 | 3 | 统一训练与评估框架 | Pending | B / 全员 |
 | 4 | 状态实验 | Pending | A |
@@ -37,14 +39,21 @@ Passed
 
 ## 当前阶段目标
 
-Stage 0：
+Stage 2（负责人 B，尚未开工）：
 
-- 建立目录。
-- 确定接口。
-- 确定配置系统。
-- 确定日志系统。
-- 建立最小可运行骨架。
-- 确保所有成员后续能够并行开发。
+- Q Network、Online / Target Network。
+- Replay Buffer。
+- epsilon-greedy 与 Bellman update。
+- optimizer 与 checkpoint。
+- 基础日志。
+
+进入 Stage 2 前 B 需先确定的项：
+
+- `epsilon_decay` 的衰减语义与默认取值，方案见 `docs/AI_DEVELOPMENT_RULES.md` §12。
+
+A 的并行项（仅文档，不写代码）：
+
+- Stage 4 的状态方案设计，见「下一步」。
 
 ---
 
@@ -71,8 +80,10 @@ Stage 0：
 - 已实现 `env/random_agent.py`：`select_action(state, training=True)` 签名对齐 `docs/INTERFACE.md` §12，可被 `train.py` / `evaluate.py` 直接替换为 DQN 而不改调用代码。
 - 已实现 `play.py`：`--agent random|human` 两种模式，`human` 支持 `W/A/S/D` 与方向键（相对转向）与 `Q` / `Esc` 退出；复用 `build_parser`，`-h` 中同时列出脚本自有参数与全部配置参数。
 - `common/config.py` 拆出 `build_parser()` / `config_from_args()`：入口脚本可先构造自己的 `ArgumentParser` 再交给 `build_parser` 追加配置字段，原 `parse_args()` 保留为薄封装。
-- 已实现 `tests/test_renderer.py`（5 项）、`tests/test_random_agent.py`（3 项）、`tests/test_play.py`（3 项）；`tests/test_snake_env.py` 41 项，共 52 项通过。
-- Stage 1 验收 13 项全部通过，结论 `Passed`（待项目成员确认）。
+- 已实现 `tests/test_renderer.py`（5 项）、`tests/test_random_agent.py`（3 项）、`tests/test_play.py`（5 项）；`tests/test_snake_env.py` 41 项，共 54 项通过。
+- 已修复中文输入法吞键导致 `play.py --agent human` 键盘无响应：`env/renderer.py` 建窗后调用 `pygame.key.stop_text_input()`，经行为 A/B 确认。
+- 已修复 `play.py --agent random` 每次演示轨迹完全相同：新增 `_pick_seed()`，不传 `--seed` 时随机取种子并打印复现命令；该行为只作用于 `play.py`，实验脚本仍严格受 `Config.seed` 控制。
+- **Stage 1 验收 13 项全部通过，10-07 由项目成员确认，结论 `Passed`。**
 
 ---
 
@@ -89,7 +100,7 @@ Stage 0（技术项全部完成，仅剩验收）：
 - [x] 完成 Stage 0 smoke test
 - [x] 确定结果保存路径
 
-Stage 1：
+Stage 1（全部完成）：
 
 - [x] 补齐 `docs/INTERFACE.md` 实现前的 4 处缺口
 - [x] 引入 pytest 与 `tests/`
@@ -98,11 +109,23 @@ Stage 1：
 - [x] 实现 `env/random_agent.py`
 - [x] 实现 `play.py`，可视化跑通一局
 - [x] 100 episode 连续运行改用 Random Agent 驱动
-- [x] Stage 1 验收
+- [x] `human` 模式视觉效果人工确认（`python play.py --agent human`）
+- [x] 修复中文输入法吞键
+- [x] 修复 `play.py` 演示种子固定
+- [x] Stage 1 验收并由项目成员确认
 
-Stage 1 收尾项（不阻塞）：
+Stage 2（负责人 B，尚未开工）：
 
-- [ ] `human` 模式视觉效果人工确认：`python play.py --agent human`
+- [ ] 确定 `epsilon_decay` 的衰减语义与默认取值
+- [ ] Q Network / Online + Target Network
+- [ ] Replay Buffer
+- [ ] epsilon-greedy 与 Bellman update
+- [ ] checkpoint 存取
+- [ ] 基础日志
+
+Stage 4 前置（A，仅文档）：
+
+- [ ] State V2 方案设计（见「下一步」）
 
 ---
 
@@ -116,9 +139,15 @@ Stage 0 验收结论仍为 `Pending`，仅剩「所有成员理解接口」（`[
 
 ### P1
 
-1. `epsilon_decay` 的衰减语义尚未冻结。**决策方案与推荐已记入 `docs/AI_DEVELOPMENT_RULES.md` §12「待冻结：`epsilon_decay` 的衰减语义」**，含三种方案的换算表与推荐结论（每 step 衰减 + 默认值 `0.995` → `0.9999`）。B 在 Stage 2 实现 epsilon-greedy 前必须选定并写回该节；D 的 Stage 5 探索实验依赖此语义。
+1. `epsilon_decay` 的衰减语义尚未冻结，阻塞 Stage 2 的 epsilon-greedy 实现。**决策方案与推荐已记入 `docs/AI_DEVELOPMENT_RULES.md` §12「待冻结：`epsilon_decay` 的衰减语义」**，含三种方案的换算表与推荐结论（每 step 衰减 + 默认值 `0.995` → `0.9999`）。B 在实现前必须选定并写回该节；D 的 Stage 5 探索实验依赖此语义。
 
-2. `human` 模式的视觉效果尚未人工确认，见「待完成」中的收尾项。自动测试只覆盖到「能建窗、`draw()` 不抛异常」。
+2. Stage 2 尚未开工（负责人 B）。A 的 Stage 1 已完成并通过验收，当前无阻塞项，但项目整体处于等待状态。
+
+### P2
+
+1. 随机初始蛇头允许落在边缘，且初始朝向恒为向右，因此约 10% 的开局蛇头位于最右列，随机策略下约 3.3% 的 episode 在第一步即结束。属合法随机结果，非缺陷；对演示观感有轻微影响。若需改善应调整 `env/snake_env.py` 的 `_random_head` 取值域，会改动 Stage 1 已冻结的行为与既有测试，留待 Stage 8 前再议。
+
+2. `human` 模式关闭输入法（`pygame.key.stop_text_input()`）的效果无法自动化测试——验证需要真人按键。回归风险由人工验证承担，`memory.md` 已记录。
 
 ---
 
@@ -133,12 +162,16 @@ pytest（全量）
   tests/test_snake_env.py      41 passed
   tests/test_renderer.py        5 passed
   tests/test_random_agent.py    3 passed
-  tests/test_play.py            3 passed
-  52 passed in 4.29s
+  tests/test_play.py            5 passed
+  54 passed in 4.38s
 
-python play.py --fps 400 --initial_head 5,5（端到端，真实入口）
-  episode 结束（撞墙或撞蛇）：score=0  steps=12
-  exit=0（窗口正常创建与关闭，无 pygame 启动横幅）
+python play.py --agent random（端到端，真实入口，种子修复后）
+  不传 --seed 连跑三次：种子 108758 / 106174 / 897872，步数 9 / 20 / 87
+  --seed 7 连跑两次：均为 1 步（一致）
+  --seed 0 连跑两次：均为 12 步（一致，边界正确）
+
+python play.py --agent human（人工）
+  项目成员实际游玩数次，渲染、按键、计分正常
 
 python smoke_test.py（Stage 0 自检，config 改动后复跑）
   [PASS] 第三方依赖  numpy 2.2.6 / torch 2.14.1+cpu / pygame 2.6.1
@@ -153,21 +186,21 @@ python smoke_test.py（Stage 0 自检，config 改动后复跑）
 
 结果：
 
-`Passed`（pytest 52 项全通过；`play.py` 真实入口跑通一局；smoke test 6/6，exit=0）
+`Passed`（pytest 54 项全通过；`play.py` random 与 human 两种模式均实机验证；smoke test 6/6，exit=0）
 
 ---
 
 ## 下一步
 
-Stage 1 收尾（不阻塞 Stage 2）：
+Stage 2（阻塞中，负责人 B）：
 
-- 人工肉眼确认 `python play.py --agent human` 的渲染效果（需项目成员执行）
-- 提交本批变更并推送 `feature/env`
+- B 需先定 `epsilon_decay` 的语义与默认取值，方案见 `docs/AI_DEVELOPMENT_RULES.md` §12（P1-1）
+- B 实现前请读 `docs/INTERFACE.md` §12 的「实现须知」，其中说明签名参考实现与禁止硬编码 `state_dim` / `n_actions`
 
-进入 Stage 2 前需先定的两件事：
+A 的并行项（仅文档，不写代码，不构成跨阶段开发）：
 
-- 冻结 `epsilon_decay` 的语义（每步 / 每 episode）与默认取值，写入 `docs/AI_DEVELOPMENT_RULES.md` §12（见 P1-1）
-- 项目成员确认 Stage 1 验收结论
+- 设计 State V2 方案：明确 V2 在 State V1（11 维）之上加什么、维度取值、归一化方式、为什么这样切分变量
+- 方案写入 `docs/INTERFACE.md` §4，作为 Stage 4 的实现依据
 
 Stage 0 收尾项（不阻塞）：
 

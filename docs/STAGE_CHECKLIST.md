@@ -51,14 +51,16 @@
 - [x] Random Agent 可连续运行
 - [x] 100 episode smoke test 无异常
 
-验收结论：`Passed`（待项目成员确认后进入 Stage 2）
+验收结论：`Passed`（10-07 由项目成员确认，可进入 Stage 2）
 
 问题：
 
-- 13 项全部通过。`pytest` 52 项：`tests/test_snake_env.py` 41 项、`tests/test_renderer.py` 5 项、`tests/test_random_agent.py` 3 项、`tests/test_play.py` 3 项。
-- 「render 正常」的自动验证覆盖 `rgb_array`（帧形状 / dtype / 随局面变化 / 分辨率跟随 `board_size`）与 `human`（能建窗、`draw()` 不抛异常）。`human` 模式的最终视觉效果仍需人工肉眼确认：运行 `python play.py --agent human`。
+- 13 项全部通过。`pytest` 54 项：`tests/test_snake_env.py` 41 项、`tests/test_renderer.py` 5 项、`tests/test_random_agent.py` 3 项、`tests/test_play.py` 5 项。
+- 「render 正常」的自动验证覆盖 `rgb_array`（帧形状 / dtype / 随局面变化 / 分辨率跟随 `board_size`）与 `human`（能建窗、`draw()` 不抛异常）。`human` 模式的视觉效果已由项目成员实际游玩确认。
 - 「Random Agent 可连续运行」由 `tests/test_random_agent.py` 3 项 + `test_random_agent_rollout_100_episodes`（100 局由 `RandomAgent` 驱动）覆盖。
 - `README.md` Stage 1 完成标准中的其余四条同样满足：100 episode 无异常、无穿墙 / 食物落在蛇身 / 非法反向（相对动作空间天然不存在反向动作）、同种子可复现、训练模式可关闭渲染（`render_mode=None` 时不导入 pygame）。
+- 验收期间修复两个问题：中文输入法吞键导致 `play.py --agent human` 键盘无响应（`stop_text_input()`）；`play.py` 固定使用 `Config.seed` 导致每次演示轨迹完全相同（改为不传 `--seed` 时随机取种子并打印）。两项均已记入 `memory.md`。
+- 遗留（不阻塞，非缺陷）：随机初始蛇头可能落在边缘且朝向恒为右，约 3.3% 的开局第一步即撞墙。属合法随机结果，见 `memory.md` 与 `docs/PROJECT_STATUS.md` P2。
 
 ---
 
