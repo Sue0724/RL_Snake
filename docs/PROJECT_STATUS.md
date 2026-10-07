@@ -8,7 +8,9 @@
 
 最后更新：`10-07`
 
-Stage 1 已于 10-07 通过验收。Stage 2 未启动前，A 可并行进行 Stage 4 状态方案的纸面设计（仅文档，不写代码），不构成跨阶段开发。
+Stage 1 已于 10-07 通过验收，成果已合入 `main`。Stage 2 未启动（负责人 B）。
+
+A 的并行项——Stage 4 状态方案的纸面设计——**已完成**，写入 `docs/INTERFACE.md` §4（预定方案，待团队确认后冻结），不写代码，不构成跨阶段开发。
 
 ---
 
@@ -86,7 +88,8 @@ A 的并行项（仅文档，不写代码）：
 - **Stage 1 验收 13 项全部通过，10-07 由项目成员确认，结论 `Passed`。**
 - 已写出 **State V2 预定方案**（`docs/INTERFACE.md` §4）：V2 = V1 11 维 + `food_distance`（归一化 Manhattan 距离）+ `local_ring`（蛇头周围 8 格占用环），共 20 维；含追加理由、已知代价与实现要点。整节标注未冻结、待团队确认。
 - 已确定 **Git 工作流**并写入 `docs/COLLABORATION_RULES.md`：`main` 为已完成阶段的集成线，各阶段一律从 `main` 开分支，阶段验收通过后合回 `main`，下一阶段再从更新后的 `main` 开分支。含开工 / 开发 / 合并三步命令与冲突高发文件提示。
-- **Stage 1 成果已合入 `main`**（fast-forward，无合并提交、无冲突）：`main` 由 `1676df6`（仅包骨架）前进到 `feature/env` 的最新提交，此后从 `main` 开分支即可拿到 `env/` 全部代码。
+- **Stage 1 成果已合入 `main`**（fast-forward，无合并提交、无冲突）：`main` 由 `1676df6`（仅包骨架）前进到 `fc04c26`（含 Stage 1 全部代码与文档，18 个提交），此后从 `main` 开分支即可拿到 `env/` 全部代码。
+- 已做文档一致性全量核查并修订：`memory.md` 2 处自相矛盾、本文件当前状态段把已完成的 State V2 设计写成待办、状态维度被写死（`docs/INTERFACE.md` 与 `QUICKSTART.md` 各 2 处、`README.md` 1 处）、`QUICKSTART.md` 缺 State V2 线索、合并记录未写 commit hash、`docs/INTERFACE.md` 变更记录表行序非时间序。`docs/AI_DEVELOPMENT_RULES.md` §21 新增「**追加时回头核对**」规则防止复发。
 
 ---
 

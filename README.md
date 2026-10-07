@@ -145,7 +145,7 @@ pip install torch --index-url https://download.pytorch.org/whl/cpu
 pip install -r requirements.txt
 ```
 
-torch 默认使用 CPU 版：本项目网络为 11 维输入的小型 MLP，CPU 前向为微秒级，GPU 无收益。如需 GPU 版，参考 `requirements.txt` 顶部说明。
+torch 默认使用 CPU 版：本项目网络为小输入维度（State V1 为 11 维、V2 为 20 维）的小型 MLP，CPU 前向为微秒级，GPU 无收益。如需 GPU 版，参考 `requirements.txt` 顶部说明。
 
 依赖清单见 `requirements.txt`。正式实验开始前应固定各依赖版本，保证不同成员结果可复现。
 

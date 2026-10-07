@@ -33,20 +33,26 @@ env.render()
 
 | 项 | 值 |
 |---|---|
-| `state` | `np.ndarray`，shape `(11,)`，`float32` |
+| `state` | `np.ndarray`，shape `(state_dim,)`，`float32`；默认 `"v1"` 时为 `(11,)` |
 | `action` | `int`：`0` 直行 / `1` 左转 / `2` 右转（相对动作，无 180° 反向） |
 | `terminated` | 撞墙或撞自身 |
 | `truncated` | 达到 `max_steps_per_episode`（默认 500） |
-| `env.state_dim` | `11` |
+| `env.state_dim` | 随 `state_mode` 变化；默认 `"v1"` 时为 `11` |
 | `env.n_actions` | `3` |
 
-### State V1（11 维）
+### State V1（11 维，默认）
 
 | 索引 | 含义 |
 |---|---|
 | 0 / 1 / 2 | `danger_straight` / `danger_left` / `danger_right` |
 | 3 / 4 / 5 / 6 | `moving_up` / `moving_down` / `moving_left` / `moving_right`（one-hot） |
 | 7 / 8 / 9 / 10 | `food_up` / `food_down` / `food_left` / `food_right`（**不互斥**，左上同时为 1） |
+
+**State V2（20 维，预定方案，未冻结）**：V1 的 11 维 + `food_distance` + 蛇头周围 8 格 `local_ring`，
+`state_mode="v2"` 启用。完整规格见 `docs/INTERFACE.md` §4。
+
+⚠️ **建网络一律写 `DQNAgent(env.state_dim, env.n_actions, config)`，不要写死 `11` 和 `3`。**
+V2 维度不同，写死的代码在切换 `state_mode` 后会直接抛形状错误，且报错位置离原因很远。
 
 ### `info` 字段
 

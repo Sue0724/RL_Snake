@@ -20,7 +20,7 @@ env.render()
 
 | 项 | 类型 | 说明 |
 |---|---|---|
-| `state` | `np.ndarray`，shape `(11,)`，dtype `float32` | 见第 4 节 |
+| `state` | `np.ndarray`，shape `(state_dim,)`，dtype `float32`；默认 `state_mode="v1"` 时为 `(11,)` | 见第 4 节 |
 | `reward` | `float` | 标量即时奖励 |
 | `terminated` | `bool` | 撞墙或撞自身 |
 | `truncated` | `bool` | 步数达 `max_steps_per_episode` 且未终止 |
@@ -29,10 +29,12 @@ env.render()
 环境提供的只读属性与方法：
 
 ```python
-env.state_dim   # 11
+env.state_dim   # 状态维度，随 state_mode 变化；默认 state_mode="v1" 时为 11
 env.n_actions   # 3
 env.close()     # 释放渲染资源；未使用渲染时为空操作
 ```
+
+`state_dim` **不要当常量用**：`state_mode="v2"` 时它是 20（见 §4）。建网络一律写 `DQNAgent(env.state_dim, env.n_actions, config)`。
 
 **为什么区分 `terminated` 与 `truncated`**：截断（超时）时蛇仍然活着，bootstrap 仍应进行：
 
@@ -500,8 +502,9 @@ agent = DQNAgent(env.state_dim, env.n_actions, config)
 | 日期 | 内容 |
 |---|---|
 | 10-06 | 初版。Stage 0 冻结 Environment API、动作空间、State V1（11 维）、`info` 字段、seed 控制与默认参数。 |
-| 10-07 | 新增第 11 节：实验输出约定（目录、run 命名、产出文件、指标列）。 |
-| 10-07 | 第 12 节新增「实现须知」：指向 `env/random_agent.py` 作为签名参考实现；明确禁止硬编码 `state_dim` / `n_actions`（Stage 4 的 State V2 维度与 V1 不同）。 |
-| 10-07 | 新增第 12 节：Agent API（构造、方法签名、batch 结构、责任边界）。 |
 | 10-07 | 实现前补齐 4 处缺口：§1 增加 `close()` 与生命周期硬失败约定；§4 增加碰撞判定（蛇尾例外）与非法 `state_mode` 行为；§6 增加非法 `reward_mode` 行为；§8 增加 `initial_head` 参数与初始蛇位置规则；§10 key 数由 4 改为 5。 |
+| 10-07 | 新增第 11 节：实验输出约定（目录、run 命名、产出文件、指标列）。 |
+| 10-07 | 新增第 12 节：Agent API（构造、方法签名、batch 结构、责任边界）。 |
+| 10-07 | 第 12 节新增「实现须知」：指向 `env/random_agent.py` 作为签名参考实现；明确禁止硬编码 `state_dim` / `n_actions`（Stage 4 的 State V2 维度与 V1 不同）。 |
 | 10-07 | §4 补充 **State V2 预定方案**（20 维：V1 11 维 + `food_distance` + `local_ring`），标注未冻结、待团队确认，作为 Stage 4 实现依据。属规范变更，实施前按 §20 流程确认。 |
+| 10-07 | §1 的 `env.state_dim` 注释由 `# 11` 改为随 `state_mode` 变化，并补一句「不要当常量用」，与 §4 的 V2（20 维）及 §12「实现须知」第 2 条对齐。 |
