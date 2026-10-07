@@ -59,24 +59,37 @@
 - `common/config.py` 增加 `initial_head: tuple[int, int] | None = None`（字段数 20 → 21），`_arg_type` 增加 tuple 分支与 `_parse_int_pair`，命令行写法 `--initial_head 4,6`。
 - 实现 `env/snake_env.py`：`reset` / `step` / `render` / `close`、`state_dim` / `n_actions`；`body`（deque）+ `occupied`（set）双结构，只在 `_place_snake` 与 `_advance` 中同时改动；转向用旋转公式而非查表；`reward_mode` / `state_mode` 非法取值在 `__init__` 中硬失败。
 - 实现 `tests/test_snake_env.py`：41 项，覆盖 `docs/STAGE_CHECKLIST.md` Stage 1 的 11 项，含「danger 位与实际 step 结果逐动作比对」的一致性测试。
+- 实现 `env/renderer.py`：`human` / `rgb_array` 两种模式，被 `snake_env` 惰性导入，`render_mode=None` 时完全不加载 pygame；`rgb_array` 用离屏 `Surface` 不建窗口，`human` 在标题栏显示 score。`draw()` 末尾只调 `pygame.event.pump()` 维持窗口响应，**不取走事件**，事件队列留给调用方的循环处理。
+- 实现 `env/random_agent.py`：`select_action(state, training=True)` 签名对齐 `docs/INTERFACE.md` §12，无 `save` / `load`；`play.py` / `evaluate.py` 换 DQN 时不需要改调用代码。
+- 实现 `play.py`：`--agent random|human`、`--fps`；`human` 模式 `W` / `↑` 直行、`A` / `←` 左转、`D` / `→` 右转、`Q` / `Esc` 退出（相对转向，不是绝对方位）；`--render_mode` 传入非 `human` 直接 `parser.error`。
+- `common/config.py` 拆出 `build_parser(parser=...)` 与 `config_from_args()`，原 `parse_args()` 保留为薄封装：入口脚本可以先构造自己的 `ArgumentParser`（带 `--agent` / `--fps`）再交给 `build_parser` 追加全部配置字段，`-h` 一份里同时列出两套参数。
+- 新增 `tests/test_renderer.py`（5 项）、`tests/test_random_agent.py`（3 项）、`tests/test_play.py`（3 项）；`README.md` 目录树与「测试」一节同步。
+- 跑 Stage 1 全量验收：`docs/STAGE_CHECKLIST.md` 13 项全部 `[x]`，结论 `Passed`（待项目成员确认），`docs/PROJECT_STATUS.md` 同步。
 
 涉及文件：
 - `docs/AI_DEVELOPMENT_RULES.md`、`docs/PROJECT_PLAN.md`、`docs/INTERFACE.md`、`docs/PROJECT_STATUS.md`、`docs/STAGE_CHECKLIST.md`、`README.md`
-- `common/config.py`、`env/snake_env.py`、`tests/test_snake_env.py`、`conftest.py`、`smoke_test.py`、`QUICKSTART.md`、`requirements.txt`
+- `common/config.py`、`env/snake_env.py`、`env/renderer.py`、`env/random_agent.py`、`play.py`
+- `tests/test_snake_env.py`、`tests/test_renderer.py`、`tests/test_random_agent.py`、`tests/test_play.py`、`conftest.py`、`smoke_test.py`、`QUICKSTART.md`、`requirements.txt`
 
 执行 / 验证：
 - 全仓库检索 `done`、`reward, done`、`done, info`，确认无残留。
 - 在 `snake-rl` 环境实跑 `common/config.py`：21 个字段默认值正确；`parse_args(['--initial_head','4,6','--seed','43'])` 正确覆盖且未传入字段不变；`--initial_head 4` 被 argparse 拒绝（exit 2）；`dataclasses.asdict()` 输出可直接 JSON 序列化。
-- 在 `snake-rl` 环境实跑 `pytest`：41 passed in 1.43s。
-- 在 `snake-rl` 环境实跑 `smoke_test.py`：6/6 通过，exit=0；分别从仓库根目录与 `C:/` 运行，结果一致，确认无 cwd 依赖。
+- 在 `snake-rl` 环境实跑 `pytest` 全量：52 passed in 4.29s（环境 41 / 渲染 5 / 随机策略 3 / play 3）。
+- 在 `snake-rl` 环境实跑 `play.py` 真实入口：`python play.py --fps 400 --initial_head 5,5` → `episode 结束（撞墙或撞蛇）：score=0  steps=12`，exit=0，窗口正常创建与关闭。
+- 在 `snake-rl` 环境复跑 `smoke_test.py`（config 改动后）：6/6 通过，exit=0。
 
 发现的问题：
 - `docs/AI_DEVELOPMENT_RULES.md` §9 与 `docs/INTERFACE.md` 对 Environment API 的描述不一致（4 元组 vs 5 元组），已修正。
 - `docs/INTERFACE.md` 实现前存在 4 处缺口（初始位置参数缺失、蛇尾例外未写明、`close()` 未列、非法 `reward_mode` 行为未定义），已全部补齐。
 - `test_initial_head_without_room_raises` 初版写错：`make_env()` 内部就调用了 `reset()`，`ValueError` 在 `pytest.raises` 之前抛出。已改为先构造环境再在 `pytest.raises` 内 `reset()`。
 - epsilon 衰减的三个参数未定义「每步衰减」还是「每 episode 衰减」，语义未定，转入 P1。
-- `env/renderer.py` 尚未实现，`render_mode` 非 `None` 时构造环境会失败，当前只能以默认的 `render_mode=None` 运行。
+- `play.py main()` 初版调用了不存在的 `config.agent` / `config.fps`：`parse_args()` 只返回 `Config`，脚本自有参数被丢弃。已把 `config.py` 拆成 `build_parser()` + `config_from_args()` 解决。
+- `play.py` 初版 `run()` 与 `_run_agent()` 各调了一次 `env.reset()`，重复消耗随机数。已把 `reset()` + `render()` 下移到两个 `_run_*` 中，`run()` 只做分发。
+- `tests/test_play.py` 初版 `subprocess.run(text=True)` 按 locale（GBK）解码，子进程输出 UTF-8 导致 `UnicodeDecodeError`。已在 `run_play()` 中固定 `encoding="utf-8", errors="replace"`。这是 Windows 管道捕获的问题，真实终端显示中文正常。
+- `play.py` 在 `env/renderer.py` 之前就 `import pygame`，导致 `PYGAME_HIDE_SUPPORT_PROMPT` 失效、启动横幅漏出。已在 `play.py` 顶部自行设置该环境变量。
+- `human` 模式的视觉效果尚未人工确认：自动测试只能覆盖到「能建窗、`draw()` 不抛异常」，画面内容由 `rgb_array` 的帧测试间接覆盖（两者共用 `draw()`）。
 
 后续影响：
-- 环境逻辑已可运行并通过测试，Stage 1 仅剩渲染、Random Agent 与 `play.py`。
+- Stage 1 环境代码全部完成，验收 13 项全通过，结论 `Passed`（待项目成员确认）。
+- 进入 Stage 2 前需先冻结 `epsilon_decay` 的语义与默认取值。
 - Stage 0 仅剩「所有成员理解接口」（`[~]`，待团队确认），不阻塞 Stage 1。

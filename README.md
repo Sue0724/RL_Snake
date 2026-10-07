@@ -49,7 +49,8 @@ Snake-RL/
 │
 ├── env/
 │   ├── snake_env.py
-│   └── renderer.py
+│   ├── renderer.py
+│   └── random_agent.py
 │
 ├── algorithms/
 │   ├── dqn.py
@@ -87,7 +88,10 @@ Snake-RL/
 │   └── PROJECT_STATUS.md
 │
 ├── tests/
-│   └── test_snake_env.py
+│   ├── test_snake_env.py
+│   ├── test_renderer.py
+│   ├── test_random_agent.py
+│   └── test_play.py
 │
 ├── train.py
 ├── evaluate.py

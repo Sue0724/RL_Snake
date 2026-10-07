@@ -67,7 +67,12 @@ Stage 0：
 - 已补齐 `docs/INTERFACE.md` 实现前的 4 处缺口：`close()` 与生命周期硬失败、碰撞判定（蛇尾例外）、非法 `state_mode` / `reward_mode` 行为、`initial_head` 参数与初始蛇位置规则。
 - 已引入 pytest：`requirements.txt` 增加 `pytest>=7.0`，新增根目录 `conftest.py` 与 `tests/`，`README.md` 增加「测试」一节说明它与 `smoke_test.py` 的分工。
 - 已实现 `env/snake_env.py`：`reset` / `step` / `render` / `close`，State V1（11 维）、相对动作、5 元组返回值、奖励分项、随机种子与蛇尾例外判定。
-- 已实现 `tests/test_snake_env.py`：41 项通过，覆盖 `docs/STAGE_CHECKLIST.md` Stage 1 的 11 项。
+- 已实现 `env/renderer.py`：pygame 渲染，被 `snake_env` 惰性导入（`render_mode=None` 时完全不加载 pygame）；`rgb_array` 用离屏 `Surface` 不建窗口，`human` 建窗口并在标题栏显示 score。
+- 已实现 `env/random_agent.py`：`select_action(state, training=True)` 签名对齐 `docs/INTERFACE.md` §12，可被 `train.py` / `evaluate.py` 直接替换为 DQN 而不改调用代码。
+- 已实现 `play.py`：`--agent random|human` 两种模式，`human` 支持 `W/A/S/D` 与方向键（相对转向）与 `Q` / `Esc` 退出；复用 `build_parser`，`-h` 中同时列出脚本自有参数与全部配置参数。
+- `common/config.py` 拆出 `build_parser()` / `config_from_args()`：入口脚本可先构造自己的 `ArgumentParser` 再交给 `build_parser` 追加配置字段，原 `parse_args()` 保留为薄封装。
+- 已实现 `tests/test_renderer.py`（5 项）、`tests/test_random_agent.py`（3 项）、`tests/test_play.py`（3 项）；`tests/test_snake_env.py` 41 项，共 52 项通过。
+- Stage 1 验收 13 项全部通过，结论 `Passed`（待项目成员确认）。
 
 ---
 
@@ -89,11 +94,15 @@ Stage 1：
 - [x] 补齐 `docs/INTERFACE.md` 实现前的 4 处缺口
 - [x] 引入 pytest 与 `tests/`
 - [x] 实现 `env/snake_env.py`
-- [ ] 实现 `env/renderer.py`
-- [ ] 实现 `env/random_agent.py`
-- [ ] 实现 `play.py`，可视化跑通一局
-- [ ] 100 episode 连续运行改用 Random Agent 驱动
-- [ ] Stage 1 验收
+- [x] 实现 `env/renderer.py`
+- [x] 实现 `env/random_agent.py`
+- [x] 实现 `play.py`，可视化跑通一局
+- [x] 100 episode 连续运行改用 Random Agent 驱动
+- [x] Stage 1 验收
+
+Stage 1 收尾项（不阻塞）：
+
+- [ ] `human` 模式视觉效果人工确认：`python play.py --agent human`
 
 ---
 
@@ -101,21 +110,15 @@ Stage 1：
 
 ### P0
 
-1. Stage 0 仅剩「所有成员理解接口」（`[~]`，待团队确认），不构成技术阻塞。
-2. `env/snake_env.py` 已可运行，但 `env/renderer.py` 尚未实现：`render_mode` 非 `None` 时构造环境会因缺少 `env/renderer.py` 而失败，目前只能以 `render_mode=None` 运行（也是训练默认值）。
+无技术阻塞。
 
-影响：
-
-环境逻辑本身已可验证（41 项测试通过），但「可视化跑通一局」与 `README.md` Stage 1 完成标准中的渲染项尚未达成。
-
-处理：
-
-1. 下一步实现 `env/renderer.py`、`env/random_agent.py` 与 `play.py`。
-2. 三项完成后跑 Stage 1 全量验收。
+Stage 0 验收结论仍为 `Pending`，仅剩「所有成员理解接口」（`[~]`）待团队确认，不阻塞 Stage 1。
 
 ### P1
 
-1. `docs/AI_DEVELOPMENT_RULES.md` §12 未定义 `epsilon_decay` 是「每步衰减」还是「每 episode 衰减」。若为每步，默认值 0.995 在约 598 步内就衰减到 `epsilon_end`，与 `num_episodes=1000` 的预算不匹配，取值需在 Stage 5 重新核定。
+1. `docs/AI_DEVELOPMENT_RULES.md` §12 未定义 `epsilon_decay` 是「每步衰减」还是「每 episode 衰减」。若为每步，默认值 0.995 在约 598 步内就衰减到 `epsilon_end`，与 `num_episodes=1000` 的预算不匹配（约为 1.2 个 episode）；若为每 episode，则需 598 个 episode。语义与取值需在进入 Stage 2 前冻结。
+
+2. `human` 模式的视觉效果尚未人工确认，见「待完成」中的收尾项。自动测试只覆盖到「能建窗、`draw()` 不抛异常」。
 
 ---
 
@@ -126,10 +129,18 @@ Stage 1：
 测试内容：
 
 ```text
-pytest（tests/test_snake_env.py）
-  41 passed in 1.43s
+pytest（全量）
+  tests/test_snake_env.py      41 passed
+  tests/test_renderer.py        5 passed
+  tests/test_random_agent.py    3 passed
+  tests/test_play.py            3 passed
+  52 passed in 4.29s
 
-python smoke_test.py（Stage 0 自检）
+python play.py --fps 400 --initial_head 5,5（端到端，真实入口）
+  episode 结束（撞墙或撞蛇）：score=0  steps=12
+  exit=0（窗口正常创建与关闭，无 pygame 启动横幅）
+
+python smoke_test.py（Stage 0 自检，config 改动后复跑）
   [PASS] 第三方依赖  numpy 2.2.6 / torch 2.14.1+cpu / pygame 2.6.1
                      / matplotlib 3.10.9 / pandas 2.3.3
   [PASS] 包结构      env / algorithms / common / experiments
@@ -142,19 +153,21 @@ python smoke_test.py（Stage 0 自检）
 
 结果：
 
-`Passed`（pytest 41 项全通过；smoke test 6/6，exit=0，从仓库根目录与 `C:/` 分别运行结果一致）
+`Passed`（pytest 52 项全通过；`play.py` 真实入口跑通一局；smoke test 6/6，exit=0）
 
 ---
 
 ## 下一步
 
-Stage 1 剩余项：
+Stage 1 收尾（不阻塞 Stage 2）：
 
-- 实现 `env/renderer.py`（A）：pygame 窗口与 `rgb_array`，被 `snake_env` 惰性导入
-- 实现 `env/random_agent.py`（A）：签名与 `docs/INTERFACE.md` §12 一致
-- 实现 `play.py`（A）：`--agent random|human`，可视化跑通一局
-- 把 100 episode 用例改为由 Random Agent 驱动
-- 跑 Stage 1 全量验收
+- 人工肉眼确认 `python play.py --agent human` 的渲染效果（需项目成员执行）
+- 提交本批变更并推送 `feature/env`
+
+进入 Stage 2 前需先定的两件事：
+
+- 冻结 `epsilon_decay` 的语义（每步 / 每 episode）与默认取值，写入 `docs/AI_DEVELOPMENT_RULES.md` §12（见 P1-1）
+- 项目成员确认 Stage 1 验收结论
 
 Stage 0 收尾项（不阻塞）：
 
