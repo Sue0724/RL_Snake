@@ -85,6 +85,8 @@ A 的并行项（仅文档，不写代码）：
 - 已修复 `play.py --agent random` 每次演示轨迹完全相同：新增 `_pick_seed()`，不传 `--seed` 时随机取种子并打印复现命令；该行为只作用于 `play.py`，实验脚本仍严格受 `Config.seed` 控制。
 - **Stage 1 验收 13 项全部通过，10-07 由项目成员确认，结论 `Passed`。**
 - 已写出 **State V2 预定方案**（`docs/INTERFACE.md` §4）：V2 = V1 11 维 + `food_distance`（归一化 Manhattan 距离）+ `local_ring`（蛇头周围 8 格占用环），共 20 维；含追加理由、已知代价与实现要点。整节标注未冻结、待团队确认。
+- 已确定 **Git 工作流**并写入 `docs/COLLABORATION_RULES.md`：`main` 为已完成阶段的集成线，各阶段一律从 `main` 开分支，阶段验收通过后合回 `main`，下一阶段再从更新后的 `main` 开分支。含开工 / 开发 / 合并三步命令与冲突高发文件提示。
+- **Stage 1 成果已合入 `main`**（fast-forward，无合并提交、无冲突）：`main` 由 `1676df6`（仅包骨架）前进到 `feature/env` 的最新提交，此后从 `main` 开分支即可拿到 `env/` 全部代码。
 
 ---
 
@@ -197,6 +199,7 @@ Stage 2（阻塞中，负责人 B）：
 
 - B 需先定 `epsilon_decay` 的语义与默认取值，方案见 `docs/AI_DEVELOPMENT_RULES.md` §12（P1-1）
 - B 实现前请读 `docs/INTERFACE.md` §12 的「实现须知」，其中说明签名参考实现与禁止硬编码 `state_dim` / `n_actions`
+- B 从 `main` 开分支，不从其他人的 feature 分支开：`git checkout main && git pull && git checkout -b feature/dqn`（完整流程见 `docs/COLLABORATION_RULES.md`）
 
 A 的并行项（仅文档，不写代码，不构成跨阶段开发）：
 

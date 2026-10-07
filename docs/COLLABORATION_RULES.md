@@ -70,9 +70,16 @@
 
 ---
 
-## Git 建议
+## Git 工作流
 
-推荐分支：
+### 分支模型
+
+```text
+main = 已完成阶段的集成状态
+       任何时刻 clone main，都能跑通到当前最新验收过的阶段
+```
+
+分支名：
 
 ```text
 main
@@ -85,6 +92,48 @@ feature/experiments
 ```
 
 不要让四个人长期在同一个文件上并行修改。
+
+### 三步循环
+
+**① 开工**——一律从 `main` 开新分支，不从其他人的 feature 分支开：
+
+```bash
+git checkout main
+git pull
+git checkout -b feature/dqn        # 换成自己的分支名
+```
+
+**② 开发并推送**：
+
+```bash
+git push -u origin feature/dqn
+```
+
+**③ 阶段验收通过后合回 `main`**：
+
+```bash
+git checkout main
+git pull                            # 先追上别人已合入的内容
+git merge feature/dqn
+git push
+```
+
+下一个人回到 ①。
+
+### 纪律
+
+- 未通过阶段验收的代码不进 `main`。
+- 开分支必须基于最新 `main`。基于别人的 feature 分支开，会把对方的历史一并继承，后续理不清依赖关系。
+- 合并前先 `git checkout main && git pull`，避免基于过期的 `main` 合并。
+- 一个阶段由负责人执行合并，避免多人同时改 `main`。
+
+### 为什么要合回 main
+
+后一阶段依赖前一阶段的产出（Stage 4 要用 Stage 3 的 `train.py`）。合回 `main` 后，下一个人从 `main` 开分支即可直接拿到，不需要记住「该基于谁的分支」。
+
+### 冲突高发文件
+
+`docs/PROJECT_STATUS.md` 与 `memory.md` 所有人都会写，是最容易冲突的两个文件。合并时人工整理，不要简单选择 "Accept Current / Incoming"。
 
 ---
 
