@@ -116,7 +116,7 @@ Stage 0 验收结论仍为 `Pending`，仅剩「所有成员理解接口」（`[
 
 ### P1
 
-1. `docs/AI_DEVELOPMENT_RULES.md` §12 未定义 `epsilon_decay` 是「每步衰减」还是「每 episode 衰减」。若为每步，默认值 0.995 在约 598 步内就衰减到 `epsilon_end`，与 `num_episodes=1000` 的预算不匹配（约为 1.2 个 episode）；若为每 episode，则需 598 个 episode。语义与取值需在进入 Stage 2 前冻结。
+1. `epsilon_decay` 的衰减语义尚未冻结。**决策方案与推荐已记入 `docs/AI_DEVELOPMENT_RULES.md` §12「待冻结：`epsilon_decay` 的衰减语义」**，含三种方案的换算表与推荐结论（每 step 衰减 + 默认值 `0.995` → `0.9999`）。B 在 Stage 2 实现 epsilon-greedy 前必须选定并写回该节；D 的 Stage 5 探索实验依赖此语义。
 
 2. `human` 模式的视觉效果尚未人工确认，见「待完成」中的收尾项。自动测试只覆盖到「能建窗、`draw()` 不抛异常」。
 

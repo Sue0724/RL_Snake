@@ -367,6 +367,28 @@ hidden_dim
 
 实验中一次只改变当前研究变量。
 
+### 待冻结：`epsilon_decay` 的衰减语义
+
+**状态：未定义，进入 Stage 2 前必须由 B 选定并写回本节。** 本表只列参数名与默认值，没有说明 `epsilon_decay` 是「每 step 衰减一次」还是「每 episode 衰减一次」。两种语义在当前默认值下相差约 50 倍，实现前必须二选一，否则 D 在 Stage 5 做探索策略对比时，自变量无法说明。
+
+当前取值（`common/config.py`）：`epsilon_start=1.0`、`epsilon_end=0.05`、`epsilon_decay=0.995`、`num_episodes=1000`、`max_steps_per_episode=500`。
+
+从 `epsilon_start` 衰减到 `epsilon_end` 所需次数（`ln(0.05)/ln(decay)`）：
+
+| 方案 | 需要次数 | 换算成 episode | 判断 |
+|---|---|---|---|
+| 每 step，`decay=0.995` | 598 步 | ≈1.2 个 episode | 太快，探索基本没发生 |
+| 每 episode，`decay=0.995` | 598 episode | 598 / 1000 | 数值合理 |
+| **每 step，`decay=0.9999`** | **29,956 步** | **≈100～300 episode** | **推荐** |
+
+**推荐：每 step 衰减，同时把默认值 `0.995` 改为 `0.9999`。**
+
+理由：episode 长度由智能体当前水平决定——训练初期几步就撞死，后期一局几百步。若按 episode 衰减，同样是乘 0.995，早期消耗的总步数远少于后期，**探索预算因此变成了智能体水平的函数**。Stage 5 要比较「不同 epsilon 衰减策略」，自变量必须是确定量。按 step 衰减与智能体行为无关，可直接由 `num_episodes × 平均 episode 长度` 推算。
+
+选定后需要同步修改的位置：本节、`common/config.py` 的 `Config` 默认值、`docs/INTERFACE.md`（若其中引用了该参数）。改动属于规格变更，按本节要求走变更流程。
+
+**分工提示**：B 在 Stage 2 实现 epsilon-greedy 时必须依此表实现；D 在 Stage 5 的探索策略实验依赖此语义。B 若对推荐有异议，应在实现前提出，不要默默选择。
+
 ### 组织形式
 
 配置集中在 `common/config.py` 的 `@dataclass Config` 中，环境侧 4 个 key（见 `docs/INTERFACE.md` §10）与上表算法 key 合并在同一个类内。

@@ -65,6 +65,10 @@
 - `common/config.py` 拆出 `build_parser(parser=...)` 与 `config_from_args()`，原 `parse_args()` 保留为薄封装：入口脚本可以先构造自己的 `ArgumentParser`（带 `--agent` / `--fps`）再交给 `build_parser` 追加全部配置字段，`-h` 一份里同时列出两套参数。
 - 新增 `tests/test_renderer.py`（5 项）、`tests/test_random_agent.py`（3 项）、`tests/test_play.py`（3 项）；`README.md` 目录树与「测试」一节同步。
 - 跑 Stage 1 全量验收：`docs/STAGE_CHECKLIST.md` 13 项全部 `[x]`，结论 `Passed`（待项目成员确认），`docs/PROJECT_STATUS.md` 同步。
+- 修复 `play.py --agent human` 键盘无响应：`env/renderer.py` 建窗后调用 `pygame.key.stop_text_input()` 关闭输入法组合态。根因经行为 A/B 确认——修复前窗口打开后按 W/A/S/D 完全无反应，修复后一打开即可操控（字母键与方向键均可）。
+- `play.py` human 模式增加一行控制台提示（按键说明），用于区分「程序卡死」与「正常等待按键」。
+- `docs/AI_DEVELOPMENT_RULES.md` §12 新增「待冻结：`epsilon_decay` 的衰减语义」：记录三种方案的换算表（每 step×0.995 / 每 episode×0.995 / 每 step×0.9999）与推荐结论，标注进入 Stage 2 前由 B 选定并写回；`docs/PROJECT_STATUS.md` P1 改为指向该节。
+- 修复 `play.py --agent random` 每次运行完全一致的问题：新增 `_pick_seed()`，`--seed` 未传时随机取一个并打印（附复现命令），传了则原样使用（`0` 也按显式取值处理，判据是 `is None`）。该行为**只作用于 `play.py`**，`train.py` / `evaluate.py` 仍严格受 `Config.seed` 控制。`play.py` 文档字符串同步说明。
 
 涉及文件：
 - `docs/AI_DEVELOPMENT_RULES.md`、`docs/PROJECT_PLAN.md`、`docs/INTERFACE.md`、`docs/PROJECT_STATUS.md`、`docs/STAGE_CHECKLIST.md`、`README.md`
@@ -77,6 +81,11 @@
 - 在 `snake-rl` 环境实跑 `pytest` 全量：52 passed in 4.29s（环境 41 / 渲染 5 / 随机策略 3 / play 3）。
 - 在 `snake-rl` 环境实跑 `play.py` 真实入口：`python play.py --fps 400 --initial_head 5,5` → `episode 结束（撞墙或撞蛇）：score=0  steps=12`，exit=0，窗口正常创建与关闭。
 - 在 `snake-rl` 环境复跑 `smoke_test.py`（config 改动后）：6/6 通过，exit=0。
+- 合成事件测试 `_wait_for_action()`：`K_d → 2`、`K_w → 0`、`K_q → None`，事件循环逻辑无误。
+- 键盘诊断（用户实机按键）：五个按键的 `keycode` / `scancode` 全部正确（`w=119/26`、`a=97/4`、`s=115/22`、`d=100/7`、`q=113/20`），排除输入法吞键与焦点问题在修复后的存在。
+- 行为 A/B（用户实机）：修复前 `play.py --agent human` 完全无响应；修复后一打开即可用字母键与方向键操控。
+- 复现 `play.py --agent random` 三次：初始蛇头恒 `(0, 8)`、食物恒 `(6, 6)`、恒定 3 步结束。300 个种子统计：最小 1 步、中位数 6 步、最大 66 步、均值 11.0 步。
+- 修复后实测种子行为：不传 `--seed` 连跑三次得种子 108758 / 106174 / 897872、步数 9 / 20 / 87；`--seed 7` 连跑两次均为 1 步；`--seed 0` 连跑两次均为 12 步。`pytest` 54 passed（`tests/test_play.py` 由 3 项增至 5 项）。
 
 发现的问题：
 - `docs/AI_DEVELOPMENT_RULES.md` §9 与 `docs/INTERFACE.md` 对 Environment API 的描述不一致（4 元组 vs 5 元组），已修正。
@@ -88,8 +97,14 @@
 - `tests/test_play.py` 初版 `subprocess.run(text=True)` 按 locale（GBK）解码，子进程输出 UTF-8 导致 `UnicodeDecodeError`。已在 `run_play()` 中固定 `encoding="utf-8", errors="replace"`。这是 Windows 管道捕获的问题，真实终端显示中文正常。
 - `play.py` 在 `env/renderer.py` 之前就 `import pygame`，导致 `PYGAME_HIDE_SUPPORT_PROMPT` 失效、启动横幅漏出。已在 `play.py` 顶部自行设置该环境变量。
 - `human` 模式的视觉效果尚未人工确认：自动测试只能覆盖到「能建窗、`draw()` 不抛异常」，画面内容由 `rgb_array` 的帧测试间接覆盖（两者共用 `draw()`）。
+- `play.py --agent human` 键盘完全无响应（已修复）：中文输入法组合态吞掉按键，Windows 发出的 `WM_KEYDOWN` 中 `wParam` 为 `VK_PROCESSKEY` 而非真实虚拟键码，`KEYS[event.key]` 因此查不中。修复方式是建窗后 `pygame.key.stop_text_input()`。
+- 定位过程中一度误判：先观察到 `TextEditing`（IME）事件，加 `stop_text_input()` 后消失，据此认为已定位；预热重测后发现该事件只是**进程内第一次建窗的一次性 IME 初始化**，与 `stop_text_input()` 无关，该证据无效并已收回。最终结论由**行为 A/B** 确立（修复前不响应 / 修复后一打开即可操控），而非由事件计数确立。
+- `play.py --agent random` 每次运行完全一致（已修复）：`Config.seed` 默认 42，同时喂给 `SnakeEnv` 与 `RandomAgent`，故初始蛇头恒为 `(0, 8)`、食物恒为 `(6, 6)`、恒定 3 步撞死。经 300 个种子统计，「3 步就死」本身属随机策略正常范围（中位数 6 步，33.3% 的局 ≤3 步），异常的是「每次完全相同」。
+- 随机初始蛇头允许落在边缘，且初始朝向恒为向右，因此约 10% 的开局蛇头位于最右列，直行即撞墙。`--seed 7` 恰好命中该情形，整局只有 1 步。属合法随机结果，但对演示观感不利，如需改善需调整 `_random_head` 的取值域。
 
 后续影响：
 - Stage 1 环境代码全部完成，验收 13 项全通过，结论 `Passed`（待项目成员确认）。
-- 进入 Stage 2 前需先冻结 `epsilon_decay` 的语义与默认取值。
+- `stop_text_input()` 的效果无法自动测试（需要真人按键），回归风险由人工验证承担。
+- 进入 Stage 2 前需由 B 冻结 `epsilon_decay` 的语义与默认取值，决策方案已写入 `docs/AI_DEVELOPMENT_RULES.md` §12。B 尚未开工。
+- 初始蛇头是否避开边缘尚未决定，涉及 `env/snake_env.py` 的 `_random_head` 与既有测试，需用户确认后再动。
 - Stage 0 仅剩「所有成员理解接口」（`[~]`，待团队确认），不阻塞 Stage 1。
