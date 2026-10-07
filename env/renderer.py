@@ -35,6 +35,9 @@ class Renderer:
         pygame.init()
         if mode == "human":
             self.surface = pygame.display.set_mode((self.pixels, self.pixels))
+            # 关掉输入法：中文输入法会把这些按键吞成 VK_PROCESSKEY，
+            # 于是 W/A/S/D 到达时 key 不是 K_w/K_a/K_s/K_d，键盘控制失灵。
+            pygame.key.stop_text_input()
         else:
             # 不建窗口：rgb_array 供录制视频用，不应弹出任何界面
             self.surface = pygame.Surface((self.pixels, self.pixels))
