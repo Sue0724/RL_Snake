@@ -78,14 +78,15 @@ def _arg_type(field: dataclasses.Field):
     return field_type
 
 
-def parse_args(argv: list[str] | None = None) -> Config:
-    """解析命令行并返回配置。
+def build_parser(description: str = "Snake-RL 配置", parser=None):
+    """构造带全部配置字段的 ``ArgumentParser``。
 
-    只覆盖显式传入的参数，未传入的保持 ``Config`` 的默认值。
-    记录每次实验用的 ``config.json`` 时，对返回的 ``Config`` 调用
-    ``dataclasses.asdict()`` 即可。
+    ``parser`` 非 None 时在其上追加，用于 ``play.py`` 这类还有自有参数的
+    入口脚本：先建 parser、加自己的参数，再交给本函数，这样 ``-h`` 能
+    一次列全所有可传参数。
     """
-    parser = argparse.ArgumentParser(description="Snake-RL 配置")
+    if parser is None:
+        parser = argparse.ArgumentParser(description=description)
     for field in dataclasses.fields(Config):
         parser.add_argument(
             f"--{field.name}",
@@ -93,12 +94,24 @@ def parse_args(argv: list[str] | None = None) -> Config:
             default=None,
             help=f"默认 {field.default!r}",
         )
+    return parser
 
-    args = parser.parse_args(argv)
 
+def config_from_args(args) -> Config:
+    """从已解析的 namespace 取出配置。
+
+    只覆盖显式传入的字段，未传入的保持 ``Config`` 的默认值。
+    记录每次实验用的 ``config.json`` 时，对返回的 ``Config`` 调用
+    ``dataclasses.asdict()`` 即可。
+    """
     config = Config()
     for field in dataclasses.fields(Config):
         value = getattr(args, field.name)
         if value is not None:
             setattr(config, field.name, value)
     return config
+
+
+def parse_args(argv: list[str] | None = None) -> Config:
+    """解析命令行并返回配置。配置之外的参数请用 ``build_parser`` + ``config_from_args``。"""
+    return config_from_args(build_parser().parse_args(argv))
