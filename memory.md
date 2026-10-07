@@ -76,11 +76,13 @@
 - `docs/COLLABORATION_RULES.md` 的「Git 建议」节扩写为 **「Git 工作流」**：确定 `main` 为已完成阶段的集成线，各阶段一律从 `main` 开分支、验收通过后合回 `main`、下一阶段再从更新后的 `main` 开分支。含三步命令（开工 / 开发推送 / 合并）、四条纪律（未验收不进 `main`、必须基于最新 `main` 开分支、合并前先 pull、一阶段一人合）与冲突高发文件提示（`docs/PROJECT_STATUS.md`、`memory.md`）。
 - **Stage 1 成果合入 `main`**：`git merge --ff-only feature/env` 成功，`main` 由 `1676df6`（仅含包骨架，6 个提交）前进到 `fc04c26`（含 Stage 1 全部代码与文档，18 个提交）。`feature/env` 分支原样保留，未删除。
 - `docs/AI_DEVELOPMENT_RULES.md` §21 的 commit hash 禁令收窄：普通代码 / 文档提交仍不记 hash，但 **Git 合并、回滚、tag 这类以提交为对象的操作必须写明涉及的 commit hash**（fast-forward 合并在 `git log` 里不留痕迹，只写「合到某分支的最新提交」无法核实）。`memory.md` 的两条合并 / 推送记录据此补回 hash。
+- 新增 `docs/HANDOVER.md`（工作交接与后续安排），供 B / C / D 阅读。含七节：当前进度表、A 已完成的工作（环境建模的逐项设计动机、State V1 的三段结构与两个结构性盲区、工程实现与文件职责、过程中修的两个问题）、State V2 预定方案摘要与待确认点、后续工作安排（责任边界表 + B / C / D / A 各自要做什么 + 阶段依赖图）、接续工作须知（从 `main` 开分支的命令、三条不能踩的线、已知遗留问题）、需要团队确认的三件事、参考文档索引。文档不复制规范正文，只讲设计动机与分工，涉及规范处一律指向 `docs/INTERFACE.md` 等权威文档，避免出现第二个真相来源。
+- `README.md` 目录树补上缺失的 `docs/INTERFACE.md` 与新增的 `docs/HANDOVER.md`，并在「项目状态」一节增加接口定义与工作交接的入口。
 - 全量核查文档一致性并修订以下问题：`memory.md` 自身 2 处自相矛盾（「后续影响」中 Stage 1 结论仍写「待项目成员确认」；「发现的问题」中 `human` 视觉效果仍写「尚未人工确认」）、`docs/PROJECT_STATUS.md` 当前状态段把已完成的 State V2 设计写成待办、`docs/INTERFACE.md` 与 `QUICKSTART.md` 各有 2 处把状态维度写死（§1 API 表的 `shape (11,)` 与 `env.state_dim` 的 `11`）、`README.md` 的网络说明写死「11 维输入」、`QUICKSTART.md` 缺 State V2 线索、两处分支合并记录未写实际 commit hash、`docs/INTERFACE.md` 变更记录表行序非时间序。详见「发现的问题」。
 - `docs/AI_DEVELOPMENT_RULES.md` §21「日志规则」新增「**追加时回头核对**」：同日追加前必须先扫一遍已有的「发现的问题」与「后续影响」，把被本次操作推翻或已解决的句子就地改掉，并说明这两段属于当前状态、而「操作内容」中的阶段性结论属于合法历史不受此约束。
 
 涉及文件：
-- `docs/AI_DEVELOPMENT_RULES.md`、`docs/PROJECT_PLAN.md`、`docs/INTERFACE.md`、`docs/PROJECT_STATUS.md`、`docs/STAGE_CHECKLIST.md`、`docs/COLLABORATION_RULES.md`、`README.md`
+- `docs/AI_DEVELOPMENT_RULES.md`、`docs/PROJECT_PLAN.md`、`docs/INTERFACE.md`、`docs/PROJECT_STATUS.md`、`docs/STAGE_CHECKLIST.md`、`docs/COLLABORATION_RULES.md`、`docs/HANDOVER.md`、`README.md`
 - `common/config.py`、`env/snake_env.py`、`env/renderer.py`、`env/random_agent.py`、`play.py`
 - `tests/test_snake_env.py`、`tests/test_renderer.py`、`tests/test_random_agent.py`、`tests/test_play.py`、`conftest.py`、`smoke_test.py`、`QUICKSTART.md`、`requirements.txt`
 

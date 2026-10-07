@@ -80,11 +80,13 @@ Snake-RL/
 ├── checkpoints/
 │
 ├── docs/
+│   ├── INTERFACE.md
 │   ├── AI_DEVELOPMENT_RULES.md
 │   ├── PROJECT_PLAN.md
 │   ├── STAGE_CHECKLIST.md
 │   ├── EXPERIMENT_PROTOCOL.md
 │   ├── COLLABORATION_RULES.md
+│   ├── HANDOVER.md
 │   └── PROJECT_STATUS.md
 │
 ├── tests/
@@ -558,6 +560,10 @@ AI 助手不得因为“代码看起来正确”就判定阶段完成，必须�
 `memory.md`
 
 `memory.md`：项目操作日志，记录每次与项目紧密相关的实际操作时间、操作内容、验证结果与影响；普通咨询不记录。
+
+接口定义与工作交接请参考：
+
+`docs/INTERFACE.md`（接口权威定义）、`docs/HANDOVER.md`（已完成工作的设计说明、后续分工与接续须知）
 
 详细进度请维护：
 

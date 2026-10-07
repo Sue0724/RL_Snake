@@ -91,6 +91,7 @@ A 的并行项（仅文档，不写代码）：
 - **Stage 1 成果已合入 `main`**（fast-forward，无合并提交、无冲突）：`main` 由 `1676df6`（仅包骨架）前进到 `fc04c26`（含 Stage 1 全部代码与文档，18 个提交），此后从 `main` 开分支即可拿到 `env/` 全部代码。
 - 已做文档一致性全量核查并修订：`memory.md` 2 处自相矛盾、本文件当前状态段把已完成的 State V2 设计写成待办、状态维度被写死（`docs/INTERFACE.md` 与 `QUICKSTART.md` 各 2 处、`README.md` 1 处）、`QUICKSTART.md` 缺 State V2 线索、合并记录未写 commit hash、`docs/INTERFACE.md` 变更记录表行序非时间序。
 - `docs/AI_DEVELOPMENT_RULES.md` §21 修订两处：新增「**追加时回头核对**」规则（同日追加前须回头改掉已被推翻的「发现的问题」与「后续影响」）；commit hash 禁令收窄为「普通提交不记 hash，**Git 合并 / 回滚 / tag 必须写明 hash**」——原禁令的理由「`git log` 已是权威记录」对 fast-forward 合并并不成立。
+- 新增 **`docs/HANDOVER.md`**（工作交接与后续安排），供 B / C / D 阅读：A 已完成工作的设计动机（环境建模、State V1 的三段结构与两个盲区）、State V2 预定方案与待确认点、B / C / D / A 的后续分工与阶段依赖、接续工作须知、需要团队确认的三件事。该文档不复制规范正文，接口细节一律指向 `docs/INTERFACE.md`。`README.md` 目录树同步补上 `docs/INTERFACE.md`（此前缺失）与 `docs/HANDOVER.md`。
 
 ---
 
