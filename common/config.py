@@ -20,6 +20,7 @@
 import argparse
 import dataclasses
 import types
+import typing
 from dataclasses import dataclass
 
 
@@ -29,6 +30,7 @@ class Config:
     board_size: int = 10
     initial_length: int = 3
     max_steps_per_episode: int = 500
+    initial_head: tuple[int, int] | None = None
     render_mode: str | None = None
 
     # ---- 实验标识，见 docs/AI_DEVELOPMENT_RULES.md §12 ----
@@ -52,16 +54,27 @@ class Config:
     hidden_dim: int = 128
 
 
-def _arg_type(field: dataclasses.Field) -> type:
+def _parse_int_pair(text: str) -> tuple[int, int]:
+    """解析 ``--initial_head 4,6`` 形式的坐标。"""
+    row, _, col = text.partition(",")
+    if not col:
+        raise argparse.ArgumentTypeError(f"应为 'row,col' 形式，收到 {text!r}")
+    return int(row), int(col)
+
+
+def _arg_type(field: dataclasses.Field):
     """从字段类型注解推断 argparse 的 ``type``。
 
-    ``str | None`` 这类可选类型取其非 None 分支。
+    ``str | None`` 这类可选类型取其非 None 分支；``tuple[int, int]``
+    这类无法直接实例化的类型改用专门的解析函数。
     """
     field_type = field.type
     if isinstance(field_type, types.UnionType):
         field_type = next(
             arg for arg in field_type.__args__ if arg is not type(None)
         )
+    if typing.get_origin(field_type) is tuple:
+        return _parse_int_pair
     return field_type
 
 
