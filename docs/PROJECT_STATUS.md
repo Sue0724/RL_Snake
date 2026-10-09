@@ -2,13 +2,13 @@
 
 ## 当前状态
 
-当前 Stage：`Stage 2 - DQN Baseline`（负责人 B，尚未开工）
+当前 Stage：`Stage 2 - DQN Baseline`（负责人 B，配置前置已完成，算法待实现）
 
-总体状态：`Pending`
+总体状态：`In Progress`
 
-最后更新：`10-07`
+最后更新：`10-09`
 
-Stage 1 已于 10-07 通过验收，成果已合入 `main`。Stage 2 未启动（负责人 B）。
+Stage 1 已于 10-07 通过验收，成果已合入 `main`。Stage 2 已完成 epsilon 衰减规格冻结及默认配置修改；DQN 算法尚未实现，未通过阶段验收。
 
 A 的并行项——Stage 4 状态方案的纸面设计——**已完成**，写入 `docs/INTERFACE.md` §4（预定方案，待团队确认后冻结），不写代码，不构成跨阶段开发。
 
@@ -20,7 +20,7 @@ A 的并行项——Stage 4 状态方案的纸面设计——**已完成**，写
 |---|---|---|---|
 | 0 | 工程初始化与接口冻结 | In Progress | 全员 |
 | 1 | Snake 环境与状态 | Passed | A |
-| 2 | DQN Baseline | Pending | B |
+| 2 | DQN Baseline | In Progress | B |
 | 3 | 统一训练与评估框架 | Pending | B / 全员 |
 | 4 | 状态实验 | Pending | A |
 | 5 | Reward 与探索实验 | Pending | D |
@@ -41,7 +41,7 @@ Passed
 
 ## 当前阶段目标
 
-Stage 2（负责人 B，尚未开工）：
+Stage 2（负责人 B，配置前置已完成，算法待实现）：
 
 - Q Network、Online / Target Network。
 - Replay Buffer。
@@ -49,9 +49,9 @@ Stage 2（负责人 B，尚未开工）：
 - optimizer 与 checkpoint。
 - 基础日志。
 
-进入 Stage 2 前 B 需先确定的项：
+Stage 2 已确定的前置项：
 
-- `epsilon_decay` 的衰减语义与默认取值，方案见 `docs/AI_DEVELOPMENT_RULES.md` §12。
+- `epsilon_decay` 按已完成的训练环境步衰减，默认值为 `0.9999`，起点 `1.0`、下限 `0.05`；跨局延续、预热阶段计步、评估不衰减。10-09 经用户确认冻结，详见 `docs/AI_DEVELOPMENT_RULES.md` §12。
 
 A 的并行项（仅文档，不写代码）：
 
@@ -60,6 +60,8 @@ A 的并行项（仅文档，不写代码）：
 ---
 
 ## 已完成
+
+- 10-09 经用户确认冻结 epsilon 衰减规格，将 `Config.epsilon_decay` 默认值从 `0.995` 改为 `0.9999`；开发规范、接口定义与交接文档同步。实际动作选择与衰减逻辑尚待实现。
 
 - 已确定项目主题：基于深度强化学习的贪吃蛇智能体设计与实验研究。
 - 已确定核心算法方向：DQN、Double DQN、Dueling DQN。
@@ -122,9 +124,9 @@ Stage 1（全部完成）：
 - [x] 修复 `play.py` 演示种子固定
 - [x] Stage 1 验收并由项目成员确认
 
-Stage 2（负责人 B，尚未开工）：
+Stage 2（负责人 B，配置前置已完成，算法待实现）：
 
-- [ ] 确定 `epsilon_decay` 的衰减语义与默认取值
+- [x] 确定 `epsilon_decay` 的衰减语义与默认取值
 - [ ] Q Network / Online + Target Network
 - [ ] Replay Buffer
 - [ ] epsilon-greedy 与 Bellman update
@@ -147,9 +149,9 @@ Stage 0 验收结论仍为 `Pending`，仅剩「所有成员理解接口」（`[
 
 ### P1
 
-1. `epsilon_decay` 的衰减语义尚未冻结，阻塞 Stage 2 的 epsilon-greedy 实现。**决策方案与推荐已记入 `docs/AI_DEVELOPMENT_RULES.md` §12「待冻结：`epsilon_decay` 的衰减语义」**，含三种方案的换算表与推荐结论（每 step 衰减 + 默认值 `0.995` → `0.9999`）。B 在实现前必须选定并写回该节；D 的 Stage 5 探索实验依赖此语义。
+1. Stage 2 的 Q Network、Replay Buffer、epsilon-greedy、Bellman update 与 checkpoint 尚未实现。epsilon 规格已冻结，原配置决策阻塞已解除；Stage 3 及后续训练实验仍需等待 DQN 基线完成。
 
-2. Stage 2 尚未开工（负责人 B）。A 的 Stage 1 已完成并通过验收，当前无阻塞项，但项目整体处于等待状态。
+2. 10-09 在本机当前 `python3` 运行 `smoke_test.py`：5/6 通过，第三方依赖检查因缺少 `matplotlib` 失败。配置专项检查通过；后续算法开发前需确认 IDE 与终端使用的 Python 环境已安装项目依赖。
 
 ### P2
 
@@ -160,6 +162,21 @@ Stage 0 验收结论仍为 `Pending`，仅剩「所有成员理解接口」（`[
 ---
 
 ## 最近一次测试
+
+测试时间：`10-09`
+
+测试内容：
+
+- 使用本机 `python3` 验证 `Config` 默认值、`parse_args` 默认及显式覆盖、实例隔离、JSON 序列化和 CLI help：全部通过。
+- 核验默认指数衰减公式：完成 29,956 次衰减后达到 `0.05` 下限。这是规格公式核验，实际训练中的衰减逻辑尚未实现。
+- `python3 smoke_test.py`：5/6 通过，第三方依赖检查报 `ModuleNotFoundError: No module named 'matplotlib'`，退出码 1；包结构、配置默认值、配置覆盖、配置存档和目录检查通过。
+- `git diff --check`：通过。
+
+结果：`Partial`（配置专项检查通过，完整依赖自检未通过）。Stage 2 的算法验收项仍未满足；此前 Stage 1 的历史验收记录见下节。
+
+---
+
+## Stage 1 最近一次验收测试
 
 测试时间：`10-07`
 
@@ -200,11 +217,12 @@ python smoke_test.py（Stage 0 自检，config 改动后复跑）
 
 ## 下一步
 
-Stage 2（阻塞中，负责人 B）：
+Stage 2（负责人 B，配置决策阻塞已解除）：
 
-- B 需先定 `epsilon_decay` 的语义与默认取值，方案见 `docs/AI_DEVELOPMENT_RULES.md` §12（P1-1）
+- B 下一步实现 Q Network，再实现 Replay Buffer 与 DQN Agent；epsilon 执行逻辑须遵守 `docs/AI_DEVELOPMENT_RULES.md` §12 已冻结的规格
 - B 实现前请读 `docs/INTERFACE.md` §12 的「实现须知」，其中说明签名参考实现与禁止硬编码 `state_dim` / `n_actions`
-- B 从 `main` 开分支，不从其他人的 feature 分支开：`git checkout main && git pull && git checkout -b feature/dqn`（完整流程见 `docs/COLLABORATION_RULES.md`）
+- 本次配置与文档修改位于从 `main` 创建的本地分支 `codex/dqn`；后续开发在该分支继续，阶段验收后再合入 `main`（流程见 `docs/COLLABORATION_RULES.md`）
+- 10-09 第三步 Git 准备已核查通过：`git fetch origin` 成功，当前分支与最新 `origin/main` 无提交差异；已有配置及文档修改保留在工作区，尚未提交或推送。
 
 A 的并行项（仅文档，不写代码，不构成跨阶段开发）：
 

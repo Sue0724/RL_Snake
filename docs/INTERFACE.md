@@ -335,6 +335,8 @@ render_mode             默认 None
 
 这五个 key 与算法 key 合并在 `common/config.py` 的同一个 `@dataclass Config` 中，组织、覆盖与存档方式见 `AI_DEVELOPMENT_RULES.md` §12。`initial_head` 的命令行写法为 `--initial_head 4,6`。
 
+探索率默认值为 `epsilon_start=1.0`、`epsilon_end=0.05`、`epsilon_decay=0.9999`，按已完成的训练环境步骤指数衰减，跨 episode 延续，评估时不衰减。完整执行语义以 `AI_DEVELOPMENT_RULES.md` §12「已冻结：`epsilon_decay` 的衰减语义」为准。
+
 ---
 
 ## 11. 实验输出约定
@@ -508,3 +510,4 @@ agent = DQNAgent(env.state_dim, env.n_actions, config)
 | 10-07 | 第 12 节新增「实现须知」：指向 `env/random_agent.py` 作为签名参考实现；明确禁止硬编码 `state_dim` / `n_actions`（Stage 4 的 State V2 维度与 V1 不同）。 |
 | 10-07 | §4 补充 **State V2 预定方案**（20 维：V1 11 维 + `food_distance` + `local_ring`），标注未冻结、待团队确认，作为 Stage 4 实现依据。属规范变更，实施前按 §20 流程确认。 |
 | 10-07 | §1 的 `env.state_dim` 注释由 `# 11` 改为随 `state_mode` 变化，并补一句「不要当常量用」，与 §4 的 V2（20 维）及 §12「实现须知」第 2 条对齐。 |
+| 10-09 | 经用户确认冻结 epsilon 衰减规格；§10 同步默认值 `1.0 / 0.05 / 0.9999` 并指向开发规范 §12，约定按训练环境步衰减、跨局延续、评估不衰减。 |

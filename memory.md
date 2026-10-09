@@ -137,3 +137,28 @@
 - A 的待办边界（经核对）：**当前可做的只有 Stage 4 的状态实验**，但依赖 Stage 2（DQN）与 Stage 3（`train.py` / `evaluate.py` 统一框架）先行。其余 Stage（3 / 7 / 8）A 均为参与角色，Stage 6 不参与实现。
 - Stage 5 的 Reward Shaping **不安排 A 参与**：`docs/PROJECT_PLAN.md` 中 Stage 5 的负责人只有 D；虽然改动落在 `env/snake_env.py` 的 `_compute_reward()`（A 的责任区），但 `docs/COLLABORATION_RULES.md` 已写明「责任人拥有主要维护责任，不代表其他人不可修改，跨责任区修改前应说明原因」，据此由 D 自行实现并在提交中说明，A 事后 review 即可。本次**未**为该分工新增文档条目——现有规则已覆盖。
 - 分支流程已定：**B / C / D 开工一律从 `main` 开分支**，不再提「从 `feature/env` 开」的旧说法。上一轮答复中「先不合 `main`、改在 `main` 加一行 README 说明」的建议已作废：把流程定为「`main` 即集成线」之后，正确处理是**直接把 Stage 1 合进 `main`**，说明本身失去意义，且加说明反而会让 `main` 与 `feature/env` 分叉。
+
+## 10-09
+
+操作类型：Code / Docs / Test / Git
+结果：Partial
+
+操作内容：
+- 按用户已确认的方案，将 `Config.epsilon_decay` 默认值从 `0.995` 改为 `0.9999`，并补充按训练环境步衰减的注释。
+- 冻结 epsilon 规格：起点 `1.0`、下限 `0.05`，每成功完成一个训练环境步骤后衰减一次；包含预热与终止/截断的最后一步，跨局延续，评估不衰减。
+- 同步开发规范 §12、接口定义 §10、交接文档和项目状态，移除已解决的 epsilon 决策阻塞；Stage 2 记录为配置前置已完成、算法待实现，未通过阶段验收。
+- 从本地 `main` 创建并切换到 `codex/dqn`，用于本次修改及后续 B 的开发。
+- 按用户要求完成第三步的 Git 分支准备核查：执行 `git fetch origin`，确认当前开发分支已基于最新远程 `main`；Git 准备检查结果 `Passed`。
+
+涉及文件：
+- `common/config.py`、`docs/AI_DEVELOPMENT_RULES.md`、`docs/INTERFACE.md`、`docs/PROJECT_STATUS.md`、`docs/HANDOVER.md`、`memory.md`。
+
+执行 / 验证：
+- 本机 `python3` 配置专项检查：默认值、CLI 默认与显式覆盖、实例隔离、JSON 存档、help 均通过。
+- 数学公式核验：默认值下完成 29,956 次衰减后达到下限；尚未实现或测试实际训练中的衰减逻辑。
+- `python3 smoke_test.py`：5/6 通过，第三方依赖检查因缺少 `matplotlib` 失败，退出码 1。
+- `git diff --check`：通过。
+- `git status --short --branch` 确认当前为 `codex/dqn`；`git rev-list --left-right --count HEAD...origin/main` 返回 `0 0`，无提交差异；`git merge-base --is-ancestor origin/main HEAD` 成功。现有修改仍在工作区，尚未提交或推送。
+
+发现的问题：
+- 当前 Python 环境缺少 `matplotlib`，完整依赖自检未通过；本次未修改依赖环境。
