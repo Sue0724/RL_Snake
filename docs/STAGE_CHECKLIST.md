@@ -94,12 +94,12 @@
 
 ## Stage 3：统一框架
 
-以下为已有功能进度核对，不代表已正式进入或通过 Stage 3。
+以下为已有功能进度核对及用户指定的公共入口统一工作，不代表 Stage 2 或 Stage 3 已通过正式验收。
 
 - [x] train.py 可运行（3 seeds 各 100k 步实际完成）
 - [x] evaluate.py 可运行（3 模型与 Random 共同独立评估完成）
 - [ ] play.py 可加载模型（当前仅支持 random / human）
-- [ ] algorithm 可配置切换（配置字段已有，训练和模型评估仍仅支持 DQN）
+- [x] algorithm 可配置切换（公共入口按配置分派；DQN 可训练/加载，Random 仅评估/演示；未实现算法明确报错）
 - [x] state_mode 可配置（Config / CLI / checkpoint 已接入；目前仅实现 v1）
 - [x] reward_mode 可配置（Config / CLI / checkpoint 已接入；目前仅实现 sparse）
 - [x] seed 可配置（训练 seeds 42/43/44，独立评估 seeds 10000～10049）
@@ -108,15 +108,16 @@
 - [x] 评估默认关闭探索（training=False，纯贪心，不更新网络、不写回放池）
 - [x] 正式结果不会被意外覆盖（run 目录含时间戳和 UUID，exist_ok=False；多次运行结果独立保留）
 
-验收结论：`Pending`（9/11 项已有证据，尚未完成统一框架验收）
+验收结论：`Pending`（10/11 项已有证据，尚未完成模型演示和统一框架验收）
 
 问题与剩余工作：
 
 - 为 play.py 增加 checkpoint 加载与 DQN 纯贪心演示，并验证渲染及正常退出。
-- 统一 Agent 创建/加载入口及 algorithm 分派；后续算法实现属于 Stage 6，本阶段不提前实现 Double DQN / Dueling DQN。
+- 公共 Agent 创建/加载与 algorithm 分派已完成：`algorithms/factory.py` 接入训练、评估及随机演示。后续算法实现属于 Stage 6，本阶段的勾选表示分派机制完成，不表示三种可训练算法已齐备。
 - state_mode / reward_mode 勾选表示配置已接通，不表示已有多个可用版本；State V2 与 Shaped Reward 分别属于 Stage 4 / 5。
 - 核对训练、评估和演示的配置来源及覆盖规则；完成新增入口的必要测试和训练→保存→评估→演示端到端验证。
-- 更新使用说明并由成员确认阶段验收。本次仅同步文档，未运行新测试、训练或评估。
+- 公共入口新增 14 项测试，无窗口全量回归 130 passed；短程训练→保存→加载→评估通过。既有 100k 模型复评的 200 条逐局记录及模型摘要与原结果一致，来源 checkpoint 哈希未改变；复评输出仅放临时目录。
+- 公共入口说明已同步；仍需补齐模型演示使用说明及端到端验证，再由成员确认阶段验收。
 
 ---
 

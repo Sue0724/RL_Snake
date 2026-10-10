@@ -56,6 +56,7 @@ Snake-RL/
 │   ├── dqn.py
 │   ├── double_dqn.py
 │   ├── dueling_dqn.py
+│   ├── factory.py
 │   └── networks.py
 │
 ├── common/
@@ -96,7 +97,8 @@ Snake-RL/
 │   ├── test_play.py
 │   ├── test_networks.py
 │   ├── test_replay_buffer.py
-│   └── test_dqn.py
+│   ├── test_dqn.py
+│   └── test_agent_factory.py
 │
 ├── train.py
 ├── evaluate.py

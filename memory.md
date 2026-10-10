@@ -227,3 +227,10 @@
 - 涉及文件：docs/STAGE_CHECKLIST.md、docs/PROJECT_STATUS.md、memory.md。
 - 结果：Passed（文档进度同步）；Stage 2 / Stage 3 的正式验收结论仍为 Pending。
 - 执行 / 验证：核对现有入口代码、100k 训练摘要及独立评估摘要；git diff --check。本次程序验证为 Not Tested，未重新运行测试、训练或评估。
+
+本日追加公共 Agent 入口统一：
+- 操作内容：按用户要求新增 algorithms/factory.py 的 create_agent / validate_agent_config / load_agent；接入 train.py、evaluate.py 及 play.py 的随机策略创建。模型加载恢复 checkpoint 配置、校验网络与环境维度、覆盖设备与环境渲染设置；评估标签按算法生成，未实现算法明确拒绝。
+- 涉及文件：algorithms/factory.py、train.py、evaluate.py、play.py、tests/test_agent_factory.py、README.md、QUICKSTART.md、docs/INTERFACE.md、docs/STAGE_CHECKLIST.md、docs/PROJECT_STATUS.md、memory.md。
+- 结果：Passed（公共入口实现及验证）；未实现 play.py 模型加载 CLI，未确认 Stage 2 / Stage 3 验收。
+- 执行 / 验证：无窗口全量 pytest 130 passed，含14项新增分派/配置恢复/维度拒绝/训练-保存-加载-评估集成测试；测试替身注册后复用同一训练评估循环。既有三seed的100k模型各50局及Random复评共200条CSV记录与原评估完全一致，模型摘要一致，checkpoint SHA-256不变；复评输出位于自动清理的临时目录。git diff --check通过。
+- 关键结果：清单Stage 3同步为10/11项，算法勾选仅表示公共分派机制完成；DQN可训练/加载，Random仅评估/演示。环境、Agent方法、checkpoint格式及原始实验数据未修改。

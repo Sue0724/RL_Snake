@@ -190,6 +190,31 @@ episode  episode_return  score  episode_length  epsilon  loss  global_step
 
 ---
 
+### 公共 Agent 创建与模型加载
+
+入口脚本统一使用 `algorithms.factory`，避免各自创建和加载模型：
+
+```python
+from algorithms.factory import create_agent, load_agent
+
+agent = create_agent(env.state_dim, env.n_actions, cfg, training=True)
+# checkpoint_path 为已有模型路径；运行配置用于创建评估环境。
+agent, runtime_cfg = load_agent(checkpoint_path, device="cpu", render_mode=None)
+eval_env = SnakeEnv(runtime_cfg)
+try:
+    state, _ = eval_env.reset(seed=10000)
+    action = agent.select_action(state, training=False)
+finally:
+    eval_env.close()
+```
+
+当前 `algorithm="dqn"` 可训练及加载，`algorithm="random"` 仅可创建评估/演示策略。
+未实现的算法会明确报错；后续算法在 `algorithms/factory.py` 注册后复用训练/评估循环。
+加载时仅覆盖设备和渲染，环境及网络设置取自 checkpoint；既有模型格式兼容。
+`play.py` 当前仍只支持 Random/Human，模型演示命令待后续补齐。
+
+---
+
 ## 六、运行 DQN 训练（第八步的训练与日志部分）
 
 在项目根目录打开终端。本机之前安装依赖使用的是 `python3`。

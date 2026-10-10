@@ -18,6 +18,7 @@
 等实验脚本不受此影响，仍严格受 ``Config.seed`` 控制。
 """
 import argparse
+import dataclasses
 import os
 import random
 import sys
@@ -28,7 +29,7 @@ os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
 import pygame
 
 from common.config import build_parser, config_from_args
-from env.random_agent import RandomAgent
+from algorithms.factory import create_agent
 from env.snake_env import LEFT, RIGHT, STRAIGHT, SnakeEnv
 
 KEYS = {
@@ -128,7 +129,9 @@ def main(argv=None):
         print(f"本次随机种子：{config.seed}（加 --seed {config.seed} 可复现本次）")
 
     env = SnakeEnv(config)
-    agent = None if args.agent == "human" else RandomAgent(env.n_actions, seed=config.seed)
+    agent = None if args.agent == "human" else create_agent(
+        env.state_dim, env.n_actions, dataclasses.replace(config, algorithm="random")
+    )
     try:
         run(env, agent, args.fps)
     except KeyboardInterrupt:

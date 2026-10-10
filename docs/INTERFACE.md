@@ -529,6 +529,32 @@ agent = DQNAgent(env.state_dim, env.n_actions, config)
 
 不要写死 `11` 和 `3`。Stage 4 会引入 State V2，其维度与 V1 不同（`env.state_dim` 届时按 `state_mode` 返回对应值）；写死 `11` 的代码在切换 `state_mode` 后会直接抛形状错误，且报错位置离原因很远。
 
+### 公共创建与模型加载（10-10 已实现）
+
+入口统一使用 `algorithms/factory.py`，现有 Agent 方法和 checkpoint 格式不变。
+
+```python
+from algorithms.factory import create_agent, load_agent, validate_agent_config
+
+validate_agent_config(config, training=True)  # 创建训练输出目录之前校验
+agent = create_agent(env.state_dim, env.n_actions, config, training=True)
+agent, runtime_config = load_agent(checkpoint_path, device="cpu", render_mode=None)
+```
+
+- `create_agent` 按 `config.algorithm` 分派；当前注册 `dqn` 与 `random`。
+  Random 仅用于评估/演示，`training=True` 时拒绝，不能加载 checkpoint。
+- 后续算法在 `AGENT_CLASSES` 注册，遵守现有 Agent 接口及配置校验约定；
+  Double DQN / Dueling DQN 未实现时明确报错，不能回退成 DQN。
+- `load_agent` 从 checkpoint 恢复配置，校验格式及网络维度与环境的一致性，
+  再调用对应 Agent 的 `load`；维度来自无渲染临时环境，临时环境始终关闭。
+- 返回 `(agent, runtime_config)`。网络、状态、奖励、种子及训练参数来自模型；
+  `runtime_config` 只覆盖设备和渲染模式，用它创建评估/演示环境。
+  `agent.config` 保留恢复的训练配置，设备使用调用方指定值。
+- 加载后 Online/Target Network 均处于 eval 模式；选择动作仍须显式传
+  `training=False` 才会关闭探索。不恢复环境或 Replay Buffer，不修改来源模型。
+- `train.py`、`evaluate.py` 及 `play.py` 的随机策略创建已接入公共入口；
+  `play.py` 的模型加载 CLI 仍待实现。
+
 ### 责任边界
 
 | 内容 | 负责 |
@@ -556,6 +582,7 @@ agent = DQNAgent(env.state_dim, env.n_actions, config)
 | 10-09 | 经用户确认冻结 epsilon 衰减规格；§10 同步默认值 `1.0 / 0.05 / 0.9999` 并指向开发规范 §12，约定按训练环境步衰减、跨局延续、评估不衰减。 |
 | 10-10 | §12 明确 B 选定的回放池接口及 batch 容器：六个 NumPy 数组组成的 dict，保留两个独立结束标记；说明容量、状态副本、采样与预热责任。 |
 | 10-10 | §12 同步 DQNAgent 实现：明确预热期传入 None；新增完成环境步骤后的 on_env_step 调用；说明目标网络同步计数及 checkpoint 内容与边界。 |
+| 10-10 | §12 新增公共 Agent 创建/加载入口，统一算法分派、checkpoint 配置恢复、环境维度校验及运行设备/渲染配置。 |
 
 
 ## 13. 独立评估入口
