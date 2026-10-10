@@ -3,9 +3,8 @@
 import dataclasses
 from pathlib import Path
 
-import torch
-
 from algorithms.dqn import DQNAgent
+from common.checkpoint import CheckpointError, RESTORE_ERRORS, checkpoint_error, read_checkpoint
 from common.config import Config
 from env.random_agent import RandomAgent
 from env.snake_env import SnakeEnv
@@ -48,26 +47,29 @@ def load_agent(path, *, device="cpu", render_mode=None):
     不恢复环境/回放池，也不写入来源文件。
     """
     path = Path(path).expanduser().resolve()
-    saved = torch.load(path, map_location="cpu", weights_only=True)
-    if not isinstance(saved, dict) or saved.get("format_version") != 1:
-        raise ValueError("checkpoint 格式不支持，当前要求 format_version=1")
+    saved = read_checkpoint(path)
     try:
-        config = Config(**saved["config"])
-    except (KeyError, TypeError) as error:
-        raise ValueError("checkpoint 缺少有效的 Config 配置") from error
-    validate_agent_config(config, training=True)
-    config.device = device
-    config.render_mode = render_mode
+        try:
+            config = Config(**saved["config"])
+        except (KeyError, TypeError) as error:
+            raise ValueError("checkpoint 缺少有效的 Config 配置") from error
+        validate_agent_config(config, training=True)
+        config.device = device
+        config.render_mode = render_mode
 
-    # 检查保存的网络维度是否与配置所定义的环境一致；不创建渲染窗口。
-    env = SnakeEnv(dataclasses.replace(config, render_mode=None))
-    try:
-        if (saved.get("state_dim") != env.state_dim
-                or saved.get("n_actions") != env.n_actions):
-            raise ValueError("checkpoint 网络维度与保存的环境配置不匹配")
-        agent = create_agent(env.state_dim, env.n_actions, config)
-        agent.load(path)
-        agent.online_net.eval()
-    finally:
-        env.close()
+        # 无渲染探测环境维度；恢复已有数据，整个流程只读取一次文件。
+        env = SnakeEnv(dataclasses.replace(config, render_mode=None))
+        try:
+            if (saved.get("state_dim") != env.state_dim
+                    or saved.get("n_actions") != env.n_actions):
+                raise ValueError("checkpoint 网络维度与保存的环境配置不匹配")
+            agent = create_agent(env.state_dim, env.n_actions, config)
+            agent.restore_checkpoint(saved)
+            agent.online_net.eval()
+        finally:
+            env.close()
+    except CheckpointError:
+        raise
+    except RESTORE_ERRORS as error:
+        raise checkpoint_error(path, error) from error
     return agent, config

@@ -63,6 +63,7 @@ Snake-RL/
 │   ├── replay_buffer.py
 │   ├── config.py
 │   ├── utils.py
+│   ├── checkpoint.py
 │   └── metrics.py
 │
 ├── experiments/
@@ -98,7 +99,8 @@ Snake-RL/
 │   ├── test_networks.py
 │   ├── test_replay_buffer.py
 │   ├── test_dqn.py
-│   └── test_agent_factory.py
+│   ├── test_agent_factory.py
+│   └── test_checkpoint_loading.py
 │
 ├── train.py
 ├── evaluate.py
@@ -179,6 +181,7 @@ python3 play.py --agent model --checkpoint path/to/checkpoint.pt --seed 10000 --
 以纯贪心策略跑一局，不训练、不保存模型。可指定 `--device`（默认 cpu）、`--seed` 和正整数 `--fps`；
 不传 seed 时随机选择并打印，传入相同 seed 可复现。模型模式拒绝覆盖棋盘、状态、奖励和训练参数。
 `Q` / `Esc`、关闭窗口或 `Ctrl+C` 可退出，结束时关闭窗口。
+评估和演示共用单次 checkpoint 读取与恢复流程；预期加载失败显示模型路径及简洁原因，无 traceback。
 
 随机与键盘模式仍可使用 `python3 play.py --agent random` / `python3 play.py --agent human`。
 

@@ -172,7 +172,11 @@ def main(argv=None):
     parser.add_argument("--output_dir", default="results/evaluations")
     parser.add_argument("--torch_threads", type=positive_int, default=1)
     args = parser.parse_args(argv)
-    evaluate(**vars(args))
+    try:
+        evaluate(**vars(args))
+    # CheckpointError 继承 ValueError；预期配置/加载错误统一由 argparse 报告。
+    except ValueError as error:
+        parser.error(str(error))
 
 
 if __name__ == "__main__":

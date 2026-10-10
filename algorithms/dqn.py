@@ -13,6 +13,7 @@ import torch
 from torch.nn import functional as F
 
 from algorithms.networks import QNetwork
+from common.checkpoint import RESTORE_ERRORS, checkpoint_error, read_checkpoint
 from common.config import Config
 
 
@@ -162,7 +163,14 @@ class DQNAgent:
 
     def load(self, path):
         """加载匹配结构的 checkpoint，使用当前智能体配置的设备。"""
-        checkpoint = torch.load(path, map_location=self.device, weights_only=True)
+        checkpoint = read_checkpoint(path, device=self.device)
+        try:
+            self.restore_checkpoint(checkpoint)
+        except RESTORE_ERRORS as error:
+            raise checkpoint_error(path, error) from error
+
+    def restore_checkpoint(self, checkpoint):
+        """从已读取的 checkpoint 恢复，不再访问文件；保留当前设备。"""
         if (checkpoint["format_version"] != 1
                 or checkpoint["state_dim"] != self.state_dim
                 or checkpoint["n_actions"] != self.n_actions

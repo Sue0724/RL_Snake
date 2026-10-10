@@ -63,6 +63,8 @@ A 的并行项（仅文档，不写代码）：
 
 ## 已完成
 
+- 10-10 按用户要求完善公共模型加载：新增 common/checkpoint.py 的 CheckpointError / read_checkpoint，统一文件、格式和恢复错误；play/evaluate CLI 显示来源路径及简洁提示，无 traceback。DQNAgent新增restore_checkpoint，原load(path)兼容；公共load_agent只读一次文件。新增19项测试，全量166 passed；三100k模型及Random的200条复评记录与原结果一致，来源模型哈希不变。
+
 - 10-10 play.py 新增 --agent model / --checkpoint，复用公共加载入口，以纯贪心演示一局；模型参数来自 checkpoint，只允许覆盖演示 seed、设备、渲染及 FPS。自动演示支持 Q / Esc、窗口关闭和 Ctrl+C 退出。新增17项测试，最终无窗口全量回归147 passed；已有100k模型演示score=22、steps=149，与对应评估一致，模型哈希未改变。
 
 - 10-10 按用户要求新增 algorithms/factory.py，统一 DQN/Random 创建、算法配置校验及 checkpoint 加载；训练、评估和随机演示接入公共创建入口。模型加载恢复保存配置，校验环境/网络维度，设备与渲染由调用方指定；现有 checkpoint 格式与评估字段保持兼容。
@@ -182,6 +184,8 @@ Stage 0 验收结论仍为 `Pending`，仅剩「所有成员理解接口」（`[
 ---
 
 ## 最近一次测试
+
+10-10 加载流程完善后：`SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy python3 -m pytest -q`：166 passed（含19项新增测试）。专项84 passed；单次读取、内存恢复零读取、旧load接口兼容及恢复后的下一次更新一致。现有三100k模型和Random复评200条记录/摘要与原结果一致，checkpoint SHA-256不变；输出仅使用自动清理的临时目录。
 
 10-10 模型演示实现后：`SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy python3 -m pytest -q`：147 passed（play专项22项，新增17项）。训练→保存→独立评估→演示同seed成绩一致；现有seed42的100k模型用seed10000运行真实play CLI得到score=22、steps=149，与原评估一致，checkpoint哈希不变。渲染与退出自动验证使用SDL dummy，未人工确认新模型窗口观感。此前公共入口复评200条记录与原结果一致。
 
