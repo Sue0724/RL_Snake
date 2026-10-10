@@ -133,7 +133,7 @@ target = reward + (1 - terminated) * gamma * max_a Q_target(next_state, a)
 | `env/snake_env.py` | 环境逻辑 | 不依赖 pygame，训练时不加载渲染代码 |
 | `env/renderer.py` | pygame 渲染 | `human` 建窗口 / `rgb_array` 离屏；`render_mode=None` 时完全不导入 |
 | `env/random_agent.py` | 随机策略 | **`select_action` 签名已对齐 Agent API，可作为 DQN 的参考实现** |
-| `play.py` | 可视化跑一局 | `--agent random` / `--agent human`，也可用于演示与人工验证 |
+| `play.py` | 可视化跑一局 | `--agent random` / `human` / `model`；模型模式需 `--checkpoint`，复用公共加载入口，纯贪心演示 |
 | `tests/` | 54 项 pytest | 环境 41 / 渲染 5 / 随机策略 3 / play 5 |
 
 **渲染是分层的**：`snake_env.py` 完全不 import pygame，只有在 `render_mode` 非 None 时才惰性导入 `renderer`。这样训练、评估、批量实验都不会加载渲染相关代码。

@@ -211,7 +211,7 @@ finally:
 当前 `algorithm="dqn"` 可训练及加载，`algorithm="random"` 仅可创建评估/演示策略。
 未实现的算法会明确报错；后续算法在 `algorithms/factory.py` 注册后复用训练/评估循环。
 加载时仅覆盖设备和渲染，环境及网络设置取自 checkpoint；既有模型格式兼容。
-`play.py` 当前仍只支持 Random/Human，模型演示命令待后续补齐。
+`play.py --agent model --checkpoint <路径>` 已接入公共加载入口，完整命令见第八节。
 
 ---
 
@@ -333,3 +333,23 @@ python3 evaluate.py --checkpoints results/logs/baseline_dqn_statev1_sparse_seed*
 | 当前进度 | `docs/PROJECT_STATUS.md` |
 | 阶段验收 | `docs/STAGE_CHECKLIST.md` |
 | 操作日志 | `memory.md` |
+
+
+---
+
+## 八、已训练模型可视化
+
+在项目根目录运行，将路径替换为已有训练目录中的 checkpoint.pt：
+
+```bash
+python3 play.py --agent model --checkpoint path/to/checkpoint.pt --seed 10000 --fps 20
+```
+
+- 模型模式通过公共 load_agent 恢复配置与权重，以纯贪心策略演示一局；不更新网络、不写 Replay Buffer、不保存模型。
+- 棋盘、状态、奖励及网络/训练参数来自 checkpoint，不能使用 CLI 覆盖；即使传入相同值也会拒绝，避免误以为覆盖已生效。
+- 可覆盖 `--seed`、`--device`（默认 cpu）、`--fps`（默认10，正整数）与 `--render_mode human`。其他渲染模式不支持。
+- 不传 seed 时随机取值并打印，传相同 seed 可复现演示；演示 seed 不改变模型保存的训练 seed。
+- 按 Q / Esc、关闭窗口或 Ctrl+C 可退出；跑完一局自动关闭窗口，终端输出 score / steps。
+- `--checkpoint` 只允许用于 `--agent model`；Random/Human 的运行方式不变。
+
+验证：训练→保存→评估→模型演示测试通过；已有seed42的100k模型在seed10000下score=22、steps=149，与原独立评估一致，模型文件未改变。渲染自动验证使用SDL dummy，未人工确认新窗口观感。

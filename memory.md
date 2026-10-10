@@ -234,3 +234,12 @@
 - 结果：Passed（公共入口实现及验证）；未实现 play.py 模型加载 CLI，未确认 Stage 2 / Stage 3 验收。
 - 执行 / 验证：无窗口全量 pytest 130 passed，含14项新增分派/配置恢复/维度拒绝/训练-保存-加载-评估集成测试；测试替身注册后复用同一训练评估循环。既有三seed的100k模型各50局及Random复评共200条CSV记录与原评估完全一致，模型摘要一致，checkpoint SHA-256不变；复评输出位于自动清理的临时目录。git diff --check通过。
 - 关键结果：清单Stage 3同步为10/11项，算法勾选仅表示公共分派机制完成；DQN可训练/加载，Random仅评估/演示。环境、Agent方法、checkpoint格式及原始实验数据未修改。
+
+本日追加模型可视化演示：
+- 操作内容：按用户要求为 play.py 增加 --agent model / --checkpoint，通过公共 load_agent 恢复模型和运行配置，纯贪心跑一局；模型模式仅允许覆盖 seed/device/render_mode/fps，拒绝环境和训练参数覆盖；校验FPS/seed及路径组合。为自动演示增加Q/Esc退出，将Agent创建放入环境清理保护区。
+- 涉及文件：play.py、tests/test_play.py、README.md、QUICKSTART.md、docs/INTERFACE.md、docs/HANDOVER.md、docs/STAGE_CHECKLIST.md、docs/PROJECT_STATUS.md、memory.md。
+- 结果：Passed（模型演示实现及自动验证）；Stage 2 / Stage 3正式验收仍为Pending，未提交/合并/推送。
+- 执行 / 验证：初轮play专项21 passed / 1 failed，初轮全量146 passed / 1 failed，均为损坏checkpoint在当前Torch触发未捕获IndexError；补齐CLI错误处理后play专项22 passed，最终无窗口全量147 passed。新增17项测试覆盖配置恢复、固定/随机演示seed、纯贪心且无更新、错误参数、损坏文件、Q/Esc/窗口退出与Ctrl+C清理；完整训练→保存→评估→演示的同seed成绩一致。
+- 执行 / 验证：真实play CLI加载已有seed42的100k模型，评估seed10000、fps1000，score=22、steps=149，与原评估记录一致；来源checkpoint SHA-256未改变。git diff --check通过。
+- 关键结果：Stage 3清单11/11项已有证据；使用 --agent model --checkpoint <路径> 运行模型演示，默认cpu。演示只读模型，训练seed保留，窗口关闭时释放环境。
+- 发现的问题：损坏checkpoint的异常提示已修复；本次使用SDL dummy自动验证渲染，未人工确认新模型窗口观感。

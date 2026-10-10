@@ -552,8 +552,8 @@ agent, runtime_config = load_agent(checkpoint_path, device="cpu", render_mode=No
   `agent.config` 保留恢复的训练配置，设备使用调用方指定值。
 - 加载后 Online/Target Network 均处于 eval 模式；选择动作仍须显式传
   `training=False` 才会关闭探索。不恢复环境或 Replay Buffer，不修改来源模型。
-- `train.py`、`evaluate.py` 及 `play.py` 的随机策略创建已接入公共入口；
-  `play.py` 的模型加载 CLI 仍待实现。
+- `train.py`、`evaluate.py` 及 `play.py` 已接入公共入口；
+  `play.py --agent model --checkpoint <路径>` 复用公共模型加载，详见 §14。
 
 ### 责任边界
 
@@ -583,6 +583,7 @@ agent, runtime_config = load_agent(checkpoint_path, device="cpu", render_mode=No
 | 10-10 | §12 明确 B 选定的回放池接口及 batch 容器：六个 NumPy 数组组成的 dict，保留两个独立结束标记；说明容量、状态副本、采样与预热责任。 |
 | 10-10 | §12 同步 DQNAgent 实现：明确预热期传入 None；新增完成环境步骤后的 on_env_step 调用；说明目标网络同步计数及 checkpoint 内容与边界。 |
 | 10-10 | §12 新增公共 Agent 创建/加载入口，统一算法分派、checkpoint 配置恢复、环境维度校验及运行设备/渲染配置。 |
+| 10-10 | 新增 §14 模型演示：checkpoint 配置来源、允许覆盖的参数、纯贪心及退出约定。 |
 
 
 ## 13. 独立评估入口
@@ -598,3 +599,17 @@ CSV 包含模型标识、训练/评估 seed、episode、score、episode_return�
 terminated、truncated；摘要标明 metrics_scope=evaluation，包含各模型的五项核心汇总、
 截断率及跨模型平均分统计。标准差使用总体标准差（ddof=0）。
 同组环境配置须一致；失败或中断保留部分 CSV，并明确摘要状态，运行方式见 QUICKSTART 第七节。
+
+
+## 14. 模型可视化演示入口
+
+`play.py --agent model --checkpoint <路径> --seed 10000 --fps 20` 演示已训练模型一局。
+模型通过 §12 公共 load_agent 恢复；环境/网络/训练参数来自 checkpoint，不接受 CLI 覆盖。
+允许指定 seed、device（默认cpu）、fps（正整数，默认10）及 render_mode（仅human）。
+未指定 seed 时随机取演示 seed 并打印；指定相同 seed 时轨迹可复现。
+演示 seed 只写入运行环境配置，不改写 Agent 的训练 seed 或来源 checkpoint。
+
+循环只调用 select_action(training=False)、env.step 与 env.render，不调用 update、on_env_step、save，
+不创建 Replay Buffer；不进行训练。模型加载失败、缺少路径或不兼容参数在创建窗口前报告 CLI 错误。
+跑完一局打印 score/steps 并关闭环境；自动演示支持窗口关闭、Q/Esc 和 Ctrl+C 退出。
+Random / Human 模式保持原用法，checkpoint 参数仅限 Model 模式。
