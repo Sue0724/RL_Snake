@@ -27,7 +27,7 @@
 |---|---|---|---|
 | 0 | 工程初始化与接口冻结 | 仅剩「所有成员理解接口」待确认 | 全员 |
 | 1 | Snake 环境与状态 | **Passed**（10-07 确认） | A |
-| 2 | DQN Baseline | 配置前置已完成，算法待实现（10-09 更新） | B |
+| 2 | DQN Baseline | 核心算法完成，待基线训练与评估验收（10-10 更新） | B |
 | 3 | 统一训练与评估框架 | 未开工 | B 主导，全员确认 |
 | 4 | 状态实验 | 未开工（方案已设计） | A |
 | 5 | Reward 与探索实验 | 未开工 | D |
@@ -191,7 +191,7 @@ V2 已在 `docs/INTERFACE.md` §4 写出完整规格，状态为 **预定方案�
 
 Stage 2 与 Stage 3 是全项目最重的连续两块，也是所有人的前置依赖。
 
-**配置前置已完成（10-09）**：经用户确认，epsilon 采用按训练环境步进行的指数衰减，默认值 `1.0 / 0.05 / 0.9999`，跨局延续，评估不衰减。完整执行规则以 `docs/AI_DEVELOPMENT_RULES.md` §12 为准。B 接下来据此实现 DQN；D 在 Stage 5 的探索实验沿用该基线规格。
+**配置前置已完成（10-09）**：经用户确认，epsilon 采用按训练环境步进行的指数衰减，默认值 `1.0 / 0.05 / 0.9999`，跨局延续，评估不衰减。完整执行规则以 `docs/AI_DEVELOPMENT_RULES.md` §12 为准。DQNAgent 已据此实现；D 在 Stage 5 的探索实验沿用该基线规格。
 
 **开工前请读两处**：
 
@@ -199,6 +199,16 @@ Stage 2 与 Stage 3 是全项目最重的连续两块，也是所有人的前置
 - `docs/AI_DEVELOPMENT_RULES.md` §12——已冻结的 `epsilon_decay` 执行规则
 
 Stage 3 的验收项里包含 `state_mode` 可配置，与 State V2 相关。
+
+**10-10 组件进度**：`algorithms/networks.py` 的 QNetwork 和
+`common/replay_buffer.py` 的 ReplayBuffer 已实现，相关 33 项测试通过。
+batch 采用六个 NumPy 数组组成的 dict，具体 key/shape/dtype 见 `INTERFACE.md` §12。
+第六/第七步的 `algorithms/dqn.py` 也已实现：动作选择、环境步衰减、Online/Target、
+Bellman 更新和 checkpoint 经 29 项新增测试验证，全量 116 passed。
+短程集成检查完成 160 步和 129 次更新；正式训练、长期数值稳定性及性能评估仍待进行。
+10-10 已补齐 `train.py`、`common/metrics.py` 和 `common/utils.py`，接通完整训练循环、
+逐局日志及自动 checkpoint；此次新增部分尚未运行验证。运行方式见 `QUICKSTART.md` 第六节。
+下一步由 B 验证入口与输出，执行基线训练，再做独立评估和相对 Random 的比较。
 
 ### 4.3 C：Stage 6
 

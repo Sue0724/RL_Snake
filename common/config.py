@@ -46,6 +46,7 @@ class Config:
     batch_size: int = 64
     buffer_size: int = 100_000
     min_buffer_size: int = 1_000
+    # 每成功完成这么多次梯度更新，将 Online 权重复制到 Target。
     target_update_interval: int = 1_000
     epsilon_start: float = 1.0
     epsilon_end: float = 0.05

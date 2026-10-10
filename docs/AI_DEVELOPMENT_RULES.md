@@ -392,7 +392,15 @@ epsilon = max(config.epsilon_end, epsilon * config.epsilon_decay)
 
 选择依据：按环境步衰减，探索率与明确的交互次数对应，便于在相同训练步数下比较策略。若使用旧值 `0.995` 按步衰减，约 598 步就达到下限，甚至早于默认回放池预热的 1,000 步；因此将默认值改为 `0.9999`。该值是基线起点，是否适合本环境仍需实际训练验证。
 
-**实现边界**：本次仅冻结规格并修改配置。实际 epsilon-greedy 与衰减执行逻辑由 B 在 Stage 2 / 3 实现；后续修改衰减语义或默认值仍需按 §20 走变更流程。
+**实现进度**：10-09 冻结规格并修改配置；10-10 已在 DQNAgent 中实现 epsilon-greedy 与 `on_env_step(training=True)` 衰减方法。训练循环须在成功完成 `env.step` 后调用一次；选择动作和网络更新均不触发衰减。10-10 新增 train.py，已接入此调用，训练入口尚未运行验证；Stage 3 的完整统一训练/评估框架仍待完成。后续修改衰减语义或默认值仍需按 §20 走变更流程。
+
+### `target_update_interval` 的执行语义
+
+Stage 2 实现采用按成功的梯度更新次数进行硬同步，默认每 1,000 次
+`update(batch)` 将 Online Network 权重复制到 Target Network。
+构造时先同步一次；预热期间 `update(None)`、仅选择动作和仅完成环境步骤
+都不增加更新次数，也不触发同步。计数器为 `agent.update_count`，存入 checkpoint。
+目标网络始终关闭梯度、保持 eval 模式。
 
 ### 组织形式
 

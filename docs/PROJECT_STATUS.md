@@ -2,13 +2,13 @@
 
 ## 当前状态
 
-当前 Stage：`Stage 2 - DQN Baseline`（负责人 B，配置前置已完成，算法待实现）
+当前 Stage：`Stage 2 - DQN Baseline`（负责人 B，核心算法已实现，待基线训练与评估验收）
 
 总体状态：`In Progress`
 
-最后更新：`10-09`
+最后更新：`10-10`
 
-Stage 1 已于 10-07 通过验收，成果已合入 `main`。Stage 2 已完成 epsilon 衰减规格冻结及默认配置修改；DQN 算法尚未实现，未通过阶段验收。
+Stage 1 已于 10-07 通过验收，成果已合入 `main`。Stage 2 的 epsilon 配置、Q 网络、Replay Buffer、DQNAgent、目标网络、Bellman 更新和 checkpoint 已实现并通过测试；训练循环与基础日志代码已补齐，尚未运行验证。长程训练及相对 Random 的独立评估仍待完成，尚未通过阶段验收。
 
 A 的并行项——Stage 4 状态方案的纸面设计——**已完成**，写入 `docs/INTERFACE.md` §4（预定方案，待团队确认后冻结），不写代码，不构成跨阶段开发。
 
@@ -41,7 +41,7 @@ Passed
 
 ## 当前阶段目标
 
-Stage 2（负责人 B，配置前置已完成，算法待实现）：
+Stage 2（负责人 B，核心算法已完成，训练验收待完成）：
 
 - Q Network、Online / Target Network。
 - Replay Buffer。
@@ -61,7 +61,16 @@ A 的并行项（仅文档，不写代码）：
 
 ## 已完成
 
-- 10-09 经用户确认冻结 epsilon 衰减规格，将 `Config.epsilon_decay` 默认值从 `0.995` 改为 `0.9999`；开发规范、接口定义与交接文档同步。实际动作选择与衰减逻辑尚待实现。
+- 10-10 按用户要求新增 `train.py`、`common/metrics.py` 与 `common/utils.py`：接通无渲染 DQN 循环、预热采样更新、按步衰减和跨局重置；控制全局/环境/回放池种子。
+- 逐局 CSV 记录基础指标、run 标识及完整局标志，预热 loss 留空；新建独立目录保存完整配置、训练摘要与最新模型。支持局数或精确环境步预算、周期快照及 Ctrl+C 保存。此次新增代码为 `Not Tested`，未执行训练、测试或独立评估。
+- 10-10 完成第六步与第七步：新增 `algorithms/dqn.py`，实现 epsilon-greedy、Online/Target Network、Smooth L1 + Adam 更新，以及正确区分真终止与截断的 Bellman target；新增 `on_env_step` 在完成环境步骤后衰减，目标网络每 `target_update_interval` 次成功梯度更新硬同步。
+- checkpoint 保存并恢复两套网络、optimizer、配置、epsilon、两种计数及动作采样 RNG 状态；保留加载方的设备，不包含环境与 Replay Buffer 状态。
+- 新增 `tests/test_dqn.py` 29 项测试，含 160 步/129 次更新的环境集成检查；无窗口全量回归 116 项通过。基线的长期稳定性与得分表现尚未验证。
+- 10-10 按用户要求补齐当前 Python 3.10 的项目依赖，`python3 smoke_test.py` 6/6 通过，`python3 -m pip check` 通过。
+- 10-10 完成第四步 Q 网络：`algorithms/networks.py` 的 `QNetwork(state_dim, n_actions, hidden_dim)`，支持单状态和批量状态，输入/输出维度取自环境，两层 ReLU 隐藏层，输出原始 Q 值。
+- 10-10 完成第五步 Replay Buffer：`common/replay_buffer.py` 的 `ReplayBuffer(capacity, seed)`，六项经历独立存储、状态副本、固定容量环形覆盖、均匀无放回采样，batch 为六个 NumPy 数组组成的 dict；接口及速查页同步。
+- 新增 `tests/test_networks.py` 11 项与 `tests/test_replay_buffer.py` 22 项测试，包含环境 -> 回放池 -> Q 网络的集成检查；无窗口全量回归 87 项通过。
+- 10-09 经用户确认冻结 epsilon 衰减规格，将 `Config.epsilon_decay` 默认值从 `0.995` 改为 `0.9999`；开发规范、接口定义与交接文档同步。对应动作选择与衰减逻辑已于 10-10 实现。
 
 - 已确定项目主题：基于深度强化学习的贪吃蛇智能体设计与实验研究。
 - 已确定核心算法方向：DQN、Double DQN、Dueling DQN。
@@ -124,14 +133,16 @@ Stage 1（全部完成）：
 - [x] 修复 `play.py` 演示种子固定
 - [x] Stage 1 验收并由项目成员确认
 
-Stage 2（负责人 B，配置前置已完成，算法待实现）：
+Stage 2（负责人 B，核心算法已完成，训练验收待完成）：
 
 - [x] 确定 `epsilon_decay` 的衰减语义与默认取值
-- [ ] Q Network / Online + Target Network
-- [ ] Replay Buffer
-- [ ] epsilon-greedy 与 Bellman update
-- [ ] checkpoint 存取
-- [ ] 基础日志
+- [x] Q Network 基础结构与前向计算
+- [x] Replay Buffer 与 batch shape
+- [x] Online + Target Network 的初始化和同步
+- [x] epsilon-greedy 与 Bellman update
+- [x] checkpoint 存取
+- [x] 基础日志代码（尚未运行验证）
+- [ ] 基线训练数值稳定性与相对 Random 的性能验收
 
 Stage 4 前置（A，仅文档，已完成）：
 
@@ -149,9 +160,7 @@ Stage 0 验收结论仍为 `Pending`，仅剩「所有成员理解接口」（`[
 
 ### P1
 
-1. Stage 2 的 Q Network、Replay Buffer、epsilon-greedy、Bellman update 与 checkpoint 尚未实现。epsilon 规格已冻结，原配置决策阻塞已解除；Stage 3 及后续训练实验仍需等待 DQN 基线完成。
-
-2. 10-09 在本机当前 `python3` 运行 `smoke_test.py`：5/6 通过，第三方依赖检查因缺少 `matplotlib` 失败。配置专项检查通过；后续算法开发前需确认 IDE 与终端使用的 Python 环境已安装项目依赖。
+1. DQN 核心算法已实现并通过此前的短程集成测试；新训练入口与基础日志尚未运行验证，基线的持续训练稳定性及得分是否优于 Random 未验收。Stage 3 及后续实验仍需等待 Stage 2 通过。
 
 ### P2
 
@@ -163,16 +172,22 @@ Stage 0 验收结论仍为 `Pending`，仅剩「所有成员理解接口」（`[
 
 ## 最近一次测试
 
-测试时间：`10-09`
+第八步训练与日志代码：`Not Tested`，未运行验证；下列结果均属于此前第四至第七步，不能视为新增训练入口的测试结果。
+
+测试时间：`10-10`
 
 测试内容：
 
-- 使用本机 `python3` 验证 `Config` 默认值、`parse_args` 默认及显式覆盖、实例隔离、JSON 序列化和 CLI help：全部通过。
-- 核验默认指数衰减公式：完成 29,956 次衰减后达到 `0.05` 下限。这是规格公式核验，实际训练中的衰减逻辑尚未实现。
-- `python3 smoke_test.py`：5/6 通过，第三方依赖检查报 `ModuleNotFoundError: No module named 'matplotlib'`，退出码 1；包结构、配置默认值、配置覆盖、配置存档和目录检查通过。
+- 本机解释器：`/Library/Frameworks/Python.framework/Versions/3.10/bin/python3`；项目依赖已安装到该解释器。numpy 2.2.6 / torch 2.14.1 / pygame 2.6.1 / matplotlib 3.10.9 / pandas 2.3.3 / pytest 9.1.1。
+- `python3 -m pip check`：无依赖冲突。
+- `python3 smoke_test.py`：6/6 通过，退出码 0。
+- `python3 -m pytest tests/test_networks.py tests/test_replay_buffer.py -q`：33 passed，覆盖维度、原始 Q 值、梯度和单次 optimizer 更新、回放容量与采样、状态复制、两个结束标记及集成数据流。
+- `python3 -m pytest tests/test_dqn.py -q`：29 passed；显式验证普通步目标 5.5、真终止目标 2.0、截断目标 7.5，及 checkpoint 继续执行相同 batch 更新的一致性。
+- DQN 集成检查完成 160 个环境步骤、129 次更新，loss 均为有限值；使用小网络和缩短预热的测试配置，不作为正式实验结果。
+- `SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy python3 -m pytest -q`：116 passed。渲染相关回归使用无窗口模式，本次未重新人工游玩。
 - `git diff --check`：通过。
 
-结果：`Partial`（配置专项检查通过，完整依赖自检未通过）。Stage 2 的算法验收项仍未满足；此前 Stage 1 的历史验收记录见下节。
+结果：`Passed`（依赖补齐及第四至第七步的算法检查通过）。Stage 2 已满足 11/13 项验收，剩余持续训练稳定性与相对 Random 的性能对比；此前 Stage 1 的历史验收记录见下节。
 
 ---
 
@@ -219,10 +234,10 @@ python smoke_test.py（Stage 0 自检，config 改动后复跑）
 
 Stage 2（负责人 B，配置决策阻塞已解除）：
 
-- B 下一步实现 Q Network，再实现 Replay Buffer 与 DQN Agent；epsilon 执行逻辑须遵守 `docs/AI_DEVELOPMENT_RULES.md` §12 已冻结的规格
+- B 下一步按 `QUICKSTART.md` 第六节运行短程调试，核查日志及模型文件、预热后更新计数，再以相同预算训练 seeds 42/43/44。随后补齐独立评估，验证长期稳定性及相对 Random 的得分；通过后由成员确认进入 Stage 3。
 - B 实现前请读 `docs/INTERFACE.md` §12 的「实现须知」，其中说明签名参考实现与禁止硬编码 `state_dim` / `n_actions`
-- 本次配置与文档修改位于从 `main` 创建的本地分支 `codex/dqn`；后续开发在该分支继续，阶段验收后再合入 `main`（流程见 `docs/COLLABORATION_RULES.md`）
-- 10-09 第三步 Git 准备已核查通过：`git fetch origin` 成功，当前分支与最新 `origin/main` 无提交差异；已有配置及文档修改保留在工作区，尚未提交或推送。
+- 当前开发分支为从 `main` 创建的 `codex/dqn`；此前配置与文档修改已提交，第四至第八步的工作区修改尚未提交（部分已由用户暂存，本次保留暂存状态）。后续开发继续使用该分支，阶段验收后再合入 `main`（流程见 `docs/COLLABORATION_RULES.md`）
+- 10-09 第三步 Git 准备已核查通过，当时已获取远程更新并确认开发分支基于最新 `main`。
 
 A 的并行项（仅文档，不写代码，不构成跨阶段开发）：
 

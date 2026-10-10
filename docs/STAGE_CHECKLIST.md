@@ -66,17 +66,17 @@
 
 ## Stage 2：DQN
 
-- [ ] Q Network forward 正常
-- [ ] Replay Buffer 正常
-- [ ] batch shape 正确
-- [ ] epsilon-greedy 正常
-- [ ] Bellman target 正确
-- [ ] loss 正常
-- [ ] backward 正常
-- [ ] optimizer step 正常
-- [ ] Target Network 正常更新
-- [ ] 模型可保存
-- [ ] 模型可加载
+- [x] Q Network forward 正常
+- [x] Replay Buffer 正常
+- [x] batch shape 正确
+- [x] epsilon-greedy 正常
+- [x] Bellman target 正确
+- [x] loss 正常
+- [x] backward 正常
+- [x] optimizer step 正常
+- [x] Target Network 正常更新
+- [x] 模型可保存
+- [x] 模型可加载
 - [ ] 训练不出现持续 NaN
 - [ ] 性能明显优于 Random
 
@@ -84,7 +84,10 @@
 
 问题：
 
-- 待填写
+- 10-10 第四步与第五步完成：Q 网络 11 项测试、回放池与集成 22 项测试通过；覆盖 11/20 维输入兼容性、梯度与单次 optimizer 更新、容量覆盖、状态副本、结束标记和环境到网络的数据流。State V2 环境本身仍未实现。
+- 10-10 第六步与第七步完成：新增 DQN 29 项测试通过，验证动作选择、完成环境步骤后的衰减、普通/真终止/截断目标值、loss/梯度/optimizer、Target 同步及 checkpoint 加载后继续更新的一致性。无窗口全量回归 116 passed。
+- 集成检查执行 160 个训练环境步骤、129 次梯度更新，loss 均有限；这只是短程正确性检查，持续训练的数值稳定性及相对 Random 的表现仍需基线训练/评估验收，最后两项保持未完成。
+- 10-10 新增训练入口、逐局日志和自动 checkpoint，代码已补齐，尚未运行验证（Not Tested）；不据此勾选持续稳定性与性能项，也不判定 Stage 3 通过。
 
 ---
 

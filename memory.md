@@ -162,3 +162,49 @@
 
 发现的问题：
 - 当前 Python 环境缺少 `matplotlib`，完整依赖自检未通过；本次未修改依赖环境。
+
+## 10-10
+
+操作类型：Code / Docs / Test / Other
+结果：Partial（第四至第七步验证 Passed；新增训练/日志代码 Not Tested）
+
+操作内容：
+- 按用户要求执行 `python3 -m pip install -r requirements.txt`，将六项项目依赖及所需间接依赖安装到当前系统 Python 3.10；安装成功。
+- 完成第四步：新增 `algorithms/networks.py`，实现两层隐藏层的 QNetwork，按环境维度构造网络，支持单状态/批量 Tensor，输出原始动作价值。
+- 完成第五步：新增 `common/replay_buffer.py`，实现容量覆盖、状态复制和独立随机数采样，分别保存 terminated/truncated，采样返回六个 NumPy 数组组成的 dict。
+- 新增组件及集成测试，同步接口定义、速查页、目录说明、交接文档和阶段清单；第四/第五步完成，完整 DQN 算法未标为通过。
+- 按用户要求完成第六步和第七步：新增 DQNAgent，复用 QNetwork，实现 epsilon-greedy、Online/Target Network、Bellman target、Smooth L1 loss、Adam 更新及 checkpoint。
+- 新增 `on_env_step(training=True)`，在成功完成环境步骤后计步和衰减；目标网络按成功梯度更新次数同步，预热期通过 `update(None)` 跳过更新。
+- checkpoint 恢复网络、optimizer、配置、epsilon、计数与动作 RNG，校验网络结构并保留加载方的设备；环境与回放池状态由训练框架另行管理。
+- 同步接口、配置注释、速查页与阶段清单；Stage 2 的 11/13 项已满足，长期稳定性和相对 Random 的性能仍未判为通过。
+- 按用户要求补齐第八步中的训练循环与基本日志：新增 `train.py`，逐步调用选动作、环境交互、回放存储、epsilon 计步衰减及预热后网络更新；局末记录指标并延续 RNG 重置环境。
+- 新增 `common/utils.py` 设置 Python/NumPy/Torch/CUDA 种子，新增 `common/metrics.py` 新建独立 run 目录、逐局写入并 flush CSV、保存配置及训练摘要。
+- 实现局数/精确环境步预算、周期/结束模型保存、Ctrl+C 中断记录和失败摘要；步数预算耗尽的未完成局单独标识，完整局用于汇总，训练摘要不当作评估结果。
+- 补充短程调试与三 seed 同预算训练命令、日志含义和后续评估步骤；未实施独立 evaluate，也未标记 Stage 2/3 通过。
+
+涉及文件：
+- `algorithms/networks.py`、`common/replay_buffer.py`、`tests/test_networks.py`、`tests/test_replay_buffer.py`。
+- `docs/INTERFACE.md`、`QUICKSTART.md`、`README.md`、`requirements.txt`（网络规模注释）、`docs/HANDOVER.md`、`docs/STAGE_CHECKLIST.md`、`docs/PROJECT_STATUS.md`、`memory.md`。
+- `algorithms/dqn.py`、`tests/test_dqn.py`、`common/config.py`（同步计数注释）、`docs/AI_DEVELOPMENT_RULES.md`（执行语义与实现进度）。
+- `train.py`、`common/metrics.py`、`common/utils.py` 及训练说明/状态文档。
+
+执行 / 验证：
+- 解释器：`/Library/Frameworks/Python.framework/Versions/3.10/bin/python3`。numpy 2.2.6 / torch 2.14.1 / pygame 2.6.1 / matplotlib 3.10.9 / pandas 2.3.3 / pytest 9.1.1 安装完成；`python3 -m pip check` 通过。
+- `python3 smoke_test.py`：6/6 通过，退出码 0。
+- `python3 -m pytest tests/test_networks.py tests/test_replay_buffer.py -q`：33 passed。
+- `SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy python3 -m pytest -q`：87 passed，已有环境/渲染/演示入口的回归均通过；未重新人工游玩。
+- 实跑 QUICKSTART 新增的组件示例，输出 Q 值形状 `(1, 3)`；核验默认网络参数量为 18,435。
+- `python3 -m pytest tests/test_dqn.py -q`：29 passed，显式核验普通/真终止/截断的 Bellman 值、梯度更新、Target 同步以及 checkpoint 加载后继续执行相同更新的一致性。
+- 第六/第七步后复跑 `python3 smoke_test.py`：6/6 通过；无窗口全量回归：116 passed。
+- 实跑 QUICKSTART 的 DQN 单步示例：成功完成 1 个环境步骤，epsilon 降至 0.9999，预热期 `update(None)` 返回 None。
+- DQN 集成检查执行 160 个环境步骤与 129 次梯度更新，loss 均有限。该短程测试不作为正式学习效果或长期稳定性结论。
+- `git diff --check`：通过。
+- 第八步本次新增训练入口与日志代码：Not Tested，未执行程序或测试；未生成训练模型、日志或性能数据。此前通过的结果不覆盖本次新增代码。
+
+关键结果：
+- Q 网络、Replay Buffer、batch shape、epsilon-greedy、Bellman 更新、loss/梯度/optimizer、Target 同步及模型存取共 11 项 Stage 2 验收已满足；持续训练稳定性和相对 Random 的得分仍待验收。
+- 完整训练循环与基础日志代码已补齐，验证状态为 Not Tested。
+
+发现的问题：
+- 安装期间下载重试及 pip 版本检查遇到 SSL 错误，依赖安装最终成功，自检与依赖一致性检查通过。
+- 新训练入口尚未运行验证；当前没有新的训练或独立评估结果。
