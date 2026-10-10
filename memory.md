@@ -317,3 +317,6 @@
 - 后续影响：`algorithm` 现可切换 `dqn` / `double_dqn` / `dueling_dqn`，三者共用现有
   Replay Buffer、训练循环、checkpoint 与评估协议。短预算均分只用于验收链路，
   不能据此宣称算法优劣或收敛；项目成员确认 Stage 6 后，D 再执行 Stage 4 + 5 + 7。
+- 版本操作：实现与结果提交在从 `main` 开出的 `feature/stage6-algorithms` 分支，
+  实现提交为 `31114dd`；已创建轻量标签 `archive/c-stage6-implemented` 指向该提交，
+  用于固定 C 部分版本。远端推送因 GitHub 连接失败尚未完成。
