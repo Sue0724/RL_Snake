@@ -1,0 +1,99 @@
+{
+  "status": "completed",
+  "protocol": {
+    "algorithms": [
+      "dqn",
+      "double_dqn",
+      "dueling_dqn"
+    ],
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "total_steps": 20000,
+    "num_episodes": 20,
+    "eval_seed": 10000,
+    "torch_threads": 4
+  },
+  "training_runs": [
+    {
+      "algorithm": "dqn",
+      "seed": 42,
+      "run_dir": "C:\\Users\\88854\\Desktop\\project-codex\\RL_Snake\\results\\logs\\debug_algorithm_dqn_statev1_sparse_seed42_20261010_222236_476674_99040957",
+      "checkpoint": "C:\\Users\\88854\\Desktop\\project-codex\\RL_Snake\\results\\logs\\debug_algorithm_dqn_statev1_sparse_seed42_20261010_222236_476674_99040957\\checkpoint.pt"
+    },
+    {
+      "algorithm": "dqn",
+      "seed": 43,
+      "run_dir": "C:\\Users\\88854\\Desktop\\project-codex\\RL_Snake\\results\\logs\\debug_algorithm_dqn_statev1_sparse_seed43_20261010_222312_428261_8435935e",
+      "checkpoint": "C:\\Users\\88854\\Desktop\\project-codex\\RL_Snake\\results\\logs\\debug_algorithm_dqn_statev1_sparse_seed43_20261010_222312_428261_8435935e\\checkpoint.pt"
+    },
+    {
+      "algorithm": "dqn",
+      "seed": 44,
+      "run_dir": "C:\\Users\\88854\\Desktop\\project-codex\\RL_Snake\\results\\logs\\debug_algorithm_dqn_statev1_sparse_seed44_20261010_222347_402045_cb915684",
+      "checkpoint": "C:\\Users\\88854\\Desktop\\project-codex\\RL_Snake\\results\\logs\\debug_algorithm_dqn_statev1_sparse_seed44_20261010_222347_402045_cb915684\\checkpoint.pt"
+    },
+    {
+      "algorithm": "double_dqn",
+      "seed": 42,
+      "run_dir": "C:\\Users\\88854\\Desktop\\project-codex\\RL_Snake\\results\\logs\\debug_algorithm_double_dqn_statev1_sparse_seed42_20261010_222421_175952_d9725a42",
+      "checkpoint": "C:\\Users\\88854\\Desktop\\project-codex\\RL_Snake\\results\\logs\\debug_algorithm_double_dqn_statev1_sparse_seed42_20261010_222421_175952_d9725a42\\checkpoint.pt"
+    },
+    {
+      "algorithm": "double_dqn",
+      "seed": 43,
+      "run_dir": "C:\\Users\\88854\\Desktop\\project-codex\\RL_Snake\\results\\logs\\debug_algorithm_double_dqn_statev1_sparse_seed43_20261010_222457_976518_a963744f",
+      "checkpoint": "C:\\Users\\88854\\Desktop\\project-codex\\RL_Snake\\results\\logs\\debug_algorithm_double_dqn_statev1_sparse_seed43_20261010_222457_976518_a963744f\\checkpoint.pt"
+    },
+    {
+      "algorithm": "double_dqn",
+      "seed": 44,
+      "run_dir": "C:\\Users\\88854\\Desktop\\project-codex\\RL_Snake\\results\\logs\\debug_algorithm_double_dqn_statev1_sparse_seed44_20261010_222537_619413_43b38fb8",
+      "checkpoint": "C:\\Users\\88854\\Desktop\\project-codex\\RL_Snake\\results\\logs\\debug_algorithm_double_dqn_statev1_sparse_seed44_20261010_222537_619413_43b38fb8\\checkpoint.pt"
+    },
+    {
+      "algorithm": "dueling_dqn",
+      "seed": 42,
+      "run_dir": "C:\\Users\\88854\\Desktop\\project-codex\\RL_Snake\\results\\logs\\debug_algorithm_dueling_dqn_statev1_sparse_seed42_20261010_222618_608850_3ada1c8e",
+      "checkpoint": "C:\\Users\\88854\\Desktop\\project-codex\\RL_Snake\\results\\logs\\debug_algorithm_dueling_dqn_statev1_sparse_seed42_20261010_222618_608850_3ada1c8e\\checkpoint.pt"
+    },
+    {
+      "algorithm": "dueling_dqn",
+      "seed": 43,
+      "run_dir": "C:\\Users\\88854\\Desktop\\project-codex\\RL_Snake\\results\\logs\\debug_algorithm_dueling_dqn_statev1_sparse_seed43_20261010_222704_637561_e009c4fd",
+      "checkpoint": "C:\\Users\\88854\\Desktop\\project-codex\\RL_Snake\\results\\logs\\debug_algorithm_dueling_dqn_statev1_sparse_seed43_20261010_222704_637561_e009c4fd\\checkpoint.pt"
+    },
+    {
+      "algorithm": "dueling_dqn",
+      "seed": 44,
+      "run_dir": "C:\\Users\\88854\\Desktop\\project-codex\\RL_Snake\\results\\logs\\debug_algorithm_dueling_dqn_statev1_sparse_seed44_20261010_222751_694664_afea71b2",
+      "checkpoint": "C:\\Users\\88854\\Desktop\\project-codex\\RL_Snake\\results\\logs\\debug_algorithm_dueling_dqn_statev1_sparse_seed44_20261010_222751_694664_afea71b2\\checkpoint.pt"
+    }
+  ],
+  "evaluation_dir": "C:\\Users\\88854\\Desktop\\project-codex\\RL_Snake\\results\\evaluations\\evaluate_20261010_222836_955475_b7e30d7e",
+  "algorithms": {
+    "dqn": {
+      "num_models": 3,
+      "num_seeds": 3,
+      "mean_score": 18.2,
+      "std_of_model_mean_scores": 2.5152865973217975,
+      "best_model": "dqn_3_seed44"
+    },
+    "double_dqn": {
+      "num_models": 3,
+      "num_seeds": 3,
+      "mean_score": 20.383333333333333,
+      "std_of_model_mean_scores": 0.817856276425686,
+      "best_model": "double_dqn_4_seed42"
+    },
+    "dueling_dqn": {
+      "num_models": 3,
+      "num_seeds": 3,
+      "mean_score": 19.650000000000002,
+      "std_of_model_mean_scores": 1.257643298660898,
+      "best_model": "dueling_dqn_8_seed43"
+    }
+  }
+}

@@ -31,7 +31,7 @@
 | 3 | 统一训练与评估框架 | **Passed**（10-10 确认） | B 主导，全员确认 |
 | 4 | 状态实验 | 未开工（方案已设计） | D（10-10 由 A 调整） |
 | 5 | Reward 与探索实验 | 未开工 | D |
-| 6 | Double DQN / Dueling DQN | 未开工，**下一个开工项** | C |
+| 6 | Double DQN / Dueling DQN | 实现与自检完成，待团队确认 | C |
 | 7 | 综合实验 | 未开工 | D 主导，全员 |
 | 8 | Demo 与课程汇报 | 未开工 | 全员 |
 
@@ -223,6 +223,11 @@ Stage 6 在 Stage 3 之后。要做的两件事与已有设计的关系：
 
 **受 State V2 影响的唯一一点**：网络输入层维度。按 5.2 节第 1 条写就不会有问题。
 
+10-10 实现进度：`algorithms/double_dqn.py`、`algorithms/dueling_dqn.py` 与
+`DuelingQNetwork` 已实现，`factory.py` 已注册三种学习算法；
+`experiments/algorithm_experiment/run.py` 复用公共 `train()` / `evaluate()` 编排对比。
+全量回归 180 passed，三种算法各 3 seeds 的 20k 步调试评估已完成。
+
 ### 4.4 D：Stage 5 + Stage 7
 
 **Stage 5（Reward 与探索）**：`docs/PROJECT_PLAN.md` 中本阶段负责人是 D。
@@ -255,7 +260,9 @@ Stage 1 (环境) ──→ Stage 2 (DQN) ──→ Stage 3 (统一框架) ──
                                      Stage 4 (状态) · Stage 5 (Reward) ──→ Stage 7 (综合) ──→ Stage 8 (汇报)
 ```
 
-**Stage 1 / 2 / 3 已全部通过验收，瓶颈已解除。** 当前下一个开工项是 **Stage 6（C）**；Stage 6 完成后由 D 一次性执行 Stage 4 + 5，再接 Stage 7。完整执行顺序见 `docs/PROJECT_PLAN.md` 的「执行顺序」一节。
+**Stage 1 / 2 / 3 已全部通过验收。** Stage 6 实现与自检已完成，等待团队确认；
+确认后由 D 一次性执行 Stage 4 + 5，再接 Stage 7。完整执行顺序见
+`docs/PROJECT_PLAN.md` 的「执行顺序」一节。
 
 ---
 

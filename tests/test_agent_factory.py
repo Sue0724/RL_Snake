@@ -10,6 +10,8 @@ import pytest
 import torch
 
 from algorithms.dqn import DQNAgent
+from algorithms.double_dqn import DoubleDQNAgent
+from algorithms.dueling_dqn import DuelingDQNAgent
 from algorithms import factory
 from algorithms.factory import create_agent, load_agent
 from common.config import Config
@@ -34,7 +36,17 @@ def test_creation_dispatches_dqn_and_random_without_mutating_config():
     assert dataclasses.asdict(config) == original
 
 
-@pytest.mark.parametrize("algorithm", ["double_dqn", "dueling_dqn", "unknown"])
+@pytest.mark.parametrize(
+    "algorithm,agent_class",
+    [("double_dqn", DoubleDQNAgent), ("dueling_dqn", DuelingDQNAgent)],
+)
+def test_creation_dispatches_stage6_algorithms(algorithm, agent_class):
+    agent = create_agent(20, 4, Config(algorithm=algorithm, hidden_dim=16), training=True)
+    assert isinstance(agent, agent_class)
+    assert agent.online_net(torch.zeros(20)).shape == (4,)
+
+
+@pytest.mark.parametrize("algorithm", ["unknown"])
 def test_unsupported_algorithm_is_rejected_in_factory_and_training(tmp_path, algorithm):
     config = Config(algorithm=algorithm)
     with pytest.raises(ValueError, match="尚未支持"):
@@ -105,19 +117,22 @@ def test_invalid_checkpoint_metadata_is_rejected(tmp_path, change, message):
         load_agent(path)
 
 
-def test_unsupported_algorithm_in_checkpoint_is_not_loaded_as_dqn(tmp_path):
+@pytest.mark.parametrize(
+    "algorithm,agent_class",
+    [("double_dqn", DoubleDQNAgent), ("dueling_dqn", DuelingDQNAgent)],
+)
+def test_checkpoint_algorithm_loads_corresponding_agent(tmp_path, algorithm, agent_class):
     path = tmp_path / "checkpoint.pt"
-    create_agent(11, 3, Config(hidden_dim=16)).save(path)
-    payload = torch.load(path, weights_only=True)
-    payload["config"]["algorithm"] = "double_dqn"
-    torch.save(payload, path)
-    with pytest.raises(ValueError, match="尚未支持"):
-        load_agent(path)
+    create_agent(11, 3, Config(algorithm=algorithm, hidden_dim=16)).save(path)
+    restored, runtime = load_agent(path)
+    assert isinstance(restored, agent_class)
+    assert runtime.algorithm == algorithm
 
 
-def test_training_save_load_evaluation_preserves_model_and_separates_runs(tmp_path):
-    config = Config(hidden_dim=16, batch_size=4, min_buffer_size=4, buffer_size=32,
-                    target_update_interval=5, max_steps_per_episode=20)
+@pytest.mark.parametrize("algorithm", ["dqn", "double_dqn", "dueling_dqn"])
+def test_training_save_load_evaluation_preserves_model_and_separates_runs(tmp_path, algorithm):
+    config = Config(algorithm=algorithm, hidden_dim=16, batch_size=4, min_buffer_size=4,
+                    buffer_size=32, target_update_interval=5, max_steps_per_episode=20)
     first, status = train(config, output_dir=tmp_path / "train", total_steps=40)
     second, _ = train(config, output_dir=tmp_path / "train", total_steps=40)
     assert status == "completed" and first != second

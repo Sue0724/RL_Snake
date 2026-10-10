@@ -541,11 +541,13 @@ agent = create_agent(env.state_dim, env.n_actions, config, training=True)
 agent, runtime_config = load_agent(checkpoint_path, device="cpu", render_mode=None)
 ```
 
-- `create_agent` 按 `config.algorithm` 分派；当前注册 `dqn` 与 `random`。
+- `create_agent` 按 `config.algorithm` 分派；当前注册 `dqn`、`double_dqn`、
+  `dueling_dqn` 与 `random`。
   Random 仅用于评估/演示，`training=True` 时拒绝，不能加载 checkpoint。
 - 后续算法在 `AGENT_CLASSES` 注册，遵守现有 Agent 接口及配置校验约定；
   须提供 `restore_checkpoint(checkpoint)` 内存恢复方法。
-  Double DQN / Dueling DQN 未实现时明确报错，不能回退成 DQN。
+  Double DQN 复用 DQN 训练循环并替换 target 计算；Dueling DQN 复用训练循环并
+  替换为 `DuelingQNetwork`，不存在独立训练脚本。
 - `load_agent` 从 checkpoint 恢复配置，校验格式及网络维度与环境的一致性，
   再调用对应 Agent 的 `restore_checkpoint(saved)`；整个流程只读取一次文件。
   维度来自无渲染临时环境，临时环境始终关闭。
@@ -594,6 +596,7 @@ agent, runtime_config = load_agent(checkpoint_path, device="cpu", render_mode=No
 | 10-10 | §12 新增公共 Agent 创建/加载入口，统一算法分派、checkpoint 配置恢复、环境维度校验及运行设备/渲染配置。 |
 | 10-10 | 新增 §14 模型演示：checkpoint 配置来源、允许覆盖的参数、纯贪心及退出约定。 |
 | 10-10 | 公共加载改为单次读取并委托 restore_checkpoint；新增 CheckpointError，统一评估/演示 CLI 的预期加载错误提示。 |
+| 10-10 | Stage 6 注册 `double_dqn` / `dueling_dqn`；Double DQN 由 Online 选动作、Target 评估，Dueling 网络按 `Q=V+A-mean(A)` 聚合。 |
 
 
 ## 13. 独立评估入口

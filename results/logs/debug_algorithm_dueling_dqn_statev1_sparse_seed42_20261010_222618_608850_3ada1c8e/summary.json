@@ -1,0 +1,28 @@
+{
+  "run_id": "debug_algorithm_dueling_dqn_statev1_sparse_seed42_20261010_222618_608850_3ada1c8e",
+  "algorithm": "dueling_dqn",
+  "seed": 42,
+  "state_mode": "v1",
+  "reward_mode": "sparse",
+  "status": "completed",
+  "metrics_scope": "training",
+  "run_settings": {
+    "budget_type": "environment_steps",
+    "total_steps": 20000,
+    "log_every": 10,
+    "checkpoint_every": 100,
+    "torch_threads": 4,
+    "experiment": "debug_algorithm"
+  },
+  "completed_episodes": 761,
+  "global_step": 20000,
+  "update_count": 19001,
+  "epsilon": 0.13532174948275888,
+  "wall_clock_time": 46.01398899999913,
+  "mean_score": 1.7095926412614981,
+  "std_score": 2.453997241681366,
+  "max_score": 14,
+  "mean_return": 7.09592641261498,
+  "mean_episode_length": 26.268068331143233,
+  "error": null
+}

@@ -20,6 +20,8 @@ from common.config import Config
 class DQNAgent:
     """复用 QNetwork 的 DQN 智能体，接口见 docs/INTERFACE.md 第 12 节。"""
 
+    network_class = QNetwork
+
     def __init__(self, state_dim: int, n_actions: int, config: Config):
         self.config = dataclasses.replace(config)
         self._validate_config(self.config)
@@ -31,7 +33,9 @@ class DQNAgent:
         # 在 CPU 上可复现地初始化，不改变调用方的 Torch 随机数状态。
         with torch.random.fork_rng(devices=[]):
             torch.random.default_generator.manual_seed(self.config.seed)
-            self.online_net = QNetwork(state_dim, n_actions, self.config.hidden_dim)
+            self.online_net = self.network_class(
+                state_dim, n_actions, self.config.hidden_dim
+            )
         self.online_net.to(self.device)
         self.target_net = copy.deepcopy(self.online_net)
         self.target_net.requires_grad_(False)

@@ -170,31 +170,34 @@
 
 ### Double DQN
 
-- [ ] Online Network 负责选动作
-- [ ] Target Network 负责评估
-- [ ] 与 DQN 共享公共模块
-- [ ] 训练正常
+- [x] Online Network 负责选动作
+- [x] Target Network 负责评估
+- [x] 与 DQN 共享公共模块
+- [x] 训练正常
 
 ### Dueling DQN
 
-- [ ] Shared Feature 正常
-- [ ] Value Stream 正常
-- [ ] Advantage Stream 正常
-- [ ] 聚合公式正确
-- [ ] 输出维度正确
-- [ ] 训练正常
+- [x] Shared Feature 正常
+- [x] Value Stream 正常
+- [x] Advantage Stream 正常
+- [x] 聚合公式正确
+- [x] 输出维度正确
+- [x] 训练正常
 
 ### 通用
 
-- [ ] 三算法可统一切换
-- [ ] 三算法可统一评估
-- [ ] 不存在重复训练系统
+- [x] 三算法可统一切换
+- [x] 三算法可统一评估
+- [x] 不存在重复训练系统
 
-验收结论：`Pending`
+验收结论：`待团队确认`（技术项 13/13 已有测试与运行证据）
 
 问题：
 
-- 待填写
+- 全量回归 `180 passed`；三算法训练/保存/加载/评估集成测试通过。
+- 三算法各 3 seeds 的 20k 步调试评估完成：DQN 18.20、Double DQN 20.38、
+  Dueling DQN 19.65，Random 0.10。该结果仅用于验收链路，不作为正式算法结论。
+- 正式预算下的性能比较由 Stage 7 统一执行；当前不能宣称收敛或算法优劣。
 
 ---
 

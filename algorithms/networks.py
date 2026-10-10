@@ -38,3 +38,35 @@ class QNetwork(nn.Module):
                 f"收到 {tuple(states.shape)}"
             )
         return self.layers(states)
+
+
+class DuelingQNetwork(nn.Module):
+    """共享特征层加 Value / Advantage 双流的 Dueling Q 网络。"""
+
+    def __init__(self, state_dim: int, n_actions: int, hidden_dim: int):
+        super().__init__()
+        if state_dim <= 0 or n_actions <= 0 or hidden_dim <= 0:
+            raise ValueError("state_dim、n_actions 和 hidden_dim 必须为正整数")
+
+        self.state_dim = state_dim
+        self.n_actions = n_actions
+        self.features = nn.Sequential(
+            nn.Linear(state_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),
+        )
+        self.value = nn.Linear(hidden_dim, 1)
+        self.advantage = nn.Linear(hidden_dim, n_actions)
+
+    def forward(self, states: torch.Tensor) -> torch.Tensor:
+        """按 Q=V+(A-mean(A)) 聚合；输出形状与 QNetwork 一致。"""
+        if states.ndim not in (1, 2) or states.shape[-1] != self.state_dim:
+            raise ValueError(
+                f"输入形状应为 ({self.state_dim},) 或 (batch_size, {self.state_dim})，"
+                f"收到 {tuple(states.shape)}"
+            )
+        features = self.features(states)
+        value = self.value(features)
+        advantage = self.advantage(features)
+        return value + advantage - advantage.mean(dim=-1, keepdim=True)

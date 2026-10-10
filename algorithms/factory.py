@@ -4,6 +4,8 @@ import dataclasses
 from pathlib import Path
 
 from algorithms.dqn import DQNAgent
+from algorithms.double_dqn import DoubleDQNAgent
+from algorithms.dueling_dqn import DuelingDQNAgent
 from common.checkpoint import CheckpointError, RESTORE_ERRORS, checkpoint_error, read_checkpoint
 from common.config import Config
 from env.random_agent import RandomAgent
@@ -11,7 +13,12 @@ from env.snake_env import SnakeEnv
 
 
 # 只注册已经实现的算法，不把未实现算法映射为 DQN。
-AGENT_CLASSES = {"dqn": DQNAgent, "random": RandomAgent}
+AGENT_CLASSES = {
+    "dqn": DQNAgent,
+    "double_dqn": DoubleDQNAgent,
+    "dueling_dqn": DuelingDQNAgent,
+    "random": RandomAgent,
+}
 
 
 def validate_agent_config(config: Config, *, training=False):
@@ -19,8 +26,7 @@ def validate_agent_config(config: Config, *, training=False):
     if config.algorithm not in AGENT_CLASSES:
         supported = ", ".join(AGENT_CLASSES)
         raise ValueError(
-            f"algorithm={config.algorithm!r} 尚未支持；当前可用：{supported}。"
-            "Double DQN / Dueling DQN 留至 Stage 6 实现"
+            f"algorithm={config.algorithm!r} 尚未支持；当前可用：{supported}"
         )
     if config.algorithm == "random":
         if training:

@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-当前 Stage：`Stage 6 - Double DQN / Dueling DQN`（负责人 C，未开工）
+当前 Stage：`Stage 6 - Double DQN / Dueling DQN`（负责人 C，实现与自检完成，待团队确认）
 
 总体状态：`In Progress`
 
@@ -11,6 +11,14 @@
 **Stage 1 / 2 / 3 均已通过验收。** Stage 1 于 10-07 确认；Stage 2 与 Stage 3 于 10-10 经项目成员确认。确认前由成员在 Windows + conda `snake-rl` 环境独立复验：`pip check` 无冲突、`smoke_test.py` 6/6、全量 `pytest -q` **166 passed**；三个 100k 模型的独立评估以相同 50 局种子在 Windows 上重跑，平均分 / 标准差 / 最高分与 B 的 macOS 结果**逐位一致**。
 
 Stage 2 关键数据：三个种子各完成 100,000 步、99,001 次更新，ε 降至下限 0.05，逐局 loss 无 NaN/Inf；同一 50 局独立评估均分 20.02 / 19.58 / 20.88，Random 0.04。**收敛仍未确认**（seed43 从 50k 到 100k 下降 4.67%，逐局标准差约 7）——收敛不属 Stage 2 验收项，仅记录备查。
+
+Stage 6 实现：`algorithms/double_dqn.py`、`algorithms/dueling_dqn.py` 和
+`DuelingQNetwork` 已完成；Double DQN 由 Online Network 选下一动作、Target Network
+评估，Dueling 按 `Q=V+A-mean(A)` 聚合。`factory.py` 已注册 `dqn`、`double_dqn`、
+`dueling_dqn`，三种算法复用同一 `train.py` / `evaluate.py`，不存在重复训练循环。
+全量测试 **180 passed**；三算法各 3 seeds 的 20k 步调试评估完成，均分为
+DQN 18.20、Double DQN 20.38、Dueling DQN 19.65，Random 0.10。该短预算结果
+只验证统一实验链路，不用于正式算法优劣结论；Stage 6 尚待项目成员确认。
 
 **10-10 调整**：Stage 4（状态实验）负责人由 A 改为 D，与 Stage 5、Stage 7 合并为同一条实验流水线，在 **Stage 6 之后**执行。原因与单变量纪律见 `docs/PROJECT_PLAN.md` 的「执行顺序」一节。State V2 的纸面方案仍保留在 `docs/INTERFACE.md` §4（预定方案，改由 D 在 Stage 4 开工前定稿冻结）。
 
@@ -28,7 +36,7 @@ Stage 2 关键数据：三个种子各完成 100,000 步、99,001 次更新，ε
 | 3 | 统一训练与评估框架 | Passed | B / 全员 |
 | 4 | 状态实验 | Pending | D |
 | 5 | Reward 与探索实验 | Pending | D |
-| 6 | Double DQN / Dueling DQN | Pending | C |
+| 6 | Double DQN / Dueling DQN | In Progress | C |
 | 7 | 综合实验 | Pending | D / 全员 |
 | 8 | Demo 与课程汇报 | Pending | 全员 |
 
@@ -47,11 +55,11 @@ Passed
 
 ## 当前阶段目标
 
-Stage 6（负责人 C，未开工，**下一个开工项**）：
+Stage 6（负责人 C，实现与自检完成，待团队确认）：
 
-- Double DQN：Online Network 选动作、Target Network 评估该动作。
-- Dueling DQN：共享特征层 + Value / Advantage 双流 + 聚合公式。
-- 与公共训练框架兼容，三种算法统一切换、统一评估，**不得各自建立独立训练逻辑**。
+- Double DQN：Online Network 选动作、Target Network 评估该动作，已实现。
+- Dueling DQN：共享特征层 + Value / Advantage 双流 + 聚合公式，已实现。
+- 与公共训练框架兼容，三种算法统一切换、统一评估，已通过专项、集成和全量回归。
 
 本阶段在已冻结的 State V1 与 sparse 奖励上执行，**不引入** State V2 或 shaping 奖励——它们属 Stage 4 / 5，由 D 在本阶段之后执行。
 
@@ -166,11 +174,13 @@ Stage 3（全部完成，10-10 通过验收）：
 - [x] config / seed / 日志 / checkpoint / 评估口径全部可配置并落盘
 - [x] 正式结果不会被意外覆盖（run 目录含时间戳与 UUID）
 
-Stage 6（负责人 C，下一个开工项）：
+Stage 6（负责人 C，实现完成，待团队确认）：
 
-- [ ] Double DQN
-- [ ] Dueling DQN
-- [ ] 与公共框架兼容，不存在重复训练系统
+- [x] Double DQN
+- [x] Dueling DQN
+- [x] 与公共框架兼容，不存在重复训练系统
+- [x] 三算法各 3 seeds 的 20k 步统一调试评估
+- [ ] 团队验收确认
 
 Stage 4 前置（A 设计，已完成；实施改由 D）：
 
@@ -212,6 +222,18 @@ Stage 0 验收结论仍为 `Pending`，仅剩「所有成员理解接口」（`[
 ---
 
 ## 最近一次测试
+
+10-10 **Stage 6 算法实现与调试实验（Windows + 仓库内 `.venv` Python 3.10.4）**：
+
+- `smoke_test.py`：6/6，exit 0。
+- `pip check`：无依赖冲突。
+- C 专项测试：`test_double_dqn.py`、`test_networks.py`、`test_agent_factory.py`、
+  `test_algorithm_experiment.py` 共 39 passed。
+- 无窗口全量回归：`pytest -q` **180 passed**（42.97s）。
+- 统一调试实验：3 算法 × seeds 42/43/44 × 20,000 步，训练 9/9 completed；
+  相同评估种子 10000～10019、每模型 20 局，评估状态 completed，wall clock 3.11s。
+- 汇总路径：`results/evaluations/evaluate_20261010_222836_955475_b7e30d7e/`，
+  包含 `algorithm_comparison.json`、逐局 `metrics.csv`、`summary.json`。
 
 10-10 **验收复验（Windows）**：解释器 `C:\Users\panmingdong\.conda\envs\snake-rl\python.exe`（Python 3.10.21）；numpy 2.2.6 / torch 2.14.1+cpu / pygame 2.6.1 / matplotlib 3.10.9 / pandas 2.3.3 / pytest 9.1.1，与文档记录一致。
 
@@ -288,13 +310,12 @@ python smoke_test.py（Stage 0 自检，config 改动后复跑）
 
 ## 下一步
 
-Stage 6（负责人 C，当前唯一开工项）：
+Stage 6 收尾（负责人 C）：
 
-- 实现 Double DQN 与 Dueling DQN，注册进 `algorithms/factory.py`，复用 `train.py` / `evaluate.py`，**不得新建独立训练脚本**（`AI_DEVELOPMENT_RULES.md` §10 / §13）
-- 实现前读 `docs/INTERFACE.md` §12「实现须知」：有签名参考实现，**禁止硬编码 `state_dim` / `n_actions`**——D 后续引入的 State V2 为 20 维，写死 11 会在切换后抛形状错误且报错点离原因很远
-- 在已冻结的 State V1 + sparse 奖励上执行，**不引入** State V2 或 shaping 奖励
+- 项目成员复核当前分支的代码、`180 passed` 结果和调试实验产物。
+- 验收确认前不进入 Stage 4 / 5；正式 100k 算法比较留给 Stage 7 统一执行。
 
-Stage 4 + Stage 5 + Stage 7（负责人 D，Stage 6 完成后执行）：
+Stage 4 + Stage 5 + Stage 7（负责人 D，Stage 6 验收后执行）：
 
 - 三个阶段**合并为一条流水线**，原因与单变量纪律见 `docs/PROJECT_PLAN.md` 的「执行顺序」一节
 - 顺序：定稿并冻结 State V2 方案（`docs/INTERFACE.md` §4，按 `AI_DEVELOPMENT_RULES.md` §20 走变更流程）→ 实现 V2 → 跑 E2 状态实验 → 跑 Stage 5 奖励 / 探索实验 → Stage 7 综合

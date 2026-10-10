@@ -282,3 +282,38 @@
 - 关键结果：`main` 上无未推送提交，工作树 clean。
 - 追加时回头核对：上一子记录的「版本操作」称改动「未合并回 `main`」，已被本条推翻；那条描述的是推送当时的中间状态，按 §21 保留为历史，当前状态以本条为准。分支 `docs/stage-acceptance-and-reassign` 未删除，`feature/env` 仍停留在 `7cfb0c8`（已废弃，未见删除需求）。
 - 复查记录：截至本条，`main` 与分支内容一致，无遗留待推送内容。
+
+本日追加 Stage 6 算法实现与算法对比实验：
+- 操作类型：Code / Test / Experiment / Docs。
+- 操作内容：在从 `main` 开出的 `feature/stage6-algorithms` 分支实现 C 部分。
+  `DQNAgent` 新增 `network_class` 扩展点；新增 `DoubleDQNAgent`，由 Online Network
+  选下一动作、Target Network 评估；新增 `DuelingQNetwork` 与 `DuelingDQNAgent`，
+  按 `Q=V+A-mean(A)` 聚合；`factory.py` 注册 `double_dqn` / `dueling_dqn`。
+  新增 `experiments/algorithm_experiment/run.py`，仅编排公共 `train()` / `evaluate()`。
+- 涉及文件：algorithms/dqn.py、algorithms/networks.py、algorithms/factory.py、
+  algorithms/double_dqn.py、algorithms/dueling_dqn.py、
+  experiments/algorithm_experiment/run.py、tests/test_double_dqn.py、
+  tests/test_networks.py、tests/test_agent_factory.py、
+  tests/test_algorithm_experiment.py、README.md、QUICKSTART.md、
+  docs/INTERFACE.md、docs/PROJECT_STATUS.md、docs/STAGE_CHECKLIST.md、
+  docs/HANDOVER.md、memory.md。
+- 执行 / 验证：仓库内 `.venv` 使用 Python 3.10.4、numpy 2.2.6、torch 2.14.1+cpu、
+  pygame 2.6.1、pytest 9.1.1。`pip check` 无冲突；`smoke_test.py` 6/6；
+  C 专项 39 passed；`SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy pytest -q`
+  全量 **180 passed**（42.97s）。
+- 实验：`debug_algorithm`，3 算法（dqn / double_dqn / dueling_dqn）× seeds 42/43/44，
+  每个 run 20,000 环境步；训练 9/9 `completed`。随后用相同评估种子 10000～10019、
+  每个模型 20 局统一纯贪心评估，评估 run 为
+  `evaluate_20261010_222836_955475_b7e30d7e`。
+- 关键结果：20 局均值（3 seed 模型均分再平均）为 DQN 18.20、Double DQN 20.38、
+  Dueling DQN 19.65，Random 0.10；结果保存在
+  `results/evaluations/evaluate_20261010_222836_955475_b7e30d7e/`，
+  汇总见 `algorithm_comparison.json`，训练日志与 checkpoint 在 `results/logs/debug_algorithm_*`。
+- 结果：Passed（实现、测试、统一训练/评估链路均完成）；Stage 6 的 13 项技术条件已有证据，
+  正式验收仍待项目成员确认。
+- 发现的问题：首次尝试 3 算法×3 seeds×100k 正式预算时，本机运行速度明显慢于原 100k
+  记录，运行在 DQN seed42 到 48,080 步时主动中断；该无效部分目录已删除，未混入正式数据。
+  最终改用 20k 调试预算验证链路，因为完整 E5 正式比较属于 Stage 7。
+- 后续影响：`algorithm` 现可切换 `dqn` / `double_dqn` / `dueling_dqn`，三者共用现有
+  Replay Buffer、训练循环、checkpoint 与评估协议。短预算均分只用于验收链路，
+  不能据此宣称算法优劣或收敛；项目成员确认 Stage 6 后，D 再执行 Stage 4 + 5 + 7。

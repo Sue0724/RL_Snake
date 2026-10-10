@@ -2,7 +2,7 @@
 
 给需要调用环境或 Agent 的成员。**权威定义在 [`docs/INTERFACE.md`](docs/INTERFACE.md)**，本页只是速查，冲突时以该文件为准。
 
-> 截至10-10，环境、DQN、train.py与evaluate.py已实现并实际运行；三seed各100k步及共同50局独立评估完成，DQN明显优于Random。Stage 1（10-07 确认）、Stage 2 与 Stage 3（10-10 确认）均已通过验收；收敛尚未确认。
+> 截至10-10，环境、DQN、Double DQN、Dueling DQN、train.py与evaluate.py已实现并实际运行；Stage 1（10-07 确认）、Stage 2 与 Stage 3（10-10 确认）已通过验收。Stage 6 代码与自检完成、待团队确认；收敛尚未确认。
 
 ---
 
@@ -208,13 +208,30 @@ finally:
     eval_env.close()
 ```
 
-当前 `algorithm="dqn"` 可训练及加载，`algorithm="random"` 仅可创建评估/演示策略。
-未实现的算法会明确报错；后续算法在 `algorithms/factory.py` 注册后复用训练/评估循环。
+`algorithm` 可设为 `dqn`、`double_dqn`、`dueling_dqn`；`random` 仅可创建评估/演示策略。
+三种学习算法共用训练/评估循环，未实现的算法会明确报错。
 加载时仅覆盖设备和渲染，环境及网络设置取自 checkpoint；既有模型格式兼容。
 公共加载只读取一次 checkpoint；原 `agent.load(path)` 用法保留，内存恢复方法为
 `agent.restore_checkpoint(saved)`。加载失败统一抛出 `common.checkpoint.CheckpointError`
 （继承 ValueError），包含来源路径和简洁原因；评估/演示 CLI 显示错误并以状态码2退出，无 traceback。
 `play.py --agent model --checkpoint <路径>` 已接入公共加载入口，完整命令见第八节。
+
+Double DQN 与 Dueling DQN 的切换示例：
+
+```bash
+python3 train.py --algorithm double_dqn --total_steps 50000 --seed 42
+python3 train.py --algorithm dueling_dqn --total_steps 50000 --seed 42
+```
+
+三算法×多 seed 的统一调试/正式实验入口：
+
+```bash
+python3 -m experiments.algorithm_experiment.run \
+  --total_steps 20000 --seeds 42 43 44 --num_episodes 20 \
+  --experiment debug_algorithm
+```
+
+该入口只编排公共 `train()` / `evaluate()`，不会复制训练循环。
 
 ---
 

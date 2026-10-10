@@ -1,0 +1,28 @@
+{
+  "run_id": "debug_algorithm_double_dqn_statev1_sparse_seed43_20261010_222457_976518_a963744f",
+  "algorithm": "double_dqn",
+  "seed": 43,
+  "state_mode": "v1",
+  "reward_mode": "sparse",
+  "status": "completed",
+  "metrics_scope": "training",
+  "run_settings": {
+    "budget_type": "environment_steps",
+    "total_steps": 20000,
+    "log_every": 10,
+    "checkpoint_every": 100,
+    "torch_threads": 4,
+    "experiment": "debug_algorithm"
+  },
+  "completed_episodes": 734,
+  "global_step": 20000,
+  "update_count": 19001,
+  "epsilon": 0.13532174948275888,
+  "wall_clock_time": 39.62589549999393,
+  "mean_score": 1.896457765667575,
+  "std_score": 2.6831116767690877,
+  "max_score": 16,
+  "mean_return": 8.964577656675749,
+  "mean_episode_length": 27.237057220708447,
+  "error": null
+}

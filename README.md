@@ -208,6 +208,28 @@ python3 evaluate.py --checkpoints results/logs/baseline_dqn_statev1_sparse_seed*
 默认每个模型评估相同的 50 个环境种子，结果保存到 `results/evaluations/`。
 详细说明见 QUICKSTART 第七节。Stage 2 的 13 项条件已满足并于 10-10 通过验收；收敛尚未确认。
 
+## Double DQN / Dueling DQN
+
+三种算法共用 `train.py`、`evaluate.py`、Replay Buffer、日志和 checkpoint 格式，
+通过 `--algorithm` 切换：
+
+```bash
+python3 train.py --algorithm double_dqn --total_steps 100000 --seed 42 --experiment algorithm
+python3 train.py --algorithm dueling_dqn --total_steps 100000 --seed 42 --experiment algorithm
+python3 evaluate.py --checkpoints results/logs/algorithm_*/checkpoint.pt --compare_random
+```
+
+统一算法对比实验可按算法×seed 自动训练并评估：
+
+```bash
+python3 -m experiments.algorithm_experiment.run \
+  --total_steps 100000 --seeds 42 43 44 --num_episodes 50
+```
+
+当前 20k 调试实验的 3-seed 均分为 DQN 18.20、Double DQN 20.38、
+Dueling DQN 19.65，Random 0.10；这是统一开发机上的短预算调试结果，不能据此
+宣称收敛或最终算法优劣。完整数据见 `results/evaluations/evaluate_20261010_222836_955475_b7e30d7e/`。
+
 ---
 
 ## 强化学习问题定义
@@ -449,9 +471,17 @@ Reward Shaping 实验再引入：
 - 单元测试或简单张量测试通过。
 - 三种算法均可正常训练、保存和评估。
 
-状态：`Pending`
+状态：`In Progress`（C 实现与自检完成，待团队确认）
 
-存在问题：待算法实现后填写。
+已完成：
+
+- `algorithms/double_dqn.py`：Online Network 选动作、Target Network 评估。
+- `algorithms/dueling_dqn.py` 与 `DuelingQNetwork`：共享特征层、Value / Advantage 双流。
+- `algorithms/factory.py` 注册 `dqn` / `double_dqn` / `dueling_dqn` / `random`。
+- `experiments/algorithm_experiment/run.py`：只编排公共 `train()` / `evaluate()`，无重复训练逻辑。
+- 全量回归 `180 passed`；三算法各 3 seeds 的 20k 步调试对比完成。
+
+存在问题：正式性能结论仍需 Stage 7 使用统一正式预算重跑；Stage 6 尚待项目成员验收。
 
 ---
 
