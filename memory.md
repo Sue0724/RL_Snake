@@ -221,3 +221,9 @@
 - 调用evaluate对三个新模型和Random评估种子10000～10049各50局；输出results/evaluations/evaluate_20261010_115603_654649_e7cff81b/，状态completed。
 - 核对新旧Config完全一致，前50k内完整局训练记录一致，共同评估种子列表一致；保存comparison_50k_100k.json和.md，记录样本成绩变化与收敛判断限制。
 - Stage2最后两项已有训练/评估数据支持，13项条件满足，待成员确认；未进入Stage3，未提交或推送。
+
+本日追加文档同步：
+- 操作内容：按用户要求同步 docs/STAGE_CHECKLIST.md 的实际进度，清理 Stage 2 已被实际训练/评估推翻的未验证描述；Stage 3 标记已有 9/11 项功能，明确模型演示与算法切换仍未完成，以及状态/奖励配置和多版本实现的区别。
+- 涉及文件：docs/STAGE_CHECKLIST.md、docs/PROJECT_STATUS.md、memory.md。
+- 结果：Passed（文档进度同步）；Stage 2 / Stage 3 的正式验收结论仍为 Pending。
+- 执行 / 验证：核对现有入口代码、100k 训练摘要及独立评估摘要；git diff --check。本次程序验证为 Not Tested，未重新运行测试、训练或评估。

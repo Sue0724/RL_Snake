@@ -86,36 +86,37 @@
 
 - 10-10 第四步与第五步完成：Q 网络 11 项测试、回放池与集成 22 项测试通过；覆盖 11/20 维输入兼容性、梯度与单次 optimizer 更新、容量覆盖、状态副本、结束标记和环境到网络的数据流。State V2 环境本身仍未实现。
 - 10-10 第六步与第七步完成：新增 DQN 29 项测试通过，验证动作选择、完成环境步骤后的衰减、普通/真终止/截断目标值、loss/梯度/optimizer、Target 同步及 checkpoint 加载后继续更新的一致性。无窗口全量回归 116 passed。
-- 集成检查执行 160 个训练环境步骤、129 次梯度更新，loss 均有限；这只是短程正确性检查，持续训练的数值稳定性及相对 Random 的表现仍需基线训练/评估验收，最后两项保持未完成。
-- 10-10 新增训练入口、逐局日志和自动 checkpoint，代码已补齐，尚未运行验证（Not Tested）；不据此勾选持续稳定性与性能项，也不判定 Stage 3 通过。
+- 10-10 三个训练种子 42/43/44 均完成 100,000 环境步、99,001 次更新，训练状态 completed，记录的逐局 loss 有限；持续训练稳定性已有实际运行证据。
+- 独立评估使用相同种子 10000～10049，每模型 50 局、纯贪心、不更新网络、不写回放池。DQN 平均分分别为 20.02 / 19.58 / 20.88，Random 为 0.04，性能验收项已有数据支持。
+- 结果目录：`results/evaluations/evaluate_20261010_115603_654649_e7cff81b/`。100k 相比 50k 的三模型平均分从 18.49 提升到 20.16，但尚不能确认全部收敛；阶段验收仍待成员确认。
 
 ---
 
-10-10 新增独立 evaluate.py，支持同种子多模型/Random 评估，尚未运行验证；
-性能验收保持未完成。
-
-
-100k新评估结果见results/evaluations/evaluate_20261010_115603_654649_e7cff81b/；收敛不作为已确认结论，旧条目中的未验证状态为当时历史。
-
 ## Stage 3：统一框架
 
-- [ ] train.py 可运行
-- [ ] evaluate.py 可运行
-- [ ] play.py 可加载模型
-- [ ] algorithm 可配置切换
-- [ ] state_mode 可配置
-- [ ] reward_mode 可配置
-- [ ] seed 可配置
-- [ ] 日志自动保存
-- [ ] checkpoint 自动保存
-- [ ] 评估默认关闭探索
-- [ ] 正式结果不会被意外覆盖
+以下为已有功能进度核对，不代表已正式进入或通过 Stage 3。
 
-验收结论：`Pending`
+- [x] train.py 可运行（3 seeds 各 100k 步实际完成）
+- [x] evaluate.py 可运行（3 模型与 Random 共同独立评估完成）
+- [ ] play.py 可加载模型（当前仅支持 random / human）
+- [ ] algorithm 可配置切换（配置字段已有，训练和模型评估仍仅支持 DQN）
+- [x] state_mode 可配置（Config / CLI / checkpoint 已接入；目前仅实现 v1）
+- [x] reward_mode 可配置（Config / CLI / checkpoint 已接入；目前仅实现 sparse）
+- [x] seed 可配置（训练 seeds 42/43/44，独立评估 seeds 10000～10049）
+- [x] 日志自动保存（各 run 已生成 config.json / metrics.csv / summary.json）
+- [x] checkpoint 自动保存（周期及结束保存已有实现，训练模型已用于独立评估）
+- [x] 评估默认关闭探索（training=False，纯贪心，不更新网络、不写回放池）
+- [x] 正式结果不会被意外覆盖（run 目录含时间戳和 UUID，exist_ok=False；多次运行结果独立保留）
 
-问题：
+验收结论：`Pending`（9/11 项已有证据，尚未完成统一框架验收）
 
-- 待填写
+问题与剩余工作：
+
+- 为 play.py 增加 checkpoint 加载与 DQN 纯贪心演示，并验证渲染及正常退出。
+- 统一 Agent 创建/加载入口及 algorithm 分派；后续算法实现属于 Stage 6，本阶段不提前实现 Double DQN / Dueling DQN。
+- state_mode / reward_mode 勾选表示配置已接通，不表示已有多个可用版本；State V2 与 Shaped Reward 分别属于 Stage 4 / 5。
+- 核对训练、评估和演示的配置来源及覆盖规则；完成新增入口的必要测试和训练→保存→评估→演示端到端验证。
+- 更新使用说明并由成员确认阶段验收。本次仅同步文档，未运行新测试、训练或评估。
 
 ---
 
