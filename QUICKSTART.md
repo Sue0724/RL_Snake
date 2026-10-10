@@ -2,7 +2,7 @@
 
 给需要调用环境或 Agent 的成员。**权威定义在 [`docs/INTERFACE.md`](docs/INTERFACE.md)**，本页只是速查，冲突时以该文件为准。
 
-> 截至 10-10，环境、Q 网络、Replay Buffer 和 DQNAgent 已实现；train.py 的训练循环与基础日志代码已补齐，尚未运行验证。evaluate.py 已补齐，尚未运行验证；DQN 基线的独立评估仍待验收。
+> 截至10-10，环境、DQN、train.py与evaluate.py已实现并实际运行；三seed各100k步及共同50局独立评估完成，DQN明显优于Random。Stage2待成员确认，收敛尚未确认。
 
 ---
 
@@ -256,7 +256,7 @@ checkpoint 不包含 Replay Buffer 和环境状态，本入口尚不支持完整
 → 实现独立 evaluate，关闭探索和更新，以相同评估种子与 Random 比较。
 训练 score 上升或 loss 下降都不能单独代替最后的独立评估。
 
-**验证状态：此次新增训练与日志代码尚未运行验证（Not Tested）。**
+**验证状态：已实际完成三seed各100k步训练，配置和日志已保存；结果见 PROJECT_STATUS。**
 
 ---
 
@@ -293,7 +293,7 @@ python3 evaluate.py --checkpoints results/logs/baseline_dqn_statev1_sparse_seed*
 这些结果用于比较本次保存的最终模型；是否收敛仍需比较不同训练预算或训练时点的独立评估。
 评估失败/中断时保留已写 CSV，并在摘要记录 failed/interrupted；不能将部分结果当作完整比较。
 
-**验证状态：本次新增 evaluate.py 尚未运行验证（Not Tested）。**
+**验证状态：已完成共同种子10000～10049的三模型及Random评估；结果见results/evaluations/evaluate_20261010_115603_654649_e7cff81b/。**
 
 ---
 

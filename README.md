@@ -169,7 +169,7 @@ pytest                 # 代码测试，见 tests/
 
 ## DQN 基线训练
 
-训练循环与基础日志代码已实现，尚未运行验证：
+训练循环与基础日志已实际运行，三个种子各100k步训练完成。短程运行命令：
 
 ```bash
 python3 train.py --num_episodes 100 --seed 42 --experiment debug_baseline
@@ -179,14 +179,14 @@ python3 train.py --num_episodes 100 --seed 42 --experiment debug_baseline
 逐局 `metrics.csv`、训练 `summary.json` 和最新 `checkpoint.pt`。
 默认无渲染、预热 1,000 步后开始更新。固定步数训练使用 `--total_steps 50000`，
 此时覆盖局数预算。详细命令、日志解释及后续验收见 [QUICKSTART.md](QUICKSTART.md) 第六节。
-独立评估入口已补齐，尚未运行验证。评估三个模型及 Random：
+独立评估入口已运行，DQN明显优于Random。评估模型及Random：
 
 ```bash
 python3 evaluate.py --checkpoints results/logs/baseline_dqn_statev1_sparse_seed*/checkpoint.pt --compare_random
 ```
 
 默认每个模型评估相同的 50 个环境种子，结果保存到 `results/evaluations/`。
-详细说明见 QUICKSTART 第七节。Stage 2 的独立性能验收仍待完成。
+详细说明见 QUICKSTART 第七节。Stage2的13项条件已满足，待成员确认；收敛尚未确认。
 
 ---
 

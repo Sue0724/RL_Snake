@@ -1,0 +1,28 @@
+{
+  "run_id": "baseline100k_dqn_statev1_sparse_seed42_20261010_115409_706718_3d8ac8e7",
+  "algorithm": "dqn",
+  "seed": 42,
+  "state_mode": "v1",
+  "reward_mode": "sparse",
+  "status": "completed",
+  "metrics_scope": "training",
+  "run_settings": {
+    "budget_type": "environment_steps",
+    "total_steps": 100000,
+    "log_every": 200,
+    "checkpoint_every": 100,
+    "torch_threads": 1,
+    "experiment": "baseline100k"
+  },
+  "completed_episodes": 1609,
+  "global_step": 100000,
+  "update_count": 99001,
+  "epsilon": 0.05,
+  "wall_clock_time": 38.8659647089662,
+  "mean_score": 6.8098197638284645,
+  "std_score": 6.832262006948503,
+  "max_score": 31,
+  "mean_return": 58.098197638284645,
+  "mean_episode_length": 62.144188937228094,
+  "error": null
+}

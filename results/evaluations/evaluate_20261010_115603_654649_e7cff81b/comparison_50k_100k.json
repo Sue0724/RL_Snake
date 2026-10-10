@@ -1,0 +1,146 @@
+{
+  "evaluation_50k": "results/evaluations/evaluate_20261010_113741_354416_7d06547d",
+  "evaluation_100k": "results/evaluations/evaluate_20261010_115603_654649_e7cff81b",
+  "evaluation_seeds_equal": true,
+  "models": [
+    {
+      "seed": 42,
+      "score_50k": 18.76,
+      "score_100k": 20.02,
+      "delta": 1.259999999999998,
+      "relative_change_percent": 6.716417910447747,
+      "std_score_100k": 6.9756433395064,
+      "max_score_100k": 36,
+      "config_equal": true,
+      "completed_training_prefix_equal": true,
+      "nonfinite_episode_loss": 0,
+      "training_blocks": [
+        {
+          "end_step": 50000,
+          "episodes": 108,
+          "mean_score": 11.231481481481481
+        },
+        {
+          "end_step": 60000,
+          "episodes": 97,
+          "mean_score": 12.02061855670103
+        },
+        {
+          "end_step": 70000,
+          "episodes": 100,
+          "mean_score": 11.82
+        },
+        {
+          "end_step": 80000,
+          "episodes": 112,
+          "mean_score": 10.803571428571429
+        },
+        {
+          "end_step": 90000,
+          "episodes": 111,
+          "mean_score": 10.864864864864865
+        },
+        {
+          "end_step": 100000,
+          "episodes": 110,
+          "mean_score": 11.1
+        }
+      ],
+      "train_dir": "/Users/zhangxinyi/Desktop/RL_Snake/results/logs/baseline100k_dqn_statev1_sparse_seed42_20261010_115409_706718_3d8ac8e7"
+    },
+    {
+      "seed": 43,
+      "score_50k": 20.54,
+      "score_100k": 19.58,
+      "delta": -0.9600000000000009,
+      "relative_change_percent": -4.673807205452785,
+      "std_score_100k": 7.102365803026482,
+      "max_score_100k": 38,
+      "config_equal": true,
+      "completed_training_prefix_equal": true,
+      "nonfinite_episode_loss": 0,
+      "training_blocks": [
+        {
+          "end_step": 50000,
+          "episodes": 110,
+          "mean_score": 10.745454545454546
+        },
+        {
+          "end_step": 60000,
+          "episodes": 98,
+          "mean_score": 11.928571428571429
+        },
+        {
+          "end_step": 70000,
+          "episodes": 108,
+          "mean_score": 11.0
+        },
+        {
+          "end_step": 80000,
+          "episodes": 99,
+          "mean_score": 12.151515151515152
+        },
+        {
+          "end_step": 90000,
+          "episodes": 110,
+          "mean_score": 10.945454545454545
+        },
+        {
+          "end_step": 100000,
+          "episodes": 106,
+          "mean_score": 11.254716981132075
+        }
+      ],
+      "train_dir": "/Users/zhangxinyi/Desktop/RL_Snake/results/logs/baseline100k_dqn_statev1_sparse_seed43_20261010_115447_684488_624e6bba"
+    },
+    {
+      "seed": 44,
+      "score_50k": 16.18,
+      "score_100k": 20.88,
+      "delta": 4.699999999999999,
+      "relative_change_percent": 29.048207663782442,
+      "std_score_100k": 7.00468414705474,
+      "max_score_100k": 37,
+      "config_equal": true,
+      "completed_training_prefix_equal": true,
+      "nonfinite_episode_loss": 0,
+      "training_blocks": [
+        {
+          "end_step": 50000,
+          "episodes": 99,
+          "mean_score": 12.343434343434344
+        },
+        {
+          "end_step": 60000,
+          "episodes": 97,
+          "mean_score": 12.371134020618557
+        },
+        {
+          "end_step": 70000,
+          "episodes": 112,
+          "mean_score": 10.267857142857142
+        },
+        {
+          "end_step": 80000,
+          "episodes": 104,
+          "mean_score": 11.5
+        },
+        {
+          "end_step": 90000,
+          "episodes": 115,
+          "mean_score": 9.947826086956521
+        },
+        {
+          "end_step": 100000,
+          "episodes": 100,
+          "mean_score": 12.28
+        }
+      ],
+      "train_dir": "/Users/zhangxinyi/Desktop/RL_Snake/results/logs/baseline100k_dqn_statev1_sparse_seed44_20261010_115525_500394_e6195a47"
+    }
+  ],
+  "mean_score_50k": 18.493333333333332,
+  "mean_score_100k": 20.159999999999997,
+  "std_of_model_mean_scores_100k": 0.5398765290940762,
+  "conclusion": "后期训练得分有平台迹象；100k评估均值约20分，但seed44较50k提升29%，不能确认所有种子都已收敛。仅比较两个预算、每模型50局。"
+}

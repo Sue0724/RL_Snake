@@ -165,8 +165,8 @@
 
 ## 10-10
 
-操作类型：Code / Docs / Test / Other
-结果：Partial（第四至第七步验证 Passed；新增训练/日志及评估代码 Not Tested）
+操作类型：Code / Docs / Test / Train / Evaluate / Experiment / Other
+结果：Passed（组件历史测试及本次训练/独立评估完成；未新增或运行测试套件）
 
 操作内容：
 - 按用户要求补齐 evaluate.py，使用 checkpoint 配置加载多模型，以同一评估种子列表运行纯贪心 DQN 和可选 Random，保存逐局 CSV、来源配置和评估摘要；模型不被修改，环境配置不一致时拒绝同组比较。
@@ -206,9 +206,18 @@
 - 第八步本次新增训练入口与日志代码：Not Tested，未执行程序或测试；未生成训练模型、日志或性能数据。此前通过的结果不覆盖本次新增代码。
 
 关键结果：
+- 100k模型评估均分seed42/43/44分别20.02/19.58/20.88，Random0.04；相较50k分别+1.26/-0.96/+4.70分。三模型均值18.49→20.16，不能确认均已收敛。
 - Q 网络、Replay Buffer、batch shape、epsilon-greedy、Bellman 更新、loss/梯度/optimizer、Target 同步及模型存取共 11 项 Stage 2 验收已满足；持续训练稳定性和相对 Random 的得分仍待验收。
-- 完整训练循环与基础日志代码已补齐，验证状态为 Not Tested。
+- 完整训练/日志与评估入口现已通过实际运行验证，三个100k训练run及共同评估全部完成。
 
 发现的问题：
 - 安装期间下载重试及 pip 版本检查遇到 SSL 错误，依赖安装最终成功，自检与依赖一致性检查通过。
-- 新训练入口尚未运行验证；当前没有新的训练或独立评估结果。
+- 未发现本轮NaN/Inf或运行异常；收敛仍未确认，seed44从50k到100k的评估均值提升29.05%。
+
+
+本日追加实验操作：
+- 按用户要求逐个复用旧run的Config，从头训练seed42/43/44至100,000步；三个run均completed，每个99,001次更新，记录loss均有限。
+- 训练run_id：baseline100k_dqn_statev1_sparse_seed42_20261010_115409_706718_3d8ac8e7、baseline100k_dqn_statev1_sparse_seed43_20261010_115447_684488_624e6bba、baseline100k_dqn_statev1_sparse_seed44_20261010_115525_500394_e6195a47，输出位于results/logs/，每run包含config/metrics/summary/checkpoint。
+- 调用evaluate对三个新模型和Random评估种子10000～10049各50局；输出results/evaluations/evaluate_20261010_115603_654649_e7cff81b/，状态completed。
+- 核对新旧Config完全一致，前50k内完整局训练记录一致，共同评估种子列表一致；保存comparison_50k_100k.json和.md，记录样本成绩变化与收敛判断限制。
+- Stage2最后两项已有训练/评估数据支持，13项条件满足，待成员确认；未进入Stage3，未提交或推送。
