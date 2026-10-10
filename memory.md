@@ -243,3 +243,11 @@
 - 执行 / 验证：真实play CLI加载已有seed42的100k模型，评估seed10000、fps1000，score=22、steps=149，与原评估记录一致；来源checkpoint SHA-256未改变。git diff --check通过。
 - 关键结果：Stage 3清单11/11项已有证据；使用 --agent model --checkpoint <路径> 运行模型演示，默认cpu。演示只读模型，训练seed保留，窗口关闭时释放环境。
 - 发现的问题：损坏checkpoint的异常提示已修复；本次使用SDL dummy自动验证渲染，未人工确认新模型窗口观感。
+
+本日追加公共加载流程完善：
+- 操作内容：按用户要求完成错误提示统一和重复读取消除；新增 common/checkpoint.py，预期读取/格式/恢复失败统一为带来源路径的CheckpointError；play/evaluate CLI统一显示简洁错误，不输出traceback。DQNAgent新增restore_checkpoint(checkpoint)，原load(path)继续可用；factory只读一次文件后直接恢复内存数据。
+- 涉及文件：common/checkpoint.py、algorithms/dqn.py、algorithms/factory.py、play.py、evaluate.py、tests/test_checkpoint_loading.py、README.md、QUICKSTART.md、docs/INTERFACE.md、docs/STAGE_CHECKLIST.md、docs/PROJECT_STATUS.md、memory.md。
+- 结果：Passed；Stage 2 / Stage 3正式验收仍待成员确认，本次未提交/合并/推送。
+- 执行 / 验证：相关专项84 passed，无窗口全量166 passed，含19项新增测试；验证缺失/损坏文件及元数据、权重、optimizer、RNG无效时play/evaluate的错误内容一致，退出码2且无traceback；文件读取次数由2次减至1次，内存恢复零读取，旧load恢复状态与下一次梯度更新一致。
+- 执行 / 验证：现有三seed的100k模型与Random以原50局共同种子复评，共200条CSV记录及模型摘要与原评估完全一致，来源checkpoint SHA-256未改变；复评输出位于自动清理的临时目录。git diff --check通过。
+- 关键结果：现有checkpoint格式保持version 1，设备与渲染覆盖规则保持兼容；后续注册算法须提供restore_checkpoint内存恢复方法。

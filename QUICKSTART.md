@@ -211,6 +211,9 @@ finally:
 当前 `algorithm="dqn"` 可训练及加载，`algorithm="random"` 仅可创建评估/演示策略。
 未实现的算法会明确报错；后续算法在 `algorithms/factory.py` 注册后复用训练/评估循环。
 加载时仅覆盖设备和渲染，环境及网络设置取自 checkpoint；既有模型格式兼容。
+公共加载只读取一次 checkpoint；原 `agent.load(path)` 用法保留，内存恢复方法为
+`agent.restore_checkpoint(saved)`。加载失败统一抛出 `common.checkpoint.CheckpointError`
+（继承 ValueError），包含来源路径和简洁原因；评估/演示 CLI 显示错误并以状态码2退出，无 traceback。
 `play.py --agent model --checkpoint <路径>` 已接入公共加载入口，完整命令见第八节。
 
 ---

@@ -25,7 +25,6 @@
 import argparse
 import dataclasses
 import os
-import pickle
 import random
 import sys
 import time
@@ -37,6 +36,7 @@ import pygame
 
 from common.config import build_parser, config_from_args
 from algorithms.factory import create_agent, load_agent
+from common.checkpoint import CheckpointError
 from env.snake_env import LEFT, RIGHT, STRAIGHT, SnakeEnv
 
 KEYS = {
@@ -154,9 +154,8 @@ def main(argv=None):
             parser.error("模型模式的环境/网络/训练参数来自 checkpoint，请移除：" + ", ".join(forbidden))
         try:
             agent, config = load_agent(args.checkpoint, device=config.device, render_mode="human")
-        except (OSError, ValueError, RuntimeError, KeyError, TypeError, IndexError,
-                EOFError, pickle.UnpicklingError) as error:
-            parser.error(f"模型加载失败：{error}")
+        except CheckpointError as error:
+            parser.error(str(error))
         print(f"模型已加载：{Path(args.checkpoint).expanduser().resolve()} "
               f"（algorithm={config.algorithm}，训练seed={config.seed}）")
     elif args.checkpoint:
