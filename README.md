@@ -179,7 +179,14 @@ python3 train.py --num_episodes 100 --seed 42 --experiment debug_baseline
 逐局 `metrics.csv`、训练 `summary.json` 和最新 `checkpoint.pt`。
 默认无渲染、预热 1,000 步后开始更新。固定步数训练使用 `--total_steps 50000`，
 此时覆盖局数预算。详细命令、日志解释及后续验收见 [QUICKSTART.md](QUICKSTART.md) 第六节。
-独立评估入口尚未实现，Stage 2 的持续稳定性与相对 Random 的性能仍待验收。
+独立评估入口已补齐，尚未运行验证。评估三个模型及 Random：
+
+```bash
+python3 evaluate.py --checkpoints results/logs/baseline_dqn_statev1_sparse_seed*/checkpoint.pt --compare_random
+```
+
+默认每个模型评估相同的 50 个环境种子，结果保存到 `results/evaluations/`。
+详细说明见 QUICKSTART 第七节。Stage 2 的独立性能验收仍待完成。
 
 ---
 

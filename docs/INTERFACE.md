@@ -556,3 +556,18 @@ agent = DQNAgent(env.state_dim, env.n_actions, config)
 | 10-09 | 经用户确认冻结 epsilon 衰减规格；§10 同步默认值 `1.0 / 0.05 / 0.9999` 并指向开发规范 §12，约定按训练环境步衰减、跨局延续、评估不衰减。 |
 | 10-10 | §12 明确 B 选定的回放池接口及 batch 容器：六个 NumPy 数组组成的 dict，保留两个独立结束标记；说明容量、状态副本、采样与预热责任。 |
 | 10-10 | §12 同步 DQNAgent 实现：明确预热期传入 None；新增完成环境步骤后的 on_env_step 调用；说明目标网络同步计数及 checkpoint 内容与边界。 |
+
+
+## 13. 独立评估入口
+
+`evaluate.py --checkpoints <一个或多个路径> --compare_random` 默认每个模型评估 50 局。
+环境与网络配置从 checkpoint 读取，设备可用 `--device` 覆盖；
+`--eval_seed` 默认为 10000，第 i 局使用 eval_seed+i（i 从 0 开始）。
+所有模型和 Random 使用同一列表，DQN 调用 select_action(training=False)，
+不调用 update/on_env_step，不写入回放池、不保存或覆盖模型。
+
+结果独立保存到 `results/evaluations/<唯一run>/`：config.json、metrics.csv、summary.json。
+CSV 包含模型标识、训练/评估 seed、episode、score、episode_return、episode_length、
+terminated、truncated；摘要标明 metrics_scope=evaluation，包含各模型的五项核心汇总、
+截断率及跨模型平均分统计。标准差使用总体标准差（ddof=0）。
+同组环境配置须一致；失败或中断保留部分 CSV，并明确摘要状态，运行方式见 QUICKSTART 第七节。

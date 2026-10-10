@@ -166,9 +166,11 @@
 ## 10-10
 
 操作类型：Code / Docs / Test / Other
-结果：Partial（第四至第七步验证 Passed；新增训练/日志代码 Not Tested）
+结果：Partial（第四至第七步验证 Passed；新增训练/日志及评估代码 Not Tested）
 
 操作内容：
+- 按用户要求补齐 evaluate.py，使用 checkpoint 配置加载多模型，以同一评估种子列表运行纯贪心 DQN 和可选 Random，保存逐局 CSV、来源配置和评估摘要；模型不被修改，环境配置不一致时拒绝同组比较。
+- 同步 QUICKSTART、README、接口、状态及阶段清单，说明默认 50 局和共同评估命令。
 - 按用户要求执行 `python3 -m pip install -r requirements.txt`，将六项项目依赖及所需间接依赖安装到当前系统 Python 3.10；安装成功。
 - 完成第四步：新增 `algorithms/networks.py`，实现两层隐藏层的 QNetwork，按环境维度构造网络，支持单状态/批量 Tensor，输出原始动作价值。
 - 完成第五步：新增 `common/replay_buffer.py`，实现容量覆盖、状态复制和独立随机数采样，分别保存 terminated/truncated，采样返回六个 NumPy 数组组成的 dict。
@@ -183,12 +185,14 @@
 - 补充短程调试与三 seed 同预算训练命令、日志含义和后续评估步骤；未实施独立 evaluate，也未标记 Stage 2/3 通过。
 
 涉及文件：
+- `evaluate.py` 及上述评估文档。
 - `algorithms/networks.py`、`common/replay_buffer.py`、`tests/test_networks.py`、`tests/test_replay_buffer.py`。
 - `docs/INTERFACE.md`、`QUICKSTART.md`、`README.md`、`requirements.txt`（网络规模注释）、`docs/HANDOVER.md`、`docs/STAGE_CHECKLIST.md`、`docs/PROJECT_STATUS.md`、`memory.md`。
 - `algorithms/dqn.py`、`tests/test_dqn.py`、`common/config.py`（同步计数注释）、`docs/AI_DEVELOPMENT_RULES.md`（执行语义与实现进度）。
 - `train.py`、`common/metrics.py`、`common/utils.py` 及训练说明/状态文档。
 
 执行 / 验证：
+- 本次 evaluate.py：Not Tested，未执行评估或新增测试，没有新的性能结果。
 - 解释器：`/Library/Frameworks/Python.framework/Versions/3.10/bin/python3`。numpy 2.2.6 / torch 2.14.1 / pygame 2.6.1 / matplotlib 3.10.9 / pandas 2.3.3 / pytest 9.1.1 安装完成；`python3 -m pip check` 通过。
 - `python3 smoke_test.py`：6/6 通过，退出码 0。
 - `python3 -m pytest tests/test_networks.py tests/test_replay_buffer.py -q`：33 passed。

@@ -2,7 +2,7 @@
 
 给需要调用环境或 Agent 的成员。**权威定义在 [`docs/INTERFACE.md`](docs/INTERFACE.md)**，本页只是速查，冲突时以该文件为准。
 
-> 截至 10-10，环境、Q 网络、Replay Buffer 和 DQNAgent 已实现；train.py 的训练循环与基础日志代码已补齐，尚未运行验证。evaluate.py 尚待实现，DQN 基线的学习效果仍待验收。
+> 截至 10-10，环境、Q 网络、Replay Buffer 和 DQNAgent 已实现；train.py 的训练循环与基础日志代码已补齐，尚未运行验证。evaluate.py 已补齐，尚未运行验证；DQN 基线的独立评估仍待验收。
 
 ---
 
@@ -260,7 +260,44 @@ checkpoint 不包含 Replay Buffer 和环境状态，本入口尚不支持完整
 
 ---
 
-## 七、权威文档
+## 七、独立评估 DQN 与 Random
+
+`evaluate.py` 读取 checkpoint 内的配置和权重，默认无渲染、纯贪心、不更新网络、
+不创建或写入 Replay Buffer，也不修改训练模型文件。Random 保留其随机策略。
+
+在项目根目录运行三个 baseline 模型与 Random 的共同评估：
+
+```bash
+python3 evaluate.py --checkpoints results/logs/baseline_dqn_statev1_sparse_seed*/checkpoint.pt --num_episodes 50 --eval_seed 10000 --compare_random
+```
+
+通配符会选择所有匹配的 baseline 模型；如果后来产生更多训练 run，
+请改成显式列出本次要比较的三个模型路径，避免混入其他训练预算。
+单个模型也可使用 `--checkpoint 路径/checkpoint.pt`。
+
+每个模型均评估环境种子 10000～10049；Random 使用同一组环境种子，
+每局的随机动作 RNG 也单独播种。不同动作会改变后续轨迹，相同种子不意味着
+不同策略整局经历完全相同。不同训练种子的模型必须使用同一评估种子集合。
+同组模型的棋盘、初始蛇长/位置、每局步数上限、状态和奖励必须一致，否则拒绝比较。
+训练超参数自动沿用 checkpoint，评估局数由 CLI 决定。
+
+每次新建 `results/evaluations/evaluate_<时间>_<唯一标识>/`，保存：
+
+- `config.json`：评估协议、每个模型的绝对路径及环境/算法配置。
+- `metrics.csv`：每个模型每局的得分、奖励、步数、评估种子和结束标记。
+- `summary.json`：`metrics_scope=evaluation`，每个模型的平均分、标准差、最高分、
+  平均奖励、平均步数和截断率；`dqn_across_models` 汇总各 DQN 模型平均分的均值及标准差。
+  这里的跨模型标准差与单模型逐局得分标准差不同。
+
+50 局、三个 DQN 加一个 Random 共记录 200 个完整局。
+这些结果用于比较本次保存的最终模型；是否收敛仍需比较不同训练预算或训练时点的独立评估。
+评估失败/中断时保留已写 CSV，并在摘要记录 failed/interrupted；不能将部分结果当作完整比较。
+
+**验证状态：本次新增 evaluate.py 尚未运行验证（Not Tested）。**
+
+---
+
+## 八、权威文档
 
 | 主题 | 文档 |
 |---|---|

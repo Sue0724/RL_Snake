@@ -61,6 +61,8 @@ A 的并行项（仅文档，不写代码）：
 
 ## 已完成
 
+- 10-10 按用户要求补齐 `evaluate.py`：从 checkpoint 恢复 DQN，纯贪心、无网络更新、无回放池写入；支持多模型与同种子 Random 比较，输出独立评估 CSV/配置/摘要，保存来源模型路径，拒绝环境配置不一致的同组比较。本次评估入口 Not Tested，未产生新的评估成绩。
+
 - 10-10 按用户要求新增 `train.py`、`common/metrics.py` 与 `common/utils.py`：接通无渲染 DQN 循环、预热采样更新、按步衰减和跨局重置；控制全局/环境/回放池种子。
 - 逐局 CSV 记录基础指标、run 标识及完整局标志，预热 loss 留空；新建独立目录保存完整配置、训练摘要与最新模型。支持局数或精确环境步预算、周期快照及 Ctrl+C 保存。此次新增代码为 `Not Tested`，未执行训练、测试或独立评估。
 - 10-10 完成第六步与第七步：新增 `algorithms/dqn.py`，实现 epsilon-greedy、Online/Target Network、Smooth L1 + Adam 更新，以及正确区分真终止与截断的 Bellman target；新增 `on_env_step` 在完成环境步骤后衰减，目标网络每 `target_update_interval` 次成功梯度更新硬同步。
@@ -234,7 +236,7 @@ python smoke_test.py（Stage 0 自检，config 改动后复跑）
 
 Stage 2（负责人 B，配置决策阻塞已解除）：
 
-- B 下一步按 `QUICKSTART.md` 第六节运行短程调试，核查日志及模型文件、预热后更新计数，再以相同预算训练 seeds 42/43/44。随后补齐独立评估，验证长期稳定性及相对 Random 的得分；通过后由成员确认进入 Stage 3。
+- B 下一步按 `QUICKSTART.md` 第六节运行短程调试，核查日志及模型文件、预热后更新计数，再以相同预算训练 seeds 42/43/44。随后运行已补齐的 evaluate.py，验证独立得分及相对 Random 的表现；通过后由成员确认进入 Stage 3。
 - B 实现前请读 `docs/INTERFACE.md` §12 的「实现须知」，其中说明签名参考实现与禁止硬编码 `state_dim` / `n_actions`
 - 当前开发分支为从 `main` 创建的 `codex/dqn`；此前配置与文档修改已提交，第四至第八步的工作区修改尚未提交（部分已由用户暂存，本次保留暂存状态）。后续开发继续使用该分支，阶段验收后再合入 `main`（流程见 `docs/COLLABORATION_RULES.md`）
 - 10-09 第三步 Git 准备已核查通过，当时已获取远程更新并确认开发分支基于最新 `main`。
