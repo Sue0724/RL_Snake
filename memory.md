@@ -272,3 +272,13 @@
 - 关键结果：P2 的 12.5% / 10.8% 及推导过程现与 `env/snake_env.py` 的 `_random_head` 实现一致，`docs/PROJECT_STATUS.md` 与 `README.md` 对初始蛇头的描述统一。
 - 追加时回头核对：上一子记录的「涉及文件」漏列了该提交实际改动的 QUICKSTART.md、README.md、docs/INTERFACE.md，完整清单为九个文件，见提交 `d82ccd8`；本子记录一并更正。P2 的错误数字早于本日全部改动，非本日引入，但本日将其抄入 README.md Stage 1 行，故在本日修正。
 - 复查记录：截至本条，P2 与其在 README 的引用均无遗留错误数字。
+
+本日追加验收分支合回 main（按 §21 记录版本号）：
+- 操作内容：按用户要求把验收与任务重构分支合并回 `main`。分支 `docs/stage-acceptance-and-reassign`（基于 `0d85c61`）先推送，再经 `git checkout main && git pull && git merge docs/stage-acceptance-and-reassign` 合入——**快进合并（fast-forward），未产生合并提交**，故按 §21 在此记录涉及的两个提交号。
+- 版本操作：`main` 由 `0d85c61` 快进至 `6991369`。分支上的两个提交为 `d82ccd8`（Stage 2/3 验收与任务重构）与 `6991369`（P2 数字更正）。合并后 `main`、`docs/stage-acceptance-and-reassign`、`origin/main` 三者指向同一提交 `6991369`。
+- 涉及文件：无新增文件；本次操作只做合并与推送。
+- 结果：Passed。`main` 现已包含 Stage 1/2/3 验收结论、Stage 4 责任调整、执行顺序说明及 P2 更正。
+- 执行 / 验证：`git pull` 显示 Already up to date；`git merge` 报 fast-forward 并列出九个文件；`git rev-parse HEAD main docs/stage-acceptance-and-reassign` 在推送前三者同为 `6991369`；`git push origin main` 返回 `0d85c61..6991369`。
+- 关键结果：`main` 上无未推送提交，工作树 clean。
+- 追加时回头核对：上一子记录的「版本操作」称改动「未合并回 `main`」，已被本条推翻；那条描述的是推送当时的中间状态，按 §21 保留为历史，当前状态以本条为准。分支 `docs/stage-acceptance-and-reassign` 未删除，`feature/env` 仍停留在 `7cfb0c8`（已废弃，未见删除需求）。
+- 复查记录：截至本条，`main` 与分支内容一致，无遗留待推送内容。
