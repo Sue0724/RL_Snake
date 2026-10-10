@@ -10,7 +10,7 @@
 
 Stage 1 已于 10-07 通过验收，成果已合入 `main`。Stage 2 的 epsilon 配置、Q 网络、Replay Buffer、DQNAgent、目标网络、Bellman 更新和 checkpoint 已实现并通过测试；训练、基础日志和独立评估已通过实际运行验证：三个种子完成100k步训练，独立均分19.58～20.88，Random为0.04。Stage2的13项条件已有证据支持，待成员确认阶段验收；收敛尚未确认。
 
-Stage 3 已有功能按证据同步到验收清单：9/11 项具备，剩余模型可视化加载与算法配置切换；仍未正式进入或通过 Stage 3。状态与奖励的配置已接通，目前仅支持 v1 / sparse，多版本实现留至 Stage 4 / 5。
+按用户要求推进 Stage 3：公共 Agent 创建/加载及 play.py 模型演示均已完成，配置来源和覆盖规则已明确，训练→保存→评估→演示链已通过自动验证；清单 11/11 项具备，待成员确认正式验收。Stage 2 同样待成员确认。状态与奖励的配置已接通，目前仅支持 v1 / sparse，多版本实现留至 Stage 4 / 5。
 
 A 的并行项——Stage 4 状态方案的纸面设计——**已完成**，写入 `docs/INTERFACE.md` §4（预定方案，待团队确认后冻结），不写代码，不构成跨阶段开发。
 
@@ -23,7 +23,7 @@ A 的并行项——Stage 4 状态方案的纸面设计——**已完成**，写
 | 0 | 工程初始化与接口冻结 | In Progress | 全员 |
 | 1 | Snake 环境与状态 | Passed | A |
 | 2 | DQN Baseline | In Progress | B |
-| 3 | 统一训练与评估框架 | Pending | B / 全员 |
+| 3 | 统一训练与评估框架 | In Progress | B / 全员 |
 | 4 | 状态实验 | Pending | A |
 | 5 | Reward 与探索实验 | Pending | D |
 | 6 | Double DQN / Dueling DQN | Pending | C |
@@ -63,6 +63,11 @@ A 的并行项（仅文档，不写代码）：
 
 ## 已完成
 
+- 10-10 play.py 新增 --agent model / --checkpoint，复用公共加载入口，以纯贪心演示一局；模型参数来自 checkpoint，只允许覆盖演示 seed、设备、渲染及 FPS。自动演示支持 Q / Esc、窗口关闭和 Ctrl+C 退出。新增17项测试，最终无窗口全量回归147 passed；已有100k模型演示score=22、steps=149，与对应评估一致，模型哈希未改变。
+
+- 10-10 按用户要求新增 algorithms/factory.py，统一 DQN/Random 创建、算法配置校验及 checkpoint 加载；训练、评估和随机演示接入公共创建入口。模型加载恢复保存配置，校验环境/网络维度，设备与渲染由调用方指定；现有 checkpoint 格式与评估字段保持兼容。
+- 公共入口新增14项测试，无窗口全量回归130 passed；短程训练/保存/加载/评估通过。现有三seed的100k模型在相同50局复评中，200条逐局记录和各模型摘要与原结果一致，模型文件哈希未改变；输出仅使用临时目录。
+
 - 10-10 从头完成三个seed的100k步训练与同种子独立评估；新旧配置和前50k训练记录一致，模型平均分18.49→20.16（+9.01%）。比较结果保存在新评估目录的comparison_50k_100k.json/.md；有平台迹象，但不足以确认均已收敛。
 
 - 10-10 按用户要求补齐 `evaluate.py`：从 checkpoint 恢复 DQN，纯贪心、无网络更新、无回放池写入；支持多模型与同种子 Random 比较，输出独立评估 CSV/配置/摘要，保存来源模型路径，拒绝环境配置不一致的同组比较。本次评估入口 Not Tested，未产生新的评估成绩。
@@ -97,7 +102,7 @@ A 的并行项（仅文档，不写代码）：
 - 已实现 `env/snake_env.py`：`reset` / `step` / `render` / `close`，State V1（11 维）、相对动作、5 元组返回值、奖励分项、随机种子与蛇尾例外判定。
 - 已实现 `env/renderer.py`：pygame 渲染，被 `snake_env` 惰性导入（`render_mode=None` 时完全不加载 pygame）；`rgb_array` 用离屏 `Surface` 不建窗口，`human` 建窗口并在标题栏显示 score。
 - 已实现 `env/random_agent.py`：`select_action(state, training=True)` 签名对齐 `docs/INTERFACE.md` §12，可被 `train.py` / `evaluate.py` 直接替换为 DQN 而不改调用代码。
-- 已实现 `play.py`：`--agent random|human` 两种模式，`human` 支持 `W/A/S/D` 与方向键（相对转向）与 `Q` / `Esc` 退出；复用 `build_parser`，`-h` 中同时列出脚本自有参数与全部配置参数。
+- 已实现 `play.py`：`--agent random|human|model` 三种模式；模型模式从 checkpoint 恢复配置并纯贪心演示，`human` 支持 `W/A/S/D` 与方向键（相对转向）与 `Q` / `Esc` 退出；复用 `build_parser`，`-h` 中同时列出脚本自有参数与全部配置参数。
 - `common/config.py` 拆出 `build_parser()` / `config_from_args()`：入口脚本可先构造自己的 `ArgumentParser` 再交给 `build_parser` 追加配置字段，原 `parse_args()` 保留为薄封装。
 - 已实现 `tests/test_renderer.py`（5 项）、`tests/test_random_agent.py`（3 项）、`tests/test_play.py`（5 项）；`tests/test_snake_env.py` 41 项，共 54 项通过。
 - 已修复中文输入法吞键导致 `play.py --agent human` 键盘无响应：`env/renderer.py` 建窗后调用 `pygame.key.stop_text_input()`，经行为 A/B 确认。
@@ -166,7 +171,7 @@ Stage 0 验收结论仍为 `Pending`，仅剩「所有成员理解接口」（`[
 
 ### P1
 
-1. Stage2的13项条件已有证据支持，待成员确认；尚不能确认收敛。100k下三个模型平均分20.16，seed44相较50k提升29.05%。未进入Stage3。
+1. Stage2的13项条件已有证据支持，待成员确认；尚不能确认收敛。100k下三个模型平均分20.16，seed44相较50k提升29.05%。Stage 3 的公共入口与模型演示均完成，11项已有证据，尚未验收。
 
 ### P2
 
@@ -178,7 +183,9 @@ Stage 0 验收结论仍为 `Pending`，仅剩「所有成员理解接口」（`[
 
 ## 最近一次测试
 
-第八步训练与评估已实际运行：三seed各100k步、99,001次更新，逐局loss有限；同一50局评估均分20.02/19.58/20.88，Random0.04。详见results/evaluations/evaluate_20261010_115603_654649_e7cff81b/。以下为此前组件测试，本次未重跑测试套件。
+10-10 模型演示实现后：`SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy python3 -m pytest -q`：147 passed（play专项22项，新增17项）。训练→保存→独立评估→演示同seed成绩一致；现有seed42的100k模型用seed10000运行真实play CLI得到score=22、steps=149，与原评估一致，checkpoint哈希不变。渲染与退出自动验证使用SDL dummy，未人工确认新模型窗口观感。此前公共入口复评200条记录与原结果一致。
+
+第八步训练与评估已实际运行：三seed各100k步、99,001次更新，逐局loss有限；同一50局评估均分20.02/19.58/20.88，Random0.04。详见results/evaluations/evaluate_20261010_115603_654649_e7cff81b/。以下为此前组件测试记录，本次全量回归结果见上段。
 
 测试时间：`10-10`
 
@@ -244,6 +251,11 @@ Stage 2（负责人 B，配置决策阻塞已解除）：
 - B 实现前请读 `docs/INTERFACE.md` §12 的「实现须知」，其中说明签名参考实现与禁止硬编码 `state_dim` / `n_actions`
 - 当前开发分支为从 `main` 创建的 `codex/dqn`；此前配置与文档修改已提交，第四至第八步的工作区修改尚未提交（部分已由用户暂存，本次保留暂存状态）。后续开发继续使用该分支，阶段验收后再合入 `main`（流程见 `docs/COLLABORATION_RULES.md`）
 - 10-09 第三步 Git 准备已核查通过，当时已获取远程更新并确认开发分支基于最新 `main`。
+
+Stage 3（公共入口及模型演示已按用户要求完成）：
+
+- 公共创建/加载、模型演示、配置规则和完整链自动验证已完成；清单11/11项已有证据，待成员确认Stage 3验收。可按QUICKSTART第八节运行已有模型观看窗口效果。
+- 当前只注册已实现的 DQN / Random，Double DQN / Dueling DQN 留至 Stage 6；本次未合并、提交或推送，也未代替成员确认 Stage 2 验收。
 
 A 的并行项（仅文档，不写代码，不构成跨阶段开发）：
 

@@ -11,11 +11,9 @@ from uuid import uuid4
 import numpy as np
 import torch
 
-from algorithms.dqn import DQNAgent
-from common.config import Config
+from algorithms.factory import create_agent, load_agent
 from common.metrics import write_json
 from common.utils import set_global_seed
-from env.random_agent import RandomAgent
 from env.snake_env import SnakeEnv
 
 
@@ -58,7 +56,10 @@ def evaluate_agent(agent, config, seeds, model_id, algorithm, writer, stream):
         for episode, seed in enumerate(seeds, start=1):
             state, _ = env.reset(seed=seed)
             # Random 每局独立播种，避免上一局长度影响下一局的动作 RNG。
-            policy = RandomAgent(env.n_actions, seed=seed) if algorithm == "random" else agent
+            policy = create_agent(
+                env.state_dim, env.n_actions,
+                dataclasses.replace(config, algorithm="random", seed=seed),
+            ) if algorithm == "random" else agent
             episode_return = 0.0
             while True:
                 action = policy.select_action(state, training=False)
@@ -68,7 +69,7 @@ def evaluate_agent(agent, config, seeds, model_id, algorithm, writer, stream):
                     break
             row = {
                 "model_id": model_id, "algorithm": algorithm,
-                "training_seed": config.seed if algorithm == "dqn" else None,
+                "training_seed": config.seed if algorithm != "random" else None,
                 "evaluation_seed": seed, "episode": episode,
                 "score": info["score"], "episode_return": episode_return,
                 "episode_length": info["steps"], "terminated": terminated,
@@ -96,25 +97,12 @@ def evaluate(checkpoints, *, num_episodes=50, eval_seed=10000, device="cpu",
     expected_environment = None
     for index, checkpoint_path in enumerate(checkpoints, start=1):
         path = Path(checkpoint_path).expanduser().resolve()
-        saved = torch.load(path, map_location="cpu", weights_only=True)
-        config = Config(**saved["config"])
-        if config.algorithm != "dqn":
-            raise ValueError("当前评估入口只支持 DQN checkpoint")
-        config.device = device
-        config.render_mode = None
+        agent, config = load_agent(path, device=device)
         environment = {name: getattr(config, name) for name in ENV_FIELDS}
         if expected_environment is not None and environment != expected_environment:
             raise ValueError("同组评估的环境、状态和奖励配置必须一致，请分组评估")
         expected_environment = environment
-        env = SnakeEnv(config)
-        try:
-            agent = DQNAgent(env.state_dim, env.n_actions, config)
-            agent.load(path)
-            agent.online_net.eval()
-        finally:
-            env.close()
-        # load 恢复的是训练配置；评估环境始终使用上面的无渲染配置。
-        models.append((f"dqn_{index}_seed{config.seed}", path, config, agent))
+        models.append((f"{config.algorithm}_{index}_seed{config.seed}", path, config, agent))
 
     seeds = list(range(eval_seed, eval_seed + num_episodes))
     run_id = f"evaluate_{datetime.now():%Y%m%d_%H%M%S_%f}_{uuid4().hex[:8]}"
@@ -141,8 +129,8 @@ def evaluate(checkpoints, *, num_episodes=50, eval_seed=10000, device="cpu",
             writer = csv.DictWriter(stream, fieldnames=FIELDS)
             writer.writeheader()
             for name, path, config, agent in models:
-                rows = evaluate_agent(agent, config, seeds, name, "dqn", writer, stream)
-                result = {"model_id": name, "algorithm": "dqn", "training_seed": config.seed,
+                rows = evaluate_agent(agent, config, seeds, name, config.algorithm, writer, stream)
+                result = {"model_id": name, "algorithm": config.algorithm, "training_seed": config.seed,
                           "checkpoint": str(path), **score_summary(rows)}
                 summary["models"].append(result)
                 print(f"{name}: 平均得分={result['mean_score']:.2f} "
@@ -156,10 +144,11 @@ def evaluate(checkpoints, *, num_episodes=50, eval_seed=10000, device="cpu",
                       f"标准差={result['std_score']:.2f} 最高分={result['max_score']}", flush=True)
         dqn_results = [r for r in summary["models"] if r["algorithm"] == "dqn"]
         means = [r["mean_score"] for r in dqn_results]
-        summary["dqn_across_models"] = {
-            "num_models": len(means), "mean_score": float(np.mean(means)),
-            "std_of_model_mean_scores": float(np.std(means)),
-        }
+        if means:
+            summary["dqn_across_models"] = {
+                "num_models": len(means), "mean_score": float(np.mean(means)),
+                "std_of_model_mean_scores": float(np.std(means)),
+            }
         summary["status"] = "completed"
     except (Exception, KeyboardInterrupt) as error:
         summary["status"] = "interrupted" if isinstance(error, KeyboardInterrupt) else "failed"

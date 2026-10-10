@@ -11,7 +11,7 @@ from pathlib import Path
 
 import torch
 
-from algorithms.dqn import DQNAgent
+from algorithms.factory import create_agent, validate_agent_config
 from common.config import build_parser, config_from_args
 from common.metrics import RunLogger
 from common.replay_buffer import ReplayBuffer
@@ -27,8 +27,7 @@ def positive_int(text):
 
 
 def validate_training_config(config):
-    if config.algorithm != "dqn":
-        raise ValueError("当前训练入口只支持 --algorithm dqn")
+    validate_agent_config(config, training=True)
     if config.render_mode is not None:
         raise ValueError("训练入口采用无渲染模式，请不要传 --render_mode")
     for name in ("num_episodes", "max_steps_per_episode", "batch_size", "buffer_size", "min_buffer_size"):
@@ -38,7 +37,6 @@ def validate_training_config(config):
         raise ValueError("buffer_size 必须不小于 min_buffer_size 和 batch_size，否则无法开始更新")
     if not 0 <= config.seed < 2 ** 32:
         raise ValueError("seed 必须在 [0, 2**32) 内")
-    DQNAgent._validate_config(config)
 
 
 def save_checkpoint(agent, run_dir):
@@ -67,7 +65,7 @@ def train(config, *, output_dir="results/logs", experiment="debug_baseline",
     logger = None
     started = time.perf_counter()
     try:
-        agent = DQNAgent(env.state_dim, env.n_actions, config)
+        agent = create_agent(env.state_dim, env.n_actions, config, training=True)
         buffer = ReplayBuffer(config.buffer_size, seed=config.seed)
         # 只在第一局显式播种，之后 reset() 延续环境 RNG。
         state, _ = env.reset(seed=config.seed)

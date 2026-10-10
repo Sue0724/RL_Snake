@@ -56,6 +56,7 @@ Snake-RL/
 │   ├── dqn.py
 │   ├── double_dqn.py
 │   ├── dueling_dqn.py
+│   ├── factory.py
 │   └── networks.py
 │
 ├── common/
@@ -96,7 +97,8 @@ Snake-RL/
 │   ├── test_play.py
 │   ├── test_networks.py
 │   ├── test_replay_buffer.py
-│   └── test_dqn.py
+│   ├── test_dqn.py
+│   └── test_agent_factory.py
 │
 ├── train.py
 ├── evaluate.py
@@ -164,6 +166,21 @@ pytest                 # 代码测试，见 tests/
 ```
 
 两者分工不同，不要合并：`smoke_test.py` 用于环境刚装完、还不知道依赖是否齐全时自检，本身不依赖 pytest；`tests/` 是环境就绪后的代码测试，由 pytest 驱动。
+
+---
+
+## 模型可视化演示
+
+```bash
+python3 play.py --agent model --checkpoint path/to/checkpoint.pt --seed 10000 --fps 20
+```
+
+将路径替换为训练输出目录中的 `checkpoint.pt`。模型模式从 checkpoint 恢复环境与网络配置，
+以纯贪心策略跑一局，不训练、不保存模型。可指定 `--device`（默认 cpu）、`--seed` 和正整数 `--fps`；
+不传 seed 时随机选择并打印，传入相同 seed 可复现。模型模式拒绝覆盖棋盘、状态、奖励和训练参数。
+`Q` / `Esc`、关闭窗口或 `Ctrl+C` 可退出，结束时关闭窗口。
+
+随机与键盘模式仍可使用 `python3 play.py --agent random` / `python3 play.py --agent human`。
 
 ---
 
