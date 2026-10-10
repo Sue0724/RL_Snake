@@ -335,6 +335,8 @@ render_mode             默认 None
 
 这五个 key 与算法 key 合并在 `common/config.py` 的同一个 `@dataclass Config` 中，组织、覆盖与存档方式见 `AI_DEVELOPMENT_RULES.md` §12。`initial_head` 的命令行写法为 `--initial_head 4,6`。
 
+探索率默认值为 `epsilon_start=1.0`、`epsilon_end=0.05`、`epsilon_decay=0.9999`，按已完成的训练环境步骤指数衰减，跨 episode 延续，评估时不衰减。完整执行语义以 `AI_DEVELOPMENT_RULES.md` §12「已冻结：`epsilon_decay` 的衰减语义」为准。
+
 ---
 
 ## 11. 实验输出约定
@@ -375,7 +377,7 @@ debug_state_dqn_statev1_sparse_seed42_20261006_1800
 | 文件 | 内容 | 必需 |
 |---|---|---|
 | `config.json` | 该 run 的完整配置 | 是 |
-| `metrics.csv` | 逐步指标 | 是 |
+| `metrics.csv` | 逐局训练指标 | 是 |
 | `summary.json` | 汇总指标 | 是 |
 | `checkpoint.pt` | 模型权重 | 是 |
 | `train.log` | 训练日志 | 否 |
@@ -392,6 +394,13 @@ loss
 global_step
 ```
 
+`train.py` 在上述七项之外记录 `run_id`、`algorithm`、`seed`、`state_mode`、
+`reward_mode`、`update_count`、`terminated`、`truncated`、`episode_complete` 和
+`wall_clock_time`。`loss` 为本局成功更新的均值；没有更新时留空。
+`epsilon` 为记录这一局时的衰减后取值。两个结束标记保留环境原值。
+固定步数预算在局中耗尽时，记录不完整局并标记 `episode_complete=False`，
+不虚构环境终止/截断。
+
 ### `summary.json` 字段
 
 ```text
@@ -401,6 +410,16 @@ max_score
 mean_return
 mean_episode_length
 ```
+
+训练摘要仅统计完整局，额外记录 `metrics_scope=training`、`status`
+（running/completed/interrupted/failed）、计数与 `run_settings`。
+无完整局时汇总指标为 null。它不是独立评估结果。
+`run_settings` 保存训练入口自有选项；Config key 保持不变。
+
+当前 `train.py` 支持 `--total_steps` 覆盖 `num_episodes`，
+并在开始时、每 `--checkpoint_every` 个完整局及结束时保存本 run 的最新 checkpoint。
+输出 JSON 和 checkpoint 先写临时文件再替换。同 run 更新最新快照，跨 run 新建目录。
+训练失败记录 failed 摘要并保留此前快照；Ctrl+C 尝试保存 interrupted 状态。
 
 ### 覆盖保护
 
@@ -433,16 +452,22 @@ action = agent.select_action(state, training=True)
 loss = agent.update(batch)
 agent.save(path)
 agent.load(path)
+agent.on_env_step(training=True)
 ```
 
 | 方法 | 返回 | 说明 |
 |---|---|---|
 | `select_action(state, training=True)` | `int` | 取值 ∈ {0, 1, 2}。`training=True` 时按 ε-greedy 探索；`training=False` 时纯贪心，**评估阶段必须用 `False`**（`EXPERIMENT_PROTOCOL.md` 第五节） |
-| `update(batch)` | `float \| None` | 反向传播一次，返回 loss。Replay Buffer 未达 `min_buffer_size` 时返回 `None` 且不更新 |
-| `save(path)` | `None` | 保存网络权重与 optimizer 状态 |
-| `load(path)` | `None` | 加载并覆盖当前状态 |
+| `update(batch)` | `float \| None` | 对已采样的 batch 更新一次，返回 Smooth L1 loss；预热期由训练循环传入 `None`，返回 `None` 且不更新 |
+| `save(path)` | `None` | 保存两套网络、optimizer、配置、epsilon、步数/更新计数与动作采样 RNG 状态 |
+| `load(path)` | `None` | 加载匹配网络结构的 checkpoint，覆盖上述状态，保留当前配置的运行设备 |
+| `on_env_step(training=True)` | `None` | 训练循环成功完成一个训练环境步骤后调用一次，增加 `global_step` 并衰减 epsilon；`training=False` 时为空操作 |
 
 Replay Buffer 由调用方（训练循环）持有，`update` 接收采样好的 batch。
+新增的 `on_env_step` 用于落实已冻结的按环境步衰减规则，原有四个方法签名保持不变。
+`global_step` 统计已完成的训练环境步骤，`update_count` 统计成功的梯度更新。
+目标网络按 `target_update_interval` 个梯度更新硬同步，执行规则见开发规范 §12。
+checkpoint 不包含回放池、环境和环境 RNG 状态；完整训练续跑须由后续训练框架管理这些状态。
 
 ### `batch` 结构
 
@@ -460,7 +485,27 @@ target = reward + (1 - terminated) * gamma * max_a Q_target(next_state, a)
 
 `truncated` **不参与**该式 —— 截断时蛇仍然活着，仍应 bootstrap。把截断当作真终止会让 Q 值被系统性低估（见 §1）。
 
-batch 的具体容器类型（tuple / dict / tensor）由 B 决定。
+batch 容器已于 10-10 由 B 的实现确定为 `dict[str, np.ndarray]`，由
+`common.replay_buffer.ReplayBuffer.sample(batch_size)` 返回：
+
+| key | shape | dtype |
+|---|---|---|
+| `states` | `(batch_size, state_dim)` | `float32` |
+| `actions` | `(batch_size,)` | `int64` |
+| `rewards` | `(batch_size,)` | `float32` |
+| `next_states` | `(batch_size, state_dim)` | `float32` |
+| `terminated` | `(batch_size,)` | `bool` |
+| `truncated` | `(batch_size,)` | `bool` |
+
+回放池使用 `ReplayBuffer(config.buffer_size, seed=config.seed)` 创建；训练循环
+调用 `add(state, action, reward, next_state, terminated, truncated)` 写入，使用
+`len(buffer)` 查询条数，满足预热和采样数量要求后再采样。必须同时满足
+`len(buffer) >= config.min_buffer_size` 与 `len(buffer) >= config.batch_size` 才开始训练；
+回放池本身只检查是否有足够记录可供采样，预热判断由训练循环负责。
+
+`DQNAgent.update(batch)` 将这些数组转换为配置设备上的 Tensor；尚未预热时
+训练循环不采样，调用 `update(None)` 跳过网络更新。回放池复制写入的状态，满容量后覆盖最旧记录，
+使用独立随机数生成器均匀无放回采样；每个回放池内的状态维度必须一致。
 
 ### 生命周期约束
 
@@ -508,3 +553,21 @@ agent = DQNAgent(env.state_dim, env.n_actions, config)
 | 10-07 | 第 12 节新增「实现须知」：指向 `env/random_agent.py` 作为签名参考实现；明确禁止硬编码 `state_dim` / `n_actions`（Stage 4 的 State V2 维度与 V1 不同）。 |
 | 10-07 | §4 补充 **State V2 预定方案**（20 维：V1 11 维 + `food_distance` + `local_ring`），标注未冻结、待团队确认，作为 Stage 4 实现依据。属规范变更，实施前按 §20 流程确认。 |
 | 10-07 | §1 的 `env.state_dim` 注释由 `# 11` 改为随 `state_mode` 变化，并补一句「不要当常量用」，与 §4 的 V2（20 维）及 §12「实现须知」第 2 条对齐。 |
+| 10-09 | 经用户确认冻结 epsilon 衰减规格；§10 同步默认值 `1.0 / 0.05 / 0.9999` 并指向开发规范 §12，约定按训练环境步衰减、跨局延续、评估不衰减。 |
+| 10-10 | §12 明确 B 选定的回放池接口及 batch 容器：六个 NumPy 数组组成的 dict，保留两个独立结束标记；说明容量、状态副本、采样与预热责任。 |
+| 10-10 | §12 同步 DQNAgent 实现：明确预热期传入 None；新增完成环境步骤后的 on_env_step 调用；说明目标网络同步计数及 checkpoint 内容与边界。 |
+
+
+## 13. 独立评估入口
+
+`evaluate.py --checkpoints <一个或多个路径> --compare_random` 默认每个模型评估 50 局。
+环境与网络配置从 checkpoint 读取，设备可用 `--device` 覆盖；
+`--eval_seed` 默认为 10000，第 i 局使用 eval_seed+i（i 从 0 开始）。
+所有模型和 Random 使用同一列表，DQN 调用 select_action(training=False)，
+不调用 update/on_env_step，不写入回放池、不保存或覆盖模型。
+
+结果独立保存到 `results/evaluations/<唯一run>/`：config.json、metrics.csv、summary.json。
+CSV 包含模型标识、训练/评估 seed、episode、score、episode_return、episode_length、
+terminated、truncated；摘要标明 metrics_scope=evaluation，包含各模型的五项核心汇总、
+截断率及跨模型平均分统计。标准差使用总体标准差（ddof=0）。
+同组环境配置须一致；失败或中断保留部分 CSV，并明确摘要状态，运行方式见 QUICKSTART 第七节。

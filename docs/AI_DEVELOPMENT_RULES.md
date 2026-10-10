@@ -367,27 +367,40 @@ hidden_dim
 
 实验中一次只改变当前研究变量。
 
-### 待冻结：`epsilon_decay` 的衰减语义
+### 已冻结：`epsilon_decay` 的衰减语义
 
-**状态：未定义，进入 Stage 2 前必须由 B 选定并写回本节。** 本表只列参数名与默认值，没有说明 `epsilon_decay` 是「每 step 衰减一次」还是「每 episode 衰减一次」。两种语义在当前默认值下相差约 50 倍，实现前必须二选一，否则 D 在 Stage 5 做探索策略对比时，自变量无法说明。
+**状态：10-09 经用户确认，采用按训练环境步进行的指数衰减。** 本节是 B 实现 DQN 基线及 D 开展探索实验时的统一约定。
 
-当前取值（`common/config.py`）：`epsilon_start=1.0`、`epsilon_end=0.05`、`epsilon_decay=0.995`、`num_episodes=1000`、`max_steps_per_episode=500`。
+默认取值（`common/config.py`）：`epsilon_start=1.0`、`epsilon_end=0.05`、`epsilon_decay=0.9999`。
 
-从 `epsilon_start` 衰减到 `epsilon_end` 所需次数（`ln(0.05)/ln(decay)`）：
+```python
+# 新训练开始时初始化；第一次训练动作使用 epsilon_start。
+epsilon = config.epsilon_start
 
-| 方案 | 需要次数 | 换算成 episode | 判断 |
-|---|---|---|---|
-| 每 step，`decay=0.995` | 598 步 | ≈1.2 个 episode | 太快，探索基本没发生 |
-| 每 episode，`decay=0.995` | 598 episode | 598 / 1000 | 数值合理 |
-| **每 step，`decay=0.9999`** | **29,956 步** | **≈100～300 episode** | **推荐** |
+# 每成功完成一次训练 env.step(action) 后执行一次。
+epsilon = max(config.epsilon_end, epsilon * config.epsilon_decay)
+```
 
-**推荐：每 step 衰减，同时把默认值 `0.995` 改为 `0.9999`。**
+执行规则：
 
-理由：episode 长度由智能体当前水平决定——训练初期几步就撞死，后期一局几百步。若按 episode 衰减，同样是乘 0.995，早期消耗的总步数远少于后期，**探索预算因此变成了智能体水平的函数**。Stage 5 要比较「不同 epsilon 衰减策略」，自变量必须是确定量。按 step 衰减与智能体行为无关，可直接由 `num_episodes × 平均 episode 长度` 推算。
+- 衰减次数由已完成的训练环境步数决定，不按 episode、选动作的调用次数或网络更新次数计算。
+- 随机探索动作与贪心动作都计入训练步数；回放池尚未达到 `min_buffer_size` 时仍按步衰减。
+- 导致 `terminated` 或 `truncated` 的最后一步也计入；`env.reset()` 不衰减，也不重置 epsilon，跨 episode 延续。
+- `training=False` 时采用纯贪心策略，不随机探索，不更新训练 epsilon，也不计入训练步数。
 
-选定后需要同步修改的位置：本节、`common/config.py` 的 `Config` 默认值、`docs/INTERFACE.md`（若其中引用了该参数）。改动属于规格变更，按本节要求走变更流程。
+第 `t` 个训练动作使用 `max(epsilon_end, epsilon_start * epsilon_decay ** (t - 1))`，其中 `t` 从 1 开始。默认值下，完成 29,956 个训练环境步骤后降至下限。episode 数取决于实际局长，不作固定换算。
 
-**分工提示**：B 在 Stage 2 实现 epsilon-greedy 时必须依此表实现；D 在 Stage 5 的探索策略实验依赖此语义。B 若对推荐有异议，应在实现前提出，不要默默选择。
+选择依据：按环境步衰减，探索率与明确的交互次数对应，便于在相同训练步数下比较策略。若使用旧值 `0.995` 按步衰减，约 598 步就达到下限，甚至早于默认回放池预热的 1,000 步；因此将默认值改为 `0.9999`。该值是基线起点，是否适合本环境仍需实际训练验证。
+
+**实现进度**：10-09 冻结规格并修改配置；10-10 已在 DQNAgent 中实现 epsilon-greedy 与 `on_env_step(training=True)` 衰减方法。训练循环须在成功完成 `env.step` 后调用一次；选择动作和网络更新均不触发衰减。10-10 新增 train.py，已接入此调用，训练入口尚未运行验证；Stage 3 的完整统一训练/评估框架仍待完成。后续修改衰减语义或默认值仍需按 §20 走变更流程。
+
+### `target_update_interval` 的执行语义
+
+Stage 2 实现采用按成功的梯度更新次数进行硬同步，默认每 1,000 次
+`update(batch)` 将 Online Network 权重复制到 Target Network。
+构造时先同步一次；预热期间 `update(None)`、仅选择动作和仅完成环境步骤
+都不增加更新次数，也不触发同步。计数器为 `agent.update_count`，存入 checkpoint。
+目标网络始终关闭梯度、保持 eval 模式。
 
 ### 组织形式
 

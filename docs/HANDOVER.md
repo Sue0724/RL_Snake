@@ -27,7 +27,7 @@
 |---|---|---|---|
 | 0 | 工程初始化与接口冻结 | 仅剩「所有成员理解接口」待确认 | 全员 |
 | 1 | Snake 环境与状态 | **Passed**（10-07 确认） | A |
-| 2 | DQN Baseline | 未开工 | B |
+| 2 | DQN Baseline | 训练/评估完成，13项条件满足，待成员确认（10-10 更新） | B |
 | 3 | 统一训练与评估框架 | 未开工 | B 主导，全员确认 |
 | 4 | 状态实验 | 未开工（方案已设计） | A |
 | 5 | Reward 与探索实验 | 未开工 | D |
@@ -191,14 +191,24 @@ V2 已在 `docs/INTERFACE.md` §4 写出完整规格，状态为 **预定方案�
 
 Stage 2 与 Stage 3 是全项目最重的连续两块，也是所有人的前置依赖。
 
-**开工前必须先定一件事**：`epsilon_decay` 是"每 step 衰减"还是"每 episode 衰减"。两种语义在当前默认值下相差约 50 倍。三种方案的换算表与推荐结论已写在 `docs/AI_DEVELOPMENT_RULES.md` §12「待冻结：`epsilon_decay` 的衰减语义」，**B 需在实现前选定并写回该节**。D 在 Stage 5 的探索实验直接依赖此语义。
+**配置前置已完成（10-09）**：经用户确认，epsilon 采用按训练环境步进行的指数衰减，默认值 `1.0 / 0.05 / 0.9999`，跨局延续，评估不衰减。完整执行规则以 `docs/AI_DEVELOPMENT_RULES.md` §12 为准。DQNAgent 已据此实现；D 在 Stage 5 的探索实验沿用该基线规格。
 
 **开工前请读两处**：
 
 - `docs/INTERFACE.md` §12「实现须知」——签名参考实现 + 禁止硬编码维度
-- `docs/AI_DEVELOPMENT_RULES.md` §12——`epsilon_decay` 决策表
+- `docs/AI_DEVELOPMENT_RULES.md` §12——已冻结的 `epsilon_decay` 执行规则
 
 Stage 3 的验收项里包含 `state_mode` 可配置，与 State V2 相关。
+
+**10-10 组件进度**：`algorithms/networks.py` 的 QNetwork 和
+`common/replay_buffer.py` 的 ReplayBuffer 已实现，相关 33 项测试通过。
+batch 采用六个 NumPy 数组组成的 dict，具体 key/shape/dtype 见 `INTERFACE.md` §12。
+第六/第七步的 `algorithms/dqn.py` 也已实现：动作选择、环境步衰减、Online/Target、
+Bellman 更新和 checkpoint 经 29 项新增测试验证，全量 116 passed。
+短程集成检查完成 160 步和 129 次更新；正式训练、长期数值稳定性及性能评估仍待进行。
+10-10 已补齐 `train.py`、`common/metrics.py` 和 `common/utils.py`，接通完整训练循环、
+逐局日志及自动checkpoint；随后已完成三seed各100k步训练和共同50局独立评估。运行方式见 `QUICKSTART.md` 第六节。
+下一步由B整理Stage2验收并交成员确认；DQN已明显优于Random，收敛尚未确认。
 
 ### 4.3 C：Stage 6
 
@@ -270,9 +280,9 @@ agent = DQNAgent(11, 3, config)                          # 错
 
 Stage 4 会引入 State V2（20 维）。写死 `11` 的代码在切换 `state_mode` 后会直接抛形状错误，**而且报错位置离原因很远**，很难查。
 
-**② `epsilon_decay` 必须先定语义再实现**
+**② `epsilon_decay` 必须按冻结语义实现**
 
-见 4.2 节。这不是一个可以"先随便选一个后面再改"的参数——它的语义决定了 Stage 5 探索实验的自变量是什么。
+见 4.2 节。默认方案已于 10-09 冻结；实现不能改成按 episode 或网络更新次数衰减，后续规格变更仍按开发规范 §20 执行。
 
 **③ 改接口要走变更流程**
 
@@ -294,11 +304,11 @@ Environment API、Agent API、Config key、metrics 字段、实验输出格式�
 
 ---
 
-## 六、需要团队确认的三件事
+## 六、确认事项
 
 | # | 事项 | 谁定 | 什么时候 |
 |---|---|---|---|
-| 1 | `epsilon_decay` 的衰减语义与默认取值 | B | Stage 2 开工前 |
+| 1 | `epsilon_decay` 的衰减语义与默认取值 | B | 已于 10-09 经用户确认冻结 |
 | 2 | State V2 方案（`docs/INTERFACE.md` §4） | 团队 | Stage 4 开工前 |
 | 3 | Stage 0 的「所有成员理解接口」 | 全员 | 不阻塞任何阶段 |
 

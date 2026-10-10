@@ -137,3 +137,93 @@
 - A 的待办边界（经核对）：**当前可做的只有 Stage 4 的状态实验**，但依赖 Stage 2（DQN）与 Stage 3（`train.py` / `evaluate.py` 统一框架）先行。其余 Stage（3 / 7 / 8）A 均为参与角色，Stage 6 不参与实现。
 - Stage 5 的 Reward Shaping **不安排 A 参与**：`docs/PROJECT_PLAN.md` 中 Stage 5 的负责人只有 D；虽然改动落在 `env/snake_env.py` 的 `_compute_reward()`（A 的责任区），但 `docs/COLLABORATION_RULES.md` 已写明「责任人拥有主要维护责任，不代表其他人不可修改，跨责任区修改前应说明原因」，据此由 D 自行实现并在提交中说明，A 事后 review 即可。本次**未**为该分工新增文档条目——现有规则已覆盖。
 - 分支流程已定：**B / C / D 开工一律从 `main` 开分支**，不再提「从 `feature/env` 开」的旧说法。上一轮答复中「先不合 `main`、改在 `main` 加一行 README 说明」的建议已作废：把流程定为「`main` 即集成线」之后，正确处理是**直接把 Stage 1 合进 `main`**，说明本身失去意义，且加说明反而会让 `main` 与 `feature/env` 分叉。
+
+## 10-09
+
+操作类型：Code / Docs / Test / Git
+结果：Partial
+
+操作内容：
+- 按用户已确认的方案，将 `Config.epsilon_decay` 默认值从 `0.995` 改为 `0.9999`，并补充按训练环境步衰减的注释。
+- 冻结 epsilon 规格：起点 `1.0`、下限 `0.05`，每成功完成一个训练环境步骤后衰减一次；包含预热与终止/截断的最后一步，跨局延续，评估不衰减。
+- 同步开发规范 §12、接口定义 §10、交接文档和项目状态，移除已解决的 epsilon 决策阻塞；Stage 2 记录为配置前置已完成、算法待实现，未通过阶段验收。
+- 从本地 `main` 创建并切换到 `codex/dqn`，用于本次修改及后续 B 的开发。
+- 按用户要求完成第三步的 Git 分支准备核查：执行 `git fetch origin`，确认当前开发分支已基于最新远程 `main`；Git 准备检查结果 `Passed`。
+
+涉及文件：
+- `common/config.py`、`docs/AI_DEVELOPMENT_RULES.md`、`docs/INTERFACE.md`、`docs/PROJECT_STATUS.md`、`docs/HANDOVER.md`、`memory.md`。
+
+执行 / 验证：
+- 本机 `python3` 配置专项检查：默认值、CLI 默认与显式覆盖、实例隔离、JSON 存档、help 均通过。
+- 数学公式核验：默认值下完成 29,956 次衰减后达到下限；尚未实现或测试实际训练中的衰减逻辑。
+- `python3 smoke_test.py`：5/6 通过，第三方依赖检查因缺少 `matplotlib` 失败，退出码 1。
+- `git diff --check`：通过。
+- `git status --short --branch` 确认当前为 `codex/dqn`；`git rev-list --left-right --count HEAD...origin/main` 返回 `0 0`，无提交差异；`git merge-base --is-ancestor origin/main HEAD` 成功。现有修改仍在工作区，尚未提交或推送。
+
+发现的问题：
+- 当前 Python 环境缺少 `matplotlib`，完整依赖自检未通过；本次未修改依赖环境。
+
+## 10-10
+
+操作类型：Code / Docs / Test / Train / Evaluate / Experiment / Other
+结果：Passed（组件历史测试及本次训练/独立评估完成；未新增或运行测试套件）
+
+操作内容：
+- 按用户要求补齐 evaluate.py，使用 checkpoint 配置加载多模型，以同一评估种子列表运行纯贪心 DQN 和可选 Random，保存逐局 CSV、来源配置和评估摘要；模型不被修改，环境配置不一致时拒绝同组比较。
+- 同步 QUICKSTART、README、接口、状态及阶段清单，说明默认 50 局和共同评估命令。
+- 按用户要求执行 `python3 -m pip install -r requirements.txt`，将六项项目依赖及所需间接依赖安装到当前系统 Python 3.10；安装成功。
+- 完成第四步：新增 `algorithms/networks.py`，实现两层隐藏层的 QNetwork，按环境维度构造网络，支持单状态/批量 Tensor，输出原始动作价值。
+- 完成第五步：新增 `common/replay_buffer.py`，实现容量覆盖、状态复制和独立随机数采样，分别保存 terminated/truncated，采样返回六个 NumPy 数组组成的 dict。
+- 新增组件及集成测试，同步接口定义、速查页、目录说明、交接文档和阶段清单；第四/第五步完成，完整 DQN 算法未标为通过。
+- 按用户要求完成第六步和第七步：新增 DQNAgent，复用 QNetwork，实现 epsilon-greedy、Online/Target Network、Bellman target、Smooth L1 loss、Adam 更新及 checkpoint。
+- 新增 `on_env_step(training=True)`，在成功完成环境步骤后计步和衰减；目标网络按成功梯度更新次数同步，预热期通过 `update(None)` 跳过更新。
+- checkpoint 恢复网络、optimizer、配置、epsilon、计数与动作 RNG，校验网络结构并保留加载方的设备；环境与回放池状态由训练框架另行管理。
+- 同步接口、配置注释、速查页与阶段清单；Stage 2 的 11/13 项已满足，长期稳定性和相对 Random 的性能仍未判为通过。
+- 按用户要求补齐第八步中的训练循环与基本日志：新增 `train.py`，逐步调用选动作、环境交互、回放存储、epsilon 计步衰减及预热后网络更新；局末记录指标并延续 RNG 重置环境。
+- 新增 `common/utils.py` 设置 Python/NumPy/Torch/CUDA 种子，新增 `common/metrics.py` 新建独立 run 目录、逐局写入并 flush CSV、保存配置及训练摘要。
+- 实现局数/精确环境步预算、周期/结束模型保存、Ctrl+C 中断记录和失败摘要；步数预算耗尽的未完成局单独标识，完整局用于汇总，训练摘要不当作评估结果。
+- 补充短程调试与三 seed 同预算训练命令、日志含义和后续评估步骤；未实施独立 evaluate，也未标记 Stage 2/3 通过。
+
+涉及文件：
+- `evaluate.py` 及上述评估文档。
+- `algorithms/networks.py`、`common/replay_buffer.py`、`tests/test_networks.py`、`tests/test_replay_buffer.py`。
+- `docs/INTERFACE.md`、`QUICKSTART.md`、`README.md`、`requirements.txt`（网络规模注释）、`docs/HANDOVER.md`、`docs/STAGE_CHECKLIST.md`、`docs/PROJECT_STATUS.md`、`memory.md`。
+- `algorithms/dqn.py`、`tests/test_dqn.py`、`common/config.py`（同步计数注释）、`docs/AI_DEVELOPMENT_RULES.md`（执行语义与实现进度）。
+- `train.py`、`common/metrics.py`、`common/utils.py` 及训练说明/状态文档。
+
+执行 / 验证：
+- 本次 evaluate.py：Not Tested，未执行评估或新增测试，没有新的性能结果。
+- 解释器：`/Library/Frameworks/Python.framework/Versions/3.10/bin/python3`。numpy 2.2.6 / torch 2.14.1 / pygame 2.6.1 / matplotlib 3.10.9 / pandas 2.3.3 / pytest 9.1.1 安装完成；`python3 -m pip check` 通过。
+- `python3 smoke_test.py`：6/6 通过，退出码 0。
+- `python3 -m pytest tests/test_networks.py tests/test_replay_buffer.py -q`：33 passed。
+- `SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy python3 -m pytest -q`：87 passed，已有环境/渲染/演示入口的回归均通过；未重新人工游玩。
+- 实跑 QUICKSTART 新增的组件示例，输出 Q 值形状 `(1, 3)`；核验默认网络参数量为 18,435。
+- `python3 -m pytest tests/test_dqn.py -q`：29 passed，显式核验普通/真终止/截断的 Bellman 值、梯度更新、Target 同步以及 checkpoint 加载后继续执行相同更新的一致性。
+- 第六/第七步后复跑 `python3 smoke_test.py`：6/6 通过；无窗口全量回归：116 passed。
+- 实跑 QUICKSTART 的 DQN 单步示例：成功完成 1 个环境步骤，epsilon 降至 0.9999，预热期 `update(None)` 返回 None。
+- DQN 集成检查执行 160 个环境步骤与 129 次梯度更新，loss 均有限。该短程测试不作为正式学习效果或长期稳定性结论。
+- `git diff --check`：通过。
+- 第八步本次新增训练入口与日志代码：Not Tested，未执行程序或测试；未生成训练模型、日志或性能数据。此前通过的结果不覆盖本次新增代码。
+
+关键结果：
+- 100k模型评估均分seed42/43/44分别20.02/19.58/20.88，Random0.04；相较50k分别+1.26/-0.96/+4.70分。三模型均值18.49→20.16，不能确认均已收敛。
+- Q 网络、Replay Buffer、batch shape、epsilon-greedy、Bellman 更新、loss/梯度/optimizer、Target 同步及模型存取共 11 项 Stage 2 验收已满足；持续训练稳定性和相对 Random 的得分仍待验收。
+- 完整训练/日志与评估入口现已通过实际运行验证，三个100k训练run及共同评估全部完成。
+
+发现的问题：
+- 安装期间下载重试及 pip 版本检查遇到 SSL 错误，依赖安装最终成功，自检与依赖一致性检查通过。
+- 未发现本轮NaN/Inf或运行异常；收敛仍未确认，seed44从50k到100k的评估均值提升29.05%。
+
+
+本日追加实验操作：
+- 按用户要求逐个复用旧run的Config，从头训练seed42/43/44至100,000步；三个run均completed，每个99,001次更新，记录loss均有限。
+- 训练run_id：baseline100k_dqn_statev1_sparse_seed42_20261010_115409_706718_3d8ac8e7、baseline100k_dqn_statev1_sparse_seed43_20261010_115447_684488_624e6bba、baseline100k_dqn_statev1_sparse_seed44_20261010_115525_500394_e6195a47，输出位于results/logs/，每run包含config/metrics/summary/checkpoint。
+- 调用evaluate对三个新模型和Random评估种子10000～10049各50局；输出results/evaluations/evaluate_20261010_115603_654649_e7cff81b/，状态completed。
+- 核对新旧Config完全一致，前50k内完整局训练记录一致，共同评估种子列表一致；保存comparison_50k_100k.json和.md，记录样本成绩变化与收敛判断限制。
+- Stage2最后两项已有训练/评估数据支持，13项条件满足，待成员确认；未进入Stage3，未提交或推送。
+
+本日追加文档同步：
+- 操作内容：按用户要求同步 docs/STAGE_CHECKLIST.md 的实际进度，清理 Stage 2 已被实际训练/评估推翻的未验证描述；Stage 3 标记已有 9/11 项功能，明确模型演示与算法切换仍未完成，以及状态/奖励配置和多版本实现的区别。
+- 涉及文件：docs/STAGE_CHECKLIST.md、docs/PROJECT_STATUS.md、memory.md。
+- 结果：Passed（文档进度同步）；Stage 2 / Stage 3 的正式验收结论仍为 Pending。
+- 执行 / 验证：核对现有入口代码、100k 训练摘要及独立评估摘要；git diff --check。本次程序验证为 Not Tested，未重新运行测试、训练或评估。

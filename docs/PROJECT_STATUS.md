@@ -2,13 +2,15 @@
 
 ## 当前状态
 
-当前 Stage：`Stage 2 - DQN Baseline`（负责人 B，尚未开工）
+当前 Stage：`Stage 2 - DQN Baseline`（负责人 B，训练/评估已完成，待成员确认验收）
 
-总体状态：`Pending`
+总体状态：`In Progress`
 
-最后更新：`10-07`
+最后更新：`10-10`
 
-Stage 1 已于 10-07 通过验收，成果已合入 `main`。Stage 2 未启动（负责人 B）。
+Stage 1 已于 10-07 通过验收，成果已合入 `main`。Stage 2 的 epsilon 配置、Q 网络、Replay Buffer、DQNAgent、目标网络、Bellman 更新和 checkpoint 已实现并通过测试；训练、基础日志和独立评估已通过实际运行验证：三个种子完成100k步训练，独立均分19.58～20.88，Random为0.04。Stage2的13项条件已有证据支持，待成员确认阶段验收；收敛尚未确认。
+
+Stage 3 已有功能按证据同步到验收清单：9/11 项具备，剩余模型可视化加载与算法配置切换；仍未正式进入或通过 Stage 3。状态与奖励的配置已接通，目前仅支持 v1 / sparse，多版本实现留至 Stage 4 / 5。
 
 A 的并行项——Stage 4 状态方案的纸面设计——**已完成**，写入 `docs/INTERFACE.md` §4（预定方案，待团队确认后冻结），不写代码，不构成跨阶段开发。
 
@@ -20,7 +22,7 @@ A 的并行项——Stage 4 状态方案的纸面设计——**已完成**，写
 |---|---|---|---|
 | 0 | 工程初始化与接口冻结 | In Progress | 全员 |
 | 1 | Snake 环境与状态 | Passed | A |
-| 2 | DQN Baseline | Pending | B |
+| 2 | DQN Baseline | In Progress | B |
 | 3 | 统一训练与评估框架 | Pending | B / 全员 |
 | 4 | 状态实验 | Pending | A |
 | 5 | Reward 与探索实验 | Pending | D |
@@ -41,7 +43,7 @@ Passed
 
 ## 当前阶段目标
 
-Stage 2（负责人 B，尚未开工）：
+Stage 2（负责人 B，核心算法已完成，训练验收待完成）：
 
 - Q Network、Online / Target Network。
 - Replay Buffer。
@@ -49,9 +51,9 @@ Stage 2（负责人 B，尚未开工）：
 - optimizer 与 checkpoint。
 - 基础日志。
 
-进入 Stage 2 前 B 需先确定的项：
+Stage 2 已确定的前置项：
 
-- `epsilon_decay` 的衰减语义与默认取值，方案见 `docs/AI_DEVELOPMENT_RULES.md` §12。
+- `epsilon_decay` 按已完成的训练环境步衰减，默认值为 `0.9999`，起点 `1.0`、下限 `0.05`；跨局延续、预热阶段计步、评估不衰减。10-09 经用户确认冻结，详见 `docs/AI_DEVELOPMENT_RULES.md` §12。
 
 A 的并行项（仅文档，不写代码）：
 
@@ -60,6 +62,21 @@ A 的并行项（仅文档，不写代码）：
 ---
 
 ## 已完成
+
+- 10-10 从头完成三个seed的100k步训练与同种子独立评估；新旧配置和前50k训练记录一致，模型平均分18.49→20.16（+9.01%）。比较结果保存在新评估目录的comparison_50k_100k.json/.md；有平台迹象，但不足以确认均已收敛。
+
+- 10-10 按用户要求补齐 `evaluate.py`：从 checkpoint 恢复 DQN，纯贪心、无网络更新、无回放池写入；支持多模型与同种子 Random 比较，输出独立评估 CSV/配置/摘要，保存来源模型路径，拒绝环境配置不一致的同组比较。本次评估入口 Not Tested，未产生新的评估成绩。
+
+- 10-10 按用户要求新增 `train.py`、`common/metrics.py` 与 `common/utils.py`：接通无渲染 DQN 循环、预热采样更新、按步衰减和跨局重置；控制全局/环境/回放池种子。
+- 逐局 CSV 记录基础指标、run 标识及完整局标志，预热 loss 留空；新建独立目录保存完整配置、训练摘要与最新模型。支持局数或精确环境步预算、周期快照及 Ctrl+C 保存。此次新增代码为 `Not Tested`，未执行训练、测试或独立评估。
+- 10-10 完成第六步与第七步：新增 `algorithms/dqn.py`，实现 epsilon-greedy、Online/Target Network、Smooth L1 + Adam 更新，以及正确区分真终止与截断的 Bellman target；新增 `on_env_step` 在完成环境步骤后衰减，目标网络每 `target_update_interval` 次成功梯度更新硬同步。
+- checkpoint 保存并恢复两套网络、optimizer、配置、epsilon、两种计数及动作采样 RNG 状态；保留加载方的设备，不包含环境与 Replay Buffer 状态。
+- 新增 `tests/test_dqn.py` 29 项测试，含 160 步/129 次更新的环境集成检查；无窗口全量回归 116 项通过。基线的长期稳定性与得分表现尚未验证。
+- 10-10 按用户要求补齐当前 Python 3.10 的项目依赖，`python3 smoke_test.py` 6/6 通过，`python3 -m pip check` 通过。
+- 10-10 完成第四步 Q 网络：`algorithms/networks.py` 的 `QNetwork(state_dim, n_actions, hidden_dim)`，支持单状态和批量状态，输入/输出维度取自环境，两层 ReLU 隐藏层，输出原始 Q 值。
+- 10-10 完成第五步 Replay Buffer：`common/replay_buffer.py` 的 `ReplayBuffer(capacity, seed)`，六项经历独立存储、状态副本、固定容量环形覆盖、均匀无放回采样，batch 为六个 NumPy 数组组成的 dict；接口及速查页同步。
+- 新增 `tests/test_networks.py` 11 项与 `tests/test_replay_buffer.py` 22 项测试，包含环境 -> 回放池 -> Q 网络的集成检查；无窗口全量回归 87 项通过。
+- 10-09 经用户确认冻结 epsilon 衰减规格，将 `Config.epsilon_decay` 默认值从 `0.995` 改为 `0.9999`；开发规范、接口定义与交接文档同步。对应动作选择与衰减逻辑已于 10-10 实现。
 
 - 已确定项目主题：基于深度强化学习的贪吃蛇智能体设计与实验研究。
 - 已确定核心算法方向：DQN、Double DQN、Dueling DQN。
@@ -122,14 +139,16 @@ Stage 1（全部完成）：
 - [x] 修复 `play.py` 演示种子固定
 - [x] Stage 1 验收并由项目成员确认
 
-Stage 2（负责人 B，尚未开工）：
+Stage 2（负责人 B，核心算法已完成，训练验收待完成）：
 
-- [ ] 确定 `epsilon_decay` 的衰减语义与默认取值
-- [ ] Q Network / Online + Target Network
-- [ ] Replay Buffer
-- [ ] epsilon-greedy 与 Bellman update
-- [ ] checkpoint 存取
-- [ ] 基础日志
+- [x] 确定 `epsilon_decay` 的衰减语义与默认取值
+- [x] Q Network 基础结构与前向计算
+- [x] Replay Buffer 与 batch shape
+- [x] Online + Target Network 的初始化和同步
+- [x] epsilon-greedy 与 Bellman update
+- [x] checkpoint 存取
+- [x] 基础日志及实际训练输出
+- [x] 基线训练数值稳定性及明显优于 Random（待成员确认Stage2验收）
 
 Stage 4 前置（A，仅文档，已完成）：
 
@@ -147,9 +166,7 @@ Stage 0 验收结论仍为 `Pending`，仅剩「所有成员理解接口」（`[
 
 ### P1
 
-1. `epsilon_decay` 的衰减语义尚未冻结，阻塞 Stage 2 的 epsilon-greedy 实现。**决策方案与推荐已记入 `docs/AI_DEVELOPMENT_RULES.md` §12「待冻结：`epsilon_decay` 的衰减语义」**，含三种方案的换算表与推荐结论（每 step 衰减 + 默认值 `0.995` → `0.9999`）。B 在实现前必须选定并写回该节；D 的 Stage 5 探索实验依赖此语义。
-
-2. Stage 2 尚未开工（负责人 B）。A 的 Stage 1 已完成并通过验收，当前无阻塞项，但项目整体处于等待状态。
+1. Stage2的13项条件已有证据支持，待成员确认；尚不能确认收敛。100k下三个模型平均分20.16，seed44相较50k提升29.05%。未进入Stage3。
 
 ### P2
 
@@ -160,6 +177,27 @@ Stage 0 验收结论仍为 `Pending`，仅剩「所有成员理解接口」（`[
 ---
 
 ## 最近一次测试
+
+第八步训练与评估已实际运行：三seed各100k步、99,001次更新，逐局loss有限；同一50局评估均分20.02/19.58/20.88，Random0.04。详见results/evaluations/evaluate_20261010_115603_654649_e7cff81b/。以下为此前组件测试，本次未重跑测试套件。
+
+测试时间：`10-10`
+
+测试内容：
+
+- 本机解释器：`/Library/Frameworks/Python.framework/Versions/3.10/bin/python3`；项目依赖已安装到该解释器。numpy 2.2.6 / torch 2.14.1 / pygame 2.6.1 / matplotlib 3.10.9 / pandas 2.3.3 / pytest 9.1.1。
+- `python3 -m pip check`：无依赖冲突。
+- `python3 smoke_test.py`：6/6 通过，退出码 0。
+- `python3 -m pytest tests/test_networks.py tests/test_replay_buffer.py -q`：33 passed，覆盖维度、原始 Q 值、梯度和单次 optimizer 更新、回放容量与采样、状态复制、两个结束标记及集成数据流。
+- `python3 -m pytest tests/test_dqn.py -q`：29 passed；显式验证普通步目标 5.5、真终止目标 2.0、截断目标 7.5，及 checkpoint 继续执行相同 batch 更新的一致性。
+- DQN 集成检查完成 160 个环境步骤、129 次更新，loss 均为有限值；使用小网络和缩短预热的测试配置，不作为正式实验结果。
+- `SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy python3 -m pytest -q`：116 passed。渲染相关回归使用无窗口模式，本次未重新人工游玩。
+- `git diff --check`：通过。
+
+结果：`Passed`（组件历史检查及本次训练/评估完成）。Stage2已满足13/13项条件，待成员确认；此前Stage1历史验收见下节。
+
+---
+
+## Stage 1 最近一次验收测试
 
 测试时间：`10-07`
 
@@ -200,11 +238,12 @@ python smoke_test.py（Stage 0 自检，config 改动后复跑）
 
 ## 下一步
 
-Stage 2（阻塞中，负责人 B）：
+Stage 2（负责人 B，配置决策阻塞已解除）：
 
-- B 需先定 `epsilon_decay` 的语义与默认取值，方案见 `docs/AI_DEVELOPMENT_RULES.md` §12（P1-1）
+- B 下一步整理Stage2验收，由成员确认后进入Stage3；如继续研究收敛，可增加独立评估局数并比较更多训练时点，保持全部seed和相同配置。100k训练及评估无需重复执行。
 - B 实现前请读 `docs/INTERFACE.md` §12 的「实现须知」，其中说明签名参考实现与禁止硬编码 `state_dim` / `n_actions`
-- B 从 `main` 开分支，不从其他人的 feature 分支开：`git checkout main && git pull && git checkout -b feature/dqn`（完整流程见 `docs/COLLABORATION_RULES.md`）
+- 当前开发分支为从 `main` 创建的 `codex/dqn`；此前配置与文档修改已提交，第四至第八步的工作区修改尚未提交（部分已由用户暂存，本次保留暂存状态）。后续开发继续使用该分支，阶段验收后再合入 `main`（流程见 `docs/COLLABORATION_RULES.md`）
+- 10-09 第三步 Git 准备已核查通过，当时已获取远程更新并确认开发分支基于最新 `main`。
 
 A 的并行项（仅文档，不写代码，不构成跨阶段开发）：
 

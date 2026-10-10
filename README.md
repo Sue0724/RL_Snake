@@ -93,7 +93,10 @@ Snake-RL/
 │   ├── test_snake_env.py
 │   ├── test_renderer.py
 │   ├── test_random_agent.py
-│   └── test_play.py
+│   ├── test_play.py
+│   ├── test_networks.py
+│   ├── test_replay_buffer.py
+│   └── test_dqn.py
 │
 ├── train.py
 ├── evaluate.py
@@ -161,6 +164,29 @@ pytest                 # 代码测试，见 tests/
 ```
 
 两者分工不同，不要合并：`smoke_test.py` 用于环境刚装完、还不知道依赖是否齐全时自检，本身不依赖 pytest；`tests/` 是环境就绪后的代码测试，由 pytest 驱动。
+
+---
+
+## DQN 基线训练
+
+训练循环与基础日志已实际运行，三个种子各100k步训练完成。短程运行命令：
+
+```bash
+python3 train.py --num_episodes 100 --seed 42 --experiment debug_baseline
+```
+
+每次运行创建独立的 `results/logs/<run_id>/`，保存 `config.json`、
+逐局 `metrics.csv`、训练 `summary.json` 和最新 `checkpoint.pt`。
+默认无渲染、预热 1,000 步后开始更新。固定步数训练使用 `--total_steps 50000`，
+此时覆盖局数预算。详细命令、日志解释及后续验收见 [QUICKSTART.md](QUICKSTART.md) 第六节。
+独立评估入口已运行，DQN明显优于Random。评估模型及Random：
+
+```bash
+python3 evaluate.py --checkpoints results/logs/baseline_dqn_statev1_sparse_seed*/checkpoint.pt --compare_random
+```
+
+默认每个模型评估相同的 50 个环境种子，结果保存到 `results/evaluations/`。
+详细说明见 QUICKSTART 第七节。Stage2的13项条件已满足，待成员确认；收敛尚未确认。
 
 ---
 

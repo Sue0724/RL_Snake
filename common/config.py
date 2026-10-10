@@ -46,10 +46,12 @@ class Config:
     batch_size: int = 64
     buffer_size: int = 100_000
     min_buffer_size: int = 1_000
+    # 每成功完成这么多次梯度更新，将 Online 权重复制到 Target。
     target_update_interval: int = 1_000
     epsilon_start: float = 1.0
     epsilon_end: float = 0.05
-    epsilon_decay: float = 0.995
+    # 每完成一个训练环境步骤乘一次；跨 episode 延续，评估时不衰减。
+    epsilon_decay: float = 0.9999
     num_episodes: int = 1_000
     hidden_dim: int = 128
 

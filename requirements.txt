@@ -7,8 +7,8 @@
 #   pip install torch --index-url https://download.pytorch.org/whl/cpu
 #   pip install -r requirements.txt
 #
-# torch 默认 CPU 版：本项目网络为 11 维输入的小型 MLP（实测约 1900 参数），
-# CPU 前向为微秒级，GPU 无收益。
+# torch 默认使用 CPU：基线为低维输入的小型 MLP，默认两层 128 单元隐藏层，
+# State V1 时共 18,435 个参数，可先用 CPU 完成训练与验证。
 # 如需 GPU 版，按本机驱动选择对应 CUDA 版本，参考 PyTorch 官方安装页：
 #   https://pytorch.org/get-started/locally/
 
