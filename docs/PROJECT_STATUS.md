@@ -2,17 +2,19 @@
 
 ## 当前状态
 
-当前 Stage：`Stage 2 - DQN Baseline`（负责人 B，训练/评估已完成，待成员确认验收）
+当前 Stage：`Stage 6 - Double DQN / Dueling DQN`（负责人 C，未开工）
 
 总体状态：`In Progress`
 
 最后更新：`10-10`
 
-Stage 1 已于 10-07 通过验收，成果已合入 `main`。Stage 2 的 epsilon 配置、Q 网络、Replay Buffer、DQNAgent、目标网络、Bellman 更新和 checkpoint 已实现并通过测试；训练、基础日志和独立评估已通过实际运行验证：三个种子完成100k步训练，独立均分19.58～20.88，Random为0.04。Stage2的13项条件已有证据支持，待成员确认阶段验收；收敛尚未确认。
+**Stage 1 / 2 / 3 均已通过验收。** Stage 1 于 10-07 确认；Stage 2 与 Stage 3 于 10-10 经项目成员确认。确认前由成员在 Windows + conda `snake-rl` 环境独立复验：`pip check` 无冲突、`smoke_test.py` 6/6、全量 `pytest -q` **166 passed**；三个 100k 模型的独立评估以相同 50 局种子在 Windows 上重跑，平均分 / 标准差 / 最高分与 B 的 macOS 结果**逐位一致**。
 
-按用户要求推进 Stage 3：公共 Agent 创建/加载及 play.py 模型演示均已完成，配置来源和覆盖规则已明确，训练→保存→评估→演示链已通过自动验证；清单 11/11 项具备，待成员确认正式验收。Stage 2 同样待成员确认。状态与奖励的配置已接通，目前仅支持 v1 / sparse，多版本实现留至 Stage 4 / 5。
+Stage 2 关键数据：三个种子各完成 100,000 步、99,001 次更新，ε 降至下限 0.05，逐局 loss 无 NaN/Inf；同一 50 局独立评估均分 20.02 / 19.58 / 20.88，Random 0.04。**收敛仍未确认**（seed43 从 50k 到 100k 下降 4.67%，逐局标准差约 7）——收敛不属 Stage 2 验收项，仅记录备查。
 
-A 的并行项——Stage 4 状态方案的纸面设计——**已完成**，写入 `docs/INTERFACE.md` §4（预定方案，待团队确认后冻结），不写代码，不构成跨阶段开发。
+**10-10 调整**：Stage 4（状态实验）负责人由 A 改为 D，与 Stage 5、Stage 7 合并为同一条实验流水线，在 **Stage 6 之后**执行。原因与单变量纪律见 `docs/PROJECT_PLAN.md` 的「执行顺序」一节。State V2 的纸面方案仍保留在 `docs/INTERFACE.md` §4（预定方案，改由 D 在 Stage 4 开工前定稿冻结）。
+
+**流程记录（如实）**：Stage 2 / 3 的代码先经 PR #1–#3 合入 `main`，验收在合并之后补办，与 `docs/COLLABORATION_RULES.md`「未通过阶段验收的代码不进 `main`」不符。属既成事实，记录备查。
 
 ---
 
@@ -22,9 +24,9 @@ A 的并行项——Stage 4 状态方案的纸面设计——**已完成**，写
 |---|---|---|---|
 | 0 | 工程初始化与接口冻结 | In Progress | 全员 |
 | 1 | Snake 环境与状态 | Passed | A |
-| 2 | DQN Baseline | In Progress | B |
-| 3 | 统一训练与评估框架 | In Progress | B / 全员 |
-| 4 | 状态实验 | Pending | A |
+| 2 | DQN Baseline | Passed | B |
+| 3 | 统一训练与评估框架 | Passed | B / 全员 |
+| 4 | 状态实验 | Pending | D |
 | 5 | Reward 与探索实验 | Pending | D |
 | 6 | Double DQN / Dueling DQN | Pending | C |
 | 7 | 综合实验 | Pending | D / 全员 |
@@ -39,30 +41,29 @@ Blocked
 Passed
 ```
 
+**阶段编号不代表执行先后。** 10-10 调整后的实际执行顺序：`2 → 3 → 6 →（4 · 5）→ 7 → 8`，权威说明见 `docs/PROJECT_PLAN.md` 的「执行顺序」一节。
+
 ---
 
 ## 当前阶段目标
 
-Stage 2（负责人 B，核心算法已完成，训练验收待完成）：
+Stage 6（负责人 C，未开工，**下一个开工项**）：
 
-- Q Network、Online / Target Network。
-- Replay Buffer。
-- epsilon-greedy 与 Bellman update。
-- optimizer 与 checkpoint。
-- 基础日志。
+- Double DQN：Online Network 选动作、Target Network 评估该动作。
+- Dueling DQN：共享特征层 + Value / Advantage 双流 + 聚合公式。
+- 与公共训练框架兼容，三种算法统一切换、统一评估，**不得各自建立独立训练逻辑**。
 
-Stage 2 已确定的前置项：
+本阶段在已冻结的 State V1 与 sparse 奖励上执行，**不引入** State V2 或 shaping 奖励——它们属 Stage 4 / 5，由 D 在本阶段之后执行。
 
-- `epsilon_decay` 按已完成的训练环境步衰减，默认值为 `0.9999`，起点 `1.0`、下限 `0.05`；跨局延续、预热阶段计步、评估不衰减。10-09 经用户确认冻结，详见 `docs/AI_DEVELOPMENT_RULES.md` §12。
+已确定的前置项（10-09 冻结，B 已据此实现）：
 
-A 的并行项（仅文档，不写代码）：
-
-- Stage 4 的状态方案设计（State V2 预定方案）**已完成**，写入 `docs/INTERFACE.md` §4，待团队确认后冻结。
+- `epsilon_decay` 按已完成的训练环境步衰减，默认值 `0.9999`，起点 `1.0`、下限 `0.05`；跨局延续、预热阶段计步、评估不衰减。详见 `docs/AI_DEVELOPMENT_RULES.md` §12。
 
 ---
 
 ## 已完成
 
+- 10-10 **Stage 2 与 Stage 3 通过验收**（项目成员确认）。确认前由成员在 Windows + conda `snake-rl` 环境独立复验，不采信文档既有结论：`pip check` 无冲突；`smoke_test.py` 6/6、exit 0；无窗口全量 `pytest -q` **166 passed**（50.12s），与 B 报告的 166 一致；三个 100k 模型的独立评估以相同种子 10000～10049、每模型 50 局在本机重跑，平均分 / 标准差 / 最高分与 B 的 macOS 结果**逐位一致**（20.02/6.98/36、19.58/7.10/38、20.88/7.00/37、Random 0.04/0.20/1）；三个训练 run 的 `summary.json` 各为 100,000 步 / 99,001 更新 / ε=0.05 / status `completed`，配置除 seed 外完全相同，记录 loss 无 NaN/Inf。补充验证：`train.py --total_steps 2000` 在 Windows 上端到端跑通（exit 0）。100k 训练本身未重跑，只核产物完整性与跨平台可运行性。
 - 10-10 按用户要求完善公共模型加载：新增 common/checkpoint.py 的 CheckpointError / read_checkpoint，统一文件、格式和恢复错误；play/evaluate CLI 显示来源路径及简洁提示，无 traceback。DQNAgent新增restore_checkpoint，原load(path)兼容；公共load_agent只读一次文件。新增19项测试，全量166 passed；三100k模型及Random的200条复评记录与原结果一致，来源模型哈希不变。
 
 - 10-10 play.py 新增 --agent model / --checkpoint，复用公共加载入口，以纯贪心演示一局；模型参数来自 checkpoint，只允许覆盖演示 seed、设备、渲染及 FPS。自动演示支持 Q / Esc、窗口关闭和 Ctrl+C 退出。新增17项测试，最终无窗口全量回归147 passed；已有100k模型演示score=22、steps=149，与对应评估一致，模型哈希未改变。
@@ -146,7 +147,7 @@ Stage 1（全部完成）：
 - [x] 修复 `play.py` 演示种子固定
 - [x] Stage 1 验收并由项目成员确认
 
-Stage 2（负责人 B，核心算法已完成，训练验收待完成）：
+Stage 2（全部完成，10-10 通过验收）：
 
 - [x] 确定 `epsilon_decay` 的衰减语义与默认取值
 - [x] Q Network 基础结构与前向计算
@@ -155,11 +156,25 @@ Stage 2（负责人 B，核心算法已完成，训练验收待完成）：
 - [x] epsilon-greedy 与 Bellman update
 - [x] checkpoint 存取
 - [x] 基础日志及实际训练输出
-- [x] 基线训练数值稳定性及明显优于 Random（待成员确认Stage2验收）
+- [x] 基线训练数值稳定性及明显优于 Random
 
-Stage 4 前置（A，仅文档，已完成）：
+Stage 3（全部完成，10-10 通过验收）：
 
-- [x] State V2 方案设计，写入 `docs/INTERFACE.md` §4（预定方案，待团队确认后冻结）
+- [x] `train.py` / `evaluate.py` / `play.py --agent model`
+- [x] `algorithms/factory.py` 统一创建与加载，算法按配置分派
+- [x] `common/checkpoint.py` 统一读取与错误提示
+- [x] config / seed / 日志 / checkpoint / 评估口径全部可配置并落盘
+- [x] 正式结果不会被意外覆盖（run 目录含时间戳与 UUID）
+
+Stage 6（负责人 C，下一个开工项）：
+
+- [ ] Double DQN
+- [ ] Dueling DQN
+- [ ] 与公共框架兼容，不存在重复训练系统
+
+Stage 4 前置（A 设计，已完成；实施改由 D）：
+
+- [x] State V2 方案设计，写入 `docs/INTERFACE.md` §4（预定方案，由 D 在 Stage 4 开工前定稿冻结）
 
 ---
 
@@ -173,7 +188,9 @@ Stage 0 验收结论仍为 `Pending`，仅剩「所有成员理解接口」（`[
 
 ### P1
 
-1. Stage2的13项条件已有证据支持，待成员确认；尚不能确认收敛。100k下三个模型平均分20.16，seed44相较50k提升29.05%。Stage 3 的公共入口与模型演示均完成，11项已有证据，尚未验收。
+1. **收敛未确认**（不阻塞验收）。100k 下三模型平均分 20.16，但 seed43 从 50k 到 100k 下降 4.67%，逐局标准差约 7，模型间差距（0.86 / 1.30 分）小于噪声。Stage 2 验收项只要求「训练不出现持续 NaN」与「性能明显优于 Random」，两项均有数据支持；「收敛」从未被声称。后续如需，可增加独立评估局数与训练时点，**不必重跑已有的 100k 训练与评估**。
+
+2. **渲染相关验证依赖人工**（不阻塞验收）。新模型演示窗口的观感未人工肉眼确认，自动验证用 SDL dummy；`human` 模式需真人按键。回归风险由人工验证承担。
 
 ### P2
 
@@ -184,6 +201,17 @@ Stage 0 验收结论仍为 `Pending`，仅剩「所有成员理解接口」（`[
 ---
 
 ## 最近一次测试
+
+10-10 **验收复验（Windows）**：解释器 `C:\Users\panmingdong\.conda\envs\snake-rl\python.exe`（Python 3.10.21）；numpy 2.2.6 / torch 2.14.1+cpu / pygame 2.6.1 / matplotlib 3.10.9 / pandas 2.3.3 / pytest 9.1.1，与文档记录一致。
+
+- `python -m pip check`：无冲突。
+- `python smoke_test.py`：6/6 通过，exit 0。
+- `SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy python -m pytest -q`：**166 passed**，50.12s。
+- `python evaluate.py --checkpoints <3 个 100k 模型> --num_episodes 50 --eval_seed 10000 --compare_random --output_dir <%TEMP%>`：平均分 20.02 / 19.58 / 20.88，Random 0.04，标准差与最高分与 10-10 的 macOS 结果逐位一致；输出写到仓库外的临时目录，仓库保持 clean。
+- `python train.py --total_steps 2000 --output_dir <%TEMP%>`：`completed`，1001 次更新，loss 有限，exit 0。
+- 训练产物核对：三个 run 各 100,000 步 / 99,001 更新 / ε=0.05 / `completed`；逐局 loss 无 NaN/Inf。
+
+以下为此前的 macOS 测试记录。
 
 10-10 加载流程完善后：`SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy python3 -m pytest -q`：166 passed（含19项新增测试）。专项84 passed；单次读取、内存恢复零读取、旧load接口兼容及恢复后的下一次更新一致。现有三100k模型和Random复评200条记录/摘要与原结果一致，checkpoint SHA-256不变；输出仅使用自动清理的临时目录。
 
@@ -204,7 +232,7 @@ Stage 0 验收结论仍为 `Pending`，仅剩「所有成员理解接口」（`[
 - `SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy python3 -m pytest -q`：116 passed。渲染相关回归使用无窗口模式，本次未重新人工游玩。
 - `git diff --check`：通过。
 
-结果：`Passed`（组件历史检查及本次训练/评估完成）。Stage2已满足13/13项条件，待成员确认；此前Stage1历史验收见下节。
+结果：`Passed`（组件历史检查及本次训练/评估完成）。Stage 2 已满足 13/13 项条件并于 10-10 通过验收，Stage 3 同期通过（11/11）；Stage 1 历史验收见下节。
 
 ---
 
@@ -249,28 +277,24 @@ python smoke_test.py（Stage 0 自检，config 改动后复跑）
 
 ## 下一步
 
-Stage 2（负责人 B，配置决策阻塞已解除）：
+Stage 6（负责人 C，当前唯一开工项）：
 
-- B 下一步整理Stage2验收，由成员确认后进入Stage3；如继续研究收敛，可增加独立评估局数并比较更多训练时点，保持全部seed和相同配置。100k训练及评估无需重复执行。
-- B 实现前请读 `docs/INTERFACE.md` §12 的「实现须知」，其中说明签名参考实现与禁止硬编码 `state_dim` / `n_actions`
-- 当前开发分支为从 `main` 创建的 `codex/dqn`；此前配置与文档修改已提交，第四至第八步的工作区修改尚未提交（部分已由用户暂存，本次保留暂存状态）。后续开发继续使用该分支，阶段验收后再合入 `main`（流程见 `docs/COLLABORATION_RULES.md`）
-- 10-09 第三步 Git 准备已核查通过，当时已获取远程更新并确认开发分支基于最新 `main`。
+- 实现 Double DQN 与 Dueling DQN，注册进 `algorithms/factory.py`，复用 `train.py` / `evaluate.py`，**不得新建独立训练脚本**（`AI_DEVELOPMENT_RULES.md` §10 / §13）
+- 实现前读 `docs/INTERFACE.md` §12「实现须知」：有签名参考实现，**禁止硬编码 `state_dim` / `n_actions`**——D 后续引入的 State V2 为 20 维，写死 11 会在切换后抛形状错误且报错点离原因很远
+- 在已冻结的 State V1 + sparse 奖励上执行，**不引入** State V2 或 shaping 奖励
 
-Stage 3（公共入口及模型演示已按用户要求完成）：
+Stage 4 + Stage 5 + Stage 7（负责人 D，Stage 6 完成后执行）：
 
-- 公共创建/加载、模型演示、配置规则和完整链自动验证已完成；清单11/11项已有证据，待成员确认Stage 3验收。可按QUICKSTART第八节运行已有模型观看窗口效果。
-- 当前只注册已实现的 DQN / Random，Double DQN / Dueling DQN 留至 Stage 6；本次未合并、提交或推送，也未代替成员确认 Stage 2 验收。
+- 三个阶段**合并为一条流水线**，原因与单变量纪律见 `docs/PROJECT_PLAN.md` 的「执行顺序」一节
+- 顺序：定稿并冻结 State V2 方案（`docs/INTERFACE.md` §4，按 `AI_DEVELOPMENT_RULES.md` §20 走变更流程）→ 实现 V2 → 跑 E2 状态实验 → 跑 Stage 5 奖励 / 探索实验 → Stage 7 综合
+- **单变量纪律不因合并而放松**：Stage 4 组固定 `reward_mode=sparse` 只改 `state_mode`；Stage 5 组固定状态只改 `reward_mode`。两组分开跑、分开报
+- `env/snake_env.py` 文件层面仍属 A 责任区：跨责任区修改需在提交信息里说明原因，A 事后 review
 
-A 的并行项（仅文档，不写代码，不构成跨阶段开发）：
+A（参与角色）：
 
-- ~~设计 State V2 方案~~ **已完成**：预定方案写入 `docs/INTERFACE.md` §4，Stage 4 依此实施
-- 方案尚未冻结，其他成员如有异议按 `AI_DEVELOPMENT_RULES.md` §20 提出，Stage 4 开工前定稿
-
-A 的其余工作边界（核对结论）：
-
-- Stage 4 是 A 当前唯一可推进的阶段任务，但依赖 Stage 2（DQN）与 Stage 3（统一框架）先行，暂为 Blocked
-- 另一项属 A 但排在 Stage 5：`env/snake_env.py` 的 `_compute_reward()` 中 shaping 分项（当前恒为 0，注释已标注 Stage 5 实现）
-- Stage 3 / 7 / 8 A 为参与角色，Stage 6 不参与实现
+- Stage 4 / 5 / 7 已转出，A 不再主导实验阶段
+- 保留 `env/snake_env.py` 与 `renderer` 的文件维护责任，负责 D 改动的事后 review
+- Stage 3 / 7 / 8 为参与角色；Stage 6 不参与实现
 
 Stage 0 收尾项（不阻塞）：
 

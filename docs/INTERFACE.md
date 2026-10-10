@@ -121,7 +121,7 @@ target = reward + (1 - terminated) * gamma * max_a Q_target(next_state, a)
 
 ### State V2（预定方案，20 维 `float32`）
 
-> **本节为预定方案，尚未冻结。** 由 A 于 10-07 提出，作为 Stage 4 的实现依据。其他成员如有不同意见，按 `AI_DEVELOPMENT_RULES.md` §20 提出并修改本节；Stage 4 开工前定稿。
+> **本节为预定方案，尚未冻结。** 由 A 于 10-07 提出；10-10 起 Stage 4（状态实验）及本节方案的定稿与实施均转由 D 负责，仍在 Stage 6 之后执行。其他成员如有不同意见，按 `AI_DEVELOPMENT_RULES.md` §20 提出并修改本节；Stage 4 开工前定稿。
 >
 > 属于规范变更：实施前需完成 §20 流程（说明原因、列出影响文件、等待确认）。
 

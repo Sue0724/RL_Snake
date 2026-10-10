@@ -27,13 +27,15 @@
 |---|---|---|---|
 | 0 | 工程初始化与接口冻结 | 仅剩「所有成员理解接口」待确认 | 全员 |
 | 1 | Snake 环境与状态 | **Passed**（10-07 确认） | A |
-| 2 | DQN Baseline | 训练/评估完成，13项条件满足，待成员确认（10-10 更新） | B |
-| 3 | 统一训练与评估框架 | 未开工 | B 主导，全员确认 |
-| 4 | 状态实验 | 未开工（方案已设计） | A |
+| 2 | DQN Baseline | **Passed**（10-10 确认） | B |
+| 3 | 统一训练与评估框架 | **Passed**（10-10 确认） | B 主导，全员确认 |
+| 4 | 状态实验 | 未开工（方案已设计） | D（10-10 由 A 调整） |
 | 5 | Reward 与探索实验 | 未开工 | D |
-| 6 | Double DQN / Dueling DQN | 未开工 | C |
+| 6 | Double DQN / Dueling DQN | 未开工，**下一个开工项** | C |
 | 7 | 综合实验 | 未开工 | D 主导，全员 |
 | 8 | Demo 与课程汇报 | 未开工 | 全员 |
+
+阶段编号不代表执行先后。实际执行顺序：`2 → 3 → 6 →（4 · 5）→ 7 → 8`，详见 `docs/PROJECT_PLAN.md` 的「执行顺序」一节。
 
 Stage 1 的全部代码与文档已合入 `main`。**从 `main` 开分支即可拿到可运行的环境。**
 
@@ -180,10 +182,10 @@ V2 已在 `docs/INTERFACE.md` §4 写出完整规格，状态为 **预定方案�
 
 | 成员 | 主要负责 |
 |---|---|
-| A | `env/snake_env.py`、renderer、状态表示、`state_experiment` |
+| A | `env/snake_env.py`、renderer |
 | B | `algorithms/dqn.py`、Replay Buffer、Target Network、DQN baseline、统一训练框架 |
 | C | `algorithms/double_dqn.py`、`algorithms/dueling_dqn.py`、`algorithm_experiment` |
-| D | `reward_experiment`、`hyperparameter_experiment`、汇总分析、最终对比 |
+| D | 状态表示（V2 及后续）、`state_experiment`、`reward_experiment`、`hyperparameter_experiment`、汇总分析、最终对比 |
 
 **「主要负责」不等于其他人不可修改。跨责任区修改前应说明原因**（`docs/COLLABORATION_RULES.md`）。
 
@@ -208,7 +210,7 @@ Bellman 更新和 checkpoint 经 29 项新增测试验证，全量 116 passed。
 短程集成检查完成 160 步和 129 次更新；正式训练、长期数值稳定性及性能评估仍待进行。
 10-10 已补齐 `train.py`、`common/metrics.py` 和 `common/utils.py`，接通完整训练循环、
 逐局日志及自动checkpoint；随后已完成三seed各100k步训练和共同50局独立评估。运行方式见 `QUICKSTART.md` 第六节。
-下一步由B整理Stage2验收并交成员确认；DQN已明显优于Random，收敛尚未确认。
+Stage 2 与 Stage 3 已于 10-10 经项目成员确认验收通过。DQN 已明显优于 Random，收敛尚未确认（不属验收项）。
 
 ### 4.3 C：Stage 6
 
@@ -231,27 +233,29 @@ Reward Shaping 的实现落在 `env/snake_env.py` 的 `_compute_reward()`——�
 
 **Stage 7（综合实验）**：D 主导，全员参与。实验矩阵模板见 `docs/EXPERIMENT_PROTOCOL.md` 第十四节。
 
-### 4.5 A：Stage 4
+### 4.5 D：Stage 4 + Stage 5 + Stage 7
 
-前置依赖：Stage 2（DQN）+ Stage 3（`train.py` / `evaluate.py` 统一框架）。
+10-10 起 Stage 4（状态实验）由 A 调整为 D，与 Stage 5（Reward / 探索）、Stage 7（综合）合并为同一条实验流水线，在 **Stage 6 之后**执行。
 
-**为什么必须等**：Stage 4 的验收项要求"相同训练预算""至少 3 个 seed""原始日志保存""曲线生成""汇总指标生成"，这些都需要统一框架的产出。而且 `docs/AI_DEVELOPMENT_RULES.md` §13 禁止无必要地创建 `train_dqn.py` 之类的脚本，所以 A 不能自己写一套训练脚本绕过去——那会造成重复训练系统。
+**为什么合并**：State V2 新增的核心特征是 `food_distance`，而 Stage 5 的 `"distance"` shaping 编码的正是同一个量。分给两人、隔周做，容易出现"奖励实验在 V1 上做完，之后才发现 V2 才是关键，结论不可迁移"。同一批做完还能直接回答"状态里已经给了距离，距离 shaping 是否仍有必要"——一个现成的消融问题。
+
+**前置依赖**：Stage 2（DQN）+ Stage 3（统一框架）+ Stage 6（三种算法齐备）。Stage 2 / 3 已于 10-10 通过验收。
+
+**单变量纪律不因合并而放松**：Stage 4 组固定 `reward_mode=sparse` 只改 `state_mode`；Stage 5 组固定状态只改 `reward_mode`。两组分开跑、分开报（`docs/AI_DEVELOPMENT_RULES.md` §12 / §19）。
 
 实验设计**已经写好了**，不需要重新设计：`docs/EXPERIMENT_PROTOCOL.md` 第十四节的矩阵里 **E2 就是状态实验**（DQN / V1 vs V2 / Sparse / Default 探索 / seeds 42-44），第三节定了种子集合，第四节定了预算口径（优先用 environment steps）。
 
-A 到 Stage 4 时要做的：实现 V2、跑 E2、出曲线与汇总、写状态设计分析。
+**要做的事**：实现 State V2（`env/snake_env.py` 的 `_get_state()`，方案见 `docs/INTERFACE.md` §4）、跑 E2、出曲线与汇总、写状态设计分析。`env/snake_env.py` 文件层面仍属 A 责任区，按协作规则**跨责任区修改只需说明原因**，A 事后 review。
 
 ### 4.6 阶段之间的依赖
 
 ```text
-Stage 1 (环境) ──→ Stage 2 (DQN) ──→ Stage 3 (统一框架) ──┬─→ Stage 4 (状态)
-                                                          ├─→ Stage 5 (Reward)
-                                                          └─→ Stage 6 (算法)
+Stage 1 (环境) ──→ Stage 2 (DQN) ──→ Stage 3 (统一框架) ──→ Stage 6 (算法)
                                                                     ↓
-                                                        Stage 7 (综合) ──→ Stage 8 (汇报)
+                                     Stage 4 (状态) · Stage 5 (Reward) ──→ Stage 7 (综合) ──→ Stage 8 (汇报)
 ```
 
-**Stage 3 是所有人的瓶颈。** 它完成之前，Stage 4 / 5 / 6 都无法开始。
+**Stage 1 / 2 / 3 已全部通过验收，瓶颈已解除。** 当前下一个开工项是 **Stage 6（C）**；Stage 6 完成后由 D 一次性执行 Stage 4 + 5，再接 Stage 7。完整执行顺序见 `docs/PROJECT_PLAN.md` 的「执行顺序」一节。
 
 ---
 
@@ -309,7 +313,7 @@ Environment API、Agent API、Config key、metrics 字段、实验输出格式�
 | # | 事项 | 谁定 | 什么时候 |
 |---|---|---|---|
 | 1 | `epsilon_decay` 的衰减语义与默认取值 | B | 已于 10-09 经用户确认冻结 |
-| 2 | State V2 方案（`docs/INTERFACE.md` §4） | 团队 | Stage 4 开工前 |
+| 2 | State V2 方案（`docs/INTERFACE.md` §4） | 团队 | Stage 4 开工前（现由 D 在 Stage 6 之后定稿） |
 | 3 | Stage 0 的「所有成员理解接口」 | 全员 | 不阻塞任何阶段 |
 
 第 3 项的确认方式很简单：各自读一遍 `docs/INTERFACE.md` 与 `QUICKSTART.md`，有问题提出来；没有则视为确认。

@@ -251,3 +251,15 @@
 - 执行 / 验证：相关专项84 passed，无窗口全量166 passed，含19项新增测试；验证缺失/损坏文件及元数据、权重、optimizer、RNG无效时play/evaluate的错误内容一致，退出码2且无traceback；文件读取次数由2次减至1次，内存恢复零读取，旧load恢复状态与下一次梯度更新一致。
 - 执行 / 验证：现有三seed的100k模型与Random以原50局共同种子复评，共200条CSV记录及模型摘要与原评估完全一致，来源checkpoint SHA-256未改变；复评输出位于自动清理的临时目录。git diff --check通过。
 - 关键结果：现有checkpoint格式保持version 1，设备与渲染覆盖规则保持兼容；后续注册算法须提供restore_checkpoint内存恢复方法。
+
+本日追加 Stage 2/3 验收与任务重构：
+- 操作内容：按用户要求落定两件事。(1) **Stage 2 与 Stage 3 通过验收**：由项目成员在 Windows + conda `snake-rl` 环境独立复验后确认，两阶段验收结论由 `Pending` 改为 `Passed`。确认前未采信文档既有结论，重跑了依赖检查、自检、全量测试与独立评估。(2) **任务重构**：Stage 4（状态实验）负责人由 A 改为 D，与 Stage 5、Stage 7 合并为同一条实验流水线，在 Stage 6 之后执行；Stage 6（Double DQN / Dueling DQN）提前为下一个开工项。阶段编号 0–8 保持不变，执行顺序的权威说明新增在 `docs/PROJECT_PLAN.md` 的「执行顺序」一节，并写明「合并执行不放松单变量纪律」（Stage 4 组固定 `reward_mode=sparse` 只改 `state_mode`，Stage 5 组固定状态只改 `reward_mode`）。A 不再主导任何实验阶段，只保留 `env/snake_env.py` 与 `renderer` 的文件维护责任；State V2 的实现与实验均转由 D 承担。
+- 版本操作：本次改动提交在从 `main`（`0d85c61`）开出的分支 `docs/stage-acceptance-and-reassign` 上，未合并回 `main`。
+- 涉及文件：docs/STAGE_CHECKLIST.md、docs/PROJECT_STATUS.md、docs/PROJECT_PLAN.md、docs/COLLABORATION_RULES.md、docs/HANDOVER.md、memory.md。
+- 结果：Passed（Stage 1 / 2 / 3 全部通过验收；重构已写入文档）。本次为文档变更与验证，**未改动任何代码**，未产生新的训练或评估结果。
+- 执行 / 验证：解释器 `C:\Users\panmingdong\.conda\envs\snake-rl\python.exe`（Python 3.10.21），依赖版本与文档记录一致（numpy 2.2.6 / torch 2.14.1+cpu / pygame 2.6.1 / matplotlib 3.10.9 / pandas 2.3.3 / pytest 9.1.1）。`python -m pip check` 无冲突；`python smoke_test.py` 6/6、exit 0；`SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy python -m pytest -q` **166 passed**（50.12s），与 B 报告的 166 一致。
+- 执行 / 验证：`python evaluate.py --checkpoints <三个 100k 模型> --num_episodes 50 --eval_seed 10000 --compare_random --output_dir <%TEMP%>` 在本机重跑，平均分 20.02 / 19.58 / 20.88，Random 0.04，标准差与最高分与 B 的 macOS 结果**逐位一致**；输出写在仓库外临时目录，`git status` 保持 clean。`python train.py --total_steps 2000 --output_dir <%TEMP%>` 端到端跑通：completed、1001 次更新、loss 有限、exit 0。三个训练 run 的 summary 核对为各 100,000 步 / 99,001 更新 / ε=0.05 / completed，逐局 loss 无 NaN/Inf，除 seed 外配置完全相同。
+- 关键结果：Stage 2 验收项 13/13 满足，Stage 3 验收项 11/11 满足（见 `docs/STAGE_CHECKLIST.md`）。100k 模型的评估结论在 Windows 上可复现，跨平台一致。收敛仍未确认（seed43 由 50k 到 100k 下降 4.67%，逐局标准差约 7，模型间差距 0.86 / 1.30 分小于噪声）——该项不属 Stage 2 验收项，仅记录备查；已有的 100k 训练与评估**无需重跑**。
+- 发现的问题：Stage 2 / 3 的代码先经 PR #1–#3 合入 `main`、验收在合并之后补办，与 `COLLABORATION_RULES.md`「未通过阶段验收的代码不进 `main`」不符，属既成事实，已记入 `docs/PROJECT_STATUS.md` 备查。渲染相关验证仍依赖人工（新模型演示窗口观感未肉眼确认，`human` 模式需真人按键），不阻塞验收。
+- 追加时回头核对：本日早前几条子记录中「Stage 2 / Stage 3 正式验收仍为 Pending / 仍待成员确认」的表述已被本条推翻。那些句子位于各子记录的「结果」字段，属当时操作的阶段性结论，按 §21 保留为历史；本条即为状态更新。
+- 复查记录：以上问题的「当前状态」以本条为准——截至本条，无阻塞 Stage 6 开工的问题。

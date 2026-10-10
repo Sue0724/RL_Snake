@@ -31,10 +31,10 @@ Snake-RL 是一个面向强化学习课程的小型研究型项目，目标是�
 
 | 成员 | 主要方向 | 核心任务 | 报告主要内容 |
 |---|---|---|---|
-| A | 环境与状态设计 | Snake 环境、状态空间、动作空间 | 环境建模 + 状态设计实验 |
+| A | 环境设计 | Snake 环境、动作空间、State V1（已冻结） | 环境建模 |
 | B | DQN 基线 | DQN、Replay Buffer、Target Network | DQN 原理 + 基线实验 |
 | C | 算法改进 | Double DQN、Dueling DQN | 改进算法 + 算法对比 |
-| D | 奖励与实验分析 | Reward Shaping、探索策略、综合实验 | 奖励设计 + 消融实验 |
+| D | 实验设计与分析 | 状态设计（V2 及后续）、Reward Shaping、探索策略、综合实验 | 状态与奖励设计 + 消融实验 |
 
 分工只用于确定主要责任人。所有模块最终必须进入同一工程、同一训练接口和同一评价体系，禁止形成四套彼此独立的项目。
 
@@ -206,7 +206,7 @@ python3 evaluate.py --checkpoints results/logs/baseline_dqn_statev1_sparse_seed*
 ```
 
 默认每个模型评估相同的 50 个环境种子，结果保存到 `results/evaluations/`。
-详细说明见 QUICKSTART 第七节。Stage2的13项条件已满足，待成员确认；收敛尚未确认。
+详细说明见 QUICKSTART 第七节。Stage 2 的 13 项条件已满足并于 10-10 通过验收；收敛尚未确认。
 
 ---
 
@@ -297,6 +297,8 @@ Reward Shaping 实验再引入：
 
 ## 阶段计划与完成标准
 
+阶段编号不代表执行先后。10-10 调整后的实际执行顺序为 `2 → 3 → 6 →（4 · 5）→ 7 → 8`，权威说明见 [`docs/PROJECT_PLAN.md`](docs/PROJECT_PLAN.md) 的「执行顺序」一节。
+
 ### Stage 0：工程初始化与接口冻结
 
 目标：
@@ -336,9 +338,9 @@ Reward Shaping 实验再引入：
 - 训练模式可关闭渲染。
 - Random Agent 能完整运行。
 
-状态：`Pending`
+状态：`Passed`（10-07 由项目成员确认）
 
-存在问题：待环境实现后填写。
+存在问题：无阻塞项。随机初始蛇头约 10% 落在最右列，属合法随机结果而非缺陷，详见 `docs/PROJECT_STATUS.md` 的 P2。
 
 ---
 
@@ -361,9 +363,9 @@ Reward Shaping 实验再引入：
 - 训练结果明显优于 Random Agent。
 - 能保存并重新加载模型。
 
-状态：`Pending`
+状态：`Passed`（10-10 由项目成员确认）
 
-存在问题：待 DQN 实现后填写。
+存在问题：DQN 明显优于 Random（50 局均分 19.58～20.88 vs 0.04），但**收敛未确认**——该项不属本阶段验收项。
 
 ---
 
@@ -384,9 +386,9 @@ Reward Shaping 实验再引入：
 - 模型自动保存到 `models/` 或 `checkpoints/`。
 - 评估阶段默认关闭探索。
 
-状态：`Pending`
+状态：`Passed`（10-10 由项目成员确认）
 
-存在问题：待统一框架完成后填写。
+存在问题：渲染与退出验证使用 SDL dummy，新模型演示窗口的观感未经人工确认。
 
 ---
 

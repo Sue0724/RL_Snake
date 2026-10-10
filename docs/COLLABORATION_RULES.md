@@ -14,8 +14,6 @@
 
 - env/snake_env.py
 - renderer
-- state representation
-- state_experiment
 
 ### B
 
@@ -39,6 +37,8 @@
 
 主要负责：
 
+- state representation（State V2 及后续状态版本）
+- state_experiment
 - reward_experiment
 - hyperparameter_experiment
 - aggregate analysis

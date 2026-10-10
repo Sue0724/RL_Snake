@@ -2,7 +2,7 @@
 
 给需要调用环境或 Agent 的成员。**权威定义在 [`docs/INTERFACE.md`](docs/INTERFACE.md)**，本页只是速查，冲突时以该文件为准。
 
-> 截至10-10，环境、DQN、train.py与evaluate.py已实现并实际运行；三seed各100k步及共同50局独立评估完成，DQN明显优于Random。Stage2待成员确认，收敛尚未确认。
+> 截至10-10，环境、DQN、train.py与evaluate.py已实现并实际运行；三seed各100k步及共同50局独立评估完成，DQN明显优于Random。Stage 1（10-07 确认）、Stage 2 与 Stage 3（10-10 确认）均已通过验收；收敛尚未确认。
 
 ---
 

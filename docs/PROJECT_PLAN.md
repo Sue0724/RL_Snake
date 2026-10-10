@@ -6,6 +6,20 @@
 
 ---
 
+## 执行顺序
+
+阶段编号 0–8 沿用 Stage 0 的原始划分，**不代表执行先后**。10-10 调整后的实际执行顺序：
+
+```text
+Stage 0 → 1 → 2 → 3 → 6 →（4 状态 · 5 奖励/探索）→ 7 → 8
+```
+
+调整原因：Stage 4（状态）与 Stage 5（Reward）同由 D 执行，且 State V2 的 `food_distance` 与 Stage 5 的距离 shaping 编码的是同一个量，合并成一条流水线可避免奖励结论在换状态后不可迁移；Stage 6 提前，使 Stage 7 设计消融矩阵时三根轴（状态 / 奖励 / 算法）已齐备。阶段编号保持不变——重编号会波及全部文档与代码引用点，破坏面远大于收益。
+
+**合并执行不放松单变量纪律**：Stage 4 组固定 `reward_mode=sparse` 只改 `state_mode`，Stage 5 组固定状态只改 `reward_mode`，两组分开跑、分开报（`docs/AI_DEVELOPMENT_RULES.md` §12 / §19）。
+
+---
+
 ## Stage 0 工程初始化
 
 ### 工作内容
@@ -118,7 +132,7 @@ state + action
 
 ## Stage 4 状态实验
 
-负责人：A
+负责人：D（10-10 由 A 调整为 D；与 Stage 5、Stage 7 合并为同一条实验流水线）
 
 ### 研究变量
 
