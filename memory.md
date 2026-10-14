@@ -320,3 +320,34 @@
 - 版本操作：实现与结果提交在从 `main` 开出的 `feature/stage6-algorithms` 分支，
   实现提交为 `31114dd`；已创建轻量标签 `archive/c-stage6-implemented` 指向该提交，
   用于固定 C 部分版本。远端推送因 GitHub 连接失败尚未完成。
+
+## 10-14
+
+操作类型：Git / Docs / Test
+结果：Passed
+
+操作内容：
+- 远端状态核对：`git ls-remote` 与 `git fetch` 复核 `origin`。`feature/stage6-algorithms`
+  的推送已于 10-10 22:35 成功（remote-tracking 记录更新至 `6c70afe`），远端现仍为该提交；
+  六个版本标签均已存在于远端且指向与本地一致；本地无任何未推送提交。
+- 本地复验：`.venv`（Python 3.10.4）`pip check` 无冲突、`smoke_test.py` 6/6、
+  无窗口全量 `pytest -q` 180 passed。
+
+版本操作：
+- 10-10 条目「版本操作」中「远端推送因 GitHub 连接失败尚未完成」描述的是推送当时的中间状态，
+  按 §21 保留为历史；**当前状态以本条为准**——C 实现分支与全部版本标签已在远端固定：
+  `archive/a-stage1-env`=`7cfb0c8`、`archive/b-stage2-3-dqn`=`2ea7906`、
+  `archive/c-stage6-implemented`=`31114dd`、`archive/docs-stage-acceptance`=`6991369`、
+  `archive/main-stage3-accepted`=`f132e86`、`baseline/c-stage6-start`=`f132e86`。
+- 本条更正记录提交建立在 `6c70afe` 之上；仅追加记录，代码、测试与实验结果未改动。
+
+涉及文件：
+- `memory.md`
+
+关键结果：
+- 各成员版本均可由远端恢复：`main`=`f132e86`、`feature/env`=`7cfb0c8`、
+  `codex/dqn`=`2ea7906`、`docs/stage-acceptance-and-reassign`=`6991369`、
+  `feature/stage6-algorithms`=`6c70afe` 及本条记录提交。
+
+复查记录：
+- 截至核对时点，各分支（含 C 分支 `6c70afe`）本地与远端一致。
