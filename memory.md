@@ -351,3 +351,32 @@
 
 复查记录：
 - 截至核对时点，各分支（含 C 分支 `6c70afe`）本地与远端一致。
+
+## 10-15
+
+操作类型：Git / Docs
+结果：Passed
+
+操作内容：
+- 按用户（C）要求把 `feature/stage6-algorithms` 合并回 `main`：先创建备份分支
+  `backup/main-pre-stage6` 指向合并前的 `main`（`f132e86`），再执行快进合并。
+
+版本操作：
+- 备份：`backup/main-pre-stage6`=`f132e86`；该提交此前已由标签 `archive/main-stage3-accepted`
+  与 `baseline/c-stage6-start` 锚定。
+- `main` 由 `f132e86` 快进至 `4037702`（fast-forward，未产生合并提交，58 个文件）。
+  合并涉及提交：`31114dd`（Double DQN / Dueling DQN 实现与调试实验结果）、
+  `6c70afe`（archive tag 记录）、`4037702`（远端核对与推送状态更正记录）。
+- 本条记录提交建立在 `4037702` 之上；本次推送范围：`main`、`backup/main-pre-stage6`、
+  `feature/stage6-algorithms`。
+
+涉及文件：
+- `memory.md`
+
+关键结果：
+- `main` 现包含 Stage 6 的实现、调试实验结果与全部记录；Stage 6 的验收确认状态以
+  `docs/PROJECT_STATUS.md` 为准（合并时该文档仍记录为「待团队确认」，确认后按流程更新）。
+
+复查记录：
+- 本次推送：`feature/stage6-algorithms` `6c70afe..4037702`；`main` 由 `f132e86`
+  快进至本条记录提交；`backup/main-pre-stage6` 新建于 `f132e86`。推送后本地与远端一致。
