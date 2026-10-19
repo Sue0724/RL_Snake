@@ -10,12 +10,14 @@ from uuid import uuid4
 import numpy as np
 
 
+REWARD_FIELDS = ("food_reward", "death_penalty", "distance_reward", "step_reward")
+
 METRIC_FIELDS = (
     "run_id", "algorithm", "seed", "state_mode", "reward_mode",
     "episode", "global_step", "episode_return", "score", "episode_length",
     "epsilon", "loss", "update_count", "terminated", "truncated",
     "episode_complete", "wall_clock_time",
-)
+) + REWARD_FIELDS
 
 
 def write_json(path, data):
@@ -75,6 +77,10 @@ class RunLogger:
             "max_score": max(scores) if rows else None,
             "mean_return": float(np.mean([r["episode_return"] for r in rows])) if rows else None,
             "mean_episode_length": float(np.mean([r["episode_length"] for r in rows])) if rows else None,
+            "mean_reward_components": {
+                name: float(np.mean([r[name] for r in rows])) if rows else None
+                for name in REWARD_FIELDS
+            },
             "error": error,
         }
         write_json(self.run_dir / "summary.json", summary)

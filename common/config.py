@@ -40,6 +40,10 @@ class Config:
     state_mode: str = "v1"
     reward_mode: str = "sparse"
 
+    # ---- Reward shaping; distances are measured in grid cells ----
+    distance_reward_scale: float = 0.1
+    step_penalty: float = 0.01
+
     # ---- 算法，见 docs/AI_DEVELOPMENT_RULES.md §12 ----
     gamma: float = 0.99
     learning_rate: float = 1e-3

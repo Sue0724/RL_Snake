@@ -291,9 +291,9 @@ def test_invalid_action_raises():
 def test_unimplemented_modes_raise():
     """非法取值必须硬失败，不能静默回退，见 INTERFACE.md §4 / §6。"""
     with pytest.raises(NotImplementedError):
-        SnakeEnv(Config(reward_mode="distance"))
+        SnakeEnv(Config(reward_mode="unknown"))
     with pytest.raises(NotImplementedError):
-        SnakeEnv(Config(state_mode="v2"))
+        SnakeEnv(Config(state_mode="unknown"))
 
 
 # ---- 状态向量 ----

@@ -1,0 +1,122 @@
+{
+  "status": "completed",
+  "run_id": "debug_reward_20261018_133159_843981_21c52af2",
+  "error": null,
+  "protocol": {
+    "run_type": "debug",
+    "base_config": {
+      "board_size": 10,
+      "initial_length": 3,
+      "max_steps_per_episode": 500,
+      "initial_head": null,
+      "render_mode": null,
+      "seed": 42,
+      "device": "cpu",
+      "algorithm": "dqn",
+      "state_mode": "v1",
+      "reward_mode": "sparse",
+      "distance_reward_scale": 0.1,
+      "step_penalty": 0.01,
+      "gamma": 0.99,
+      "learning_rate": 0.001,
+      "batch_size": 64,
+      "buffer_size": 100000,
+      "min_buffer_size": 1000,
+      "target_update_interval": 1000,
+      "epsilon_start": 1.0,
+      "epsilon_end": 0.05,
+      "epsilon_decay": 0.9999,
+      "num_episodes": 1000,
+      "hidden_dim": 128
+    },
+    "reward_modes": [
+      "sparse",
+      "distance",
+      "distance_step"
+    ],
+    "seeds": [
+      42
+    ],
+    "total_steps": 2000,
+    "num_episodes": 3,
+    "eval_seed": 10000,
+    "torch_threads": 1,
+    "primary_metric": "mean_score",
+    "std_ddof": 0
+  },
+  "training_runs": [
+    {
+      "reward_mode": "sparse",
+      "seed": 42,
+      "status": "completed",
+      "run_dir": "logs/debug_reward_dqn_statev1_sparse_seed42_20261018_133200_809664_ac8e6d60",
+      "checkpoint": "logs/debug_reward_dqn_statev1_sparse_seed42_20261018_133200_809664_ac8e6d60/checkpoint.pt"
+    },
+    {
+      "reward_mode": "distance",
+      "seed": 42,
+      "status": "completed",
+      "run_dir": "logs/debug_reward_dqn_statev1_distance_seed42_20261018_133202_476353_ed35cb04",
+      "checkpoint": "logs/debug_reward_dqn_statev1_distance_seed42_20261018_133202_476353_ed35cb04/checkpoint.pt"
+    },
+    {
+      "reward_mode": "distance_step",
+      "seed": 42,
+      "status": "completed",
+      "run_dir": "logs/debug_reward_dqn_statev1_distance_step_seed42_20261018_133204_074862_2e1d70e5",
+      "checkpoint": "logs/debug_reward_dqn_statev1_distance_step_seed42_20261018_133204_074862_2e1d70e5/checkpoint.pt"
+    }
+  ],
+  "evaluation_dirs": {
+    "sparse": "evaluations/evaluate_20261018_133202_392785_59395407",
+    "distance": "evaluations/evaluate_20261018_133204_027564_467b6d2a",
+    "distance_step": "evaluations/evaluate_20261018_133205_604246_634254df"
+  },
+  "reward_modes": {
+    "sparse": {
+      "num_seeds": 1,
+      "mean_score": 5.333333333333333,
+      "std_of_model_mean_scores": 0.0,
+      "max_score": 10,
+      "mean_return": 50.0,
+      "mean_episode_length": 354.3333333333333,
+      "truncation_rate": 0.6666666666666666,
+      "mean_reward_components": {
+        "food_reward": 53.333333333333336,
+        "death_penalty": -3.3333333333333335,
+        "distance_reward": 0.0,
+        "step_reward": 0.0
+      }
+    },
+    "distance": {
+      "num_seeds": 1,
+      "mean_score": 17.666666666666668,
+      "std_of_model_mean_scores": 0.0,
+      "max_score": 23,
+      "mean_return": 178.86666666666625,
+      "mean_episode_length": 159.66666666666666,
+      "truncation_rate": 0.0,
+      "mean_reward_components": {
+        "food_reward": 176.66666666666666,
+        "death_penalty": -10.0,
+        "distance_reward": 12.199999999999976,
+        "step_reward": 0.0
+      }
+    },
+    "distance_step": {
+      "num_seeds": 1,
+      "mean_score": 21.333333333333332,
+      "std_of_model_mean_scores": 0.0,
+      "max_score": 28,
+      "mean_return": 218.49000000000024,
+      "mean_episode_length": 354.3333333333333,
+      "truncation_rate": 0.3333333333333333,
+      "mean_reward_components": {
+        "food_reward": 213.33333333333334,
+        "death_penalty": -6.666666666666667,
+        "distance_reward": 15.366666666666665,
+        "step_reward": -3.5433333333333024
+      }
+    }
+  }
+}

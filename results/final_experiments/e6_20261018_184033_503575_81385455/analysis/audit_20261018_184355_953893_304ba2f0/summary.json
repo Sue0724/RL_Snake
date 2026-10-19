@@ -1,0 +1,94 @@
+{
+  "status": "completed",
+  "source": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\final_experiments\\e6_20261018_184033_503575_81385455\\algorithm_comparison.json",
+  "training": [
+    {
+      "algorithm": "dqn",
+      "training_seed": 42,
+      "records": 1584,
+      "parameter_count": 19587,
+      "wall_clock_time": 239.05487630004063,
+      "checkpoint": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_dqn_statev2_sparse_seed42_20261018_174448_936203_4acef8fb\\checkpoint.pt",
+      "sha256": "05ffcb9b971c20731c1682d062cae69451b66c14402ef3c0ce012cdd93bb2dca"
+    },
+    {
+      "algorithm": "dqn",
+      "training_seed": 43,
+      "records": 1598,
+      "parameter_count": 19587,
+      "wall_clock_time": 239.4659421001561,
+      "checkpoint": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_dqn_statev2_sparse_seed43_20261018_174448_982581_4f6e62eb\\checkpoint.pt",
+      "sha256": "d698605e5e3116f4bc1884e7b164e814cfcd7dea948f158f9e5994e014a23093"
+    },
+    {
+      "algorithm": "dqn",
+      "training_seed": 44,
+      "records": 1568,
+      "parameter_count": 19587,
+      "wall_clock_time": 238.46465979982167,
+      "checkpoint": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_dqn_statev2_sparse_seed44_20261018_174448_967086_9b106e3e\\checkpoint.pt",
+      "sha256": "205c3e06fcb5d5748af4d61737699d5c0b2a6a742116502bc36bbaaf1d3728c1"
+    },
+    {
+      "algorithm": "dqn",
+      "training_seed": 45,
+      "records": 1580,
+      "parameter_count": 19587,
+      "wall_clock_time": 171.04864390008152,
+      "checkpoint": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\final_experiments\\e6_20261018_184033_503575_81385455\\logs\\e6_dqn_statev2_sparse_seed45_20261018_184036_517519_3f684ab6\\checkpoint.pt",
+      "sha256": "03fb94ccd457acf8c9bd9532a8b8203863de7d5d473b337b4df42902508c2922"
+    },
+    {
+      "algorithm": "dqn",
+      "training_seed": 46,
+      "records": 1683,
+      "parameter_count": 19587,
+      "wall_clock_time": 169.08107860013843,
+      "checkpoint": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\final_experiments\\e6_20261018_184033_503575_81385455\\logs\\e6_dqn_statev2_sparse_seed46_20261018_184036_528028_93f1b1d6\\checkpoint.pt",
+      "sha256": "3c363802ed9a36509129b93d00d2efa077b77c0620cccc8c9df8d2dd67019508"
+    }
+  ],
+  "groups": {
+    "development": {
+      "dqn": {
+        "mean_score": 22.596,
+        "std_of_model_mean_scores": 1.1888414528439022,
+        "mean_return": 215.96,
+        "mean_episode_length": 187.32,
+        "truncation_rate": 0,
+        "max_score": 39.0
+      },
+      "random": {
+        "mean_score": 0.04,
+        "std_of_model_mean_scores": 0.0,
+        "mean_return": -9.6,
+        "mean_episode_length": 11.86,
+        "truncation_rate": 0,
+        "max_score": 1.0
+      }
+    },
+    "holdout": {
+      "dqn": {
+        "mean_score": 20.756,
+        "std_of_model_mean_scores": 2.6441603582233815,
+        "mean_return": 197.56,
+        "mean_episode_length": 169.12,
+        "truncation_rate": 0,
+        "max_score": 43.0
+      },
+      "random": {
+        "mean_score": 0.12,
+        "std_of_model_mean_scores": 0.0,
+        "mean_return": -8.8,
+        "mean_episode_length": 10.06,
+        "truncation_rate": 0,
+        "max_score": 2.0
+      }
+    }
+  },
+  "selected_algorithm": "dqn",
+  "selection_split": "development",
+  "training_records": 8013,
+  "evaluation_records": 600,
+  "note": "Hashes fingerprint current source files, not a before/after evaluation comparison."
+}

@@ -1,0 +1,139 @@
+{
+  "attempts": [
+    {
+      "run_id": "algorithm_v2_sparse_20261018_170549_139360_c7cc027b",
+      "status": "failed",
+      "error": "PermissionError: [WinError None] 拒绝访问。: 'D:\\\\Desktop\\\\Mstudy\\\\lessons\\\\RL\\\\results\\\\algorithm_experiments\\\\algorithm_v2_sparse_20261018_170549_139360_c7cc027b\\\\logs\\\\algorithm_v2_sparse_double_dqn_statev2_sparse_seed42_20261018_170955_517023_8327e061\\\\checkpoint.pt.tmp' -> 'D:\\\\Desktop\\\\Mstudy\\\\lessons\\\\RL\\\\results\\\\algorithm_experiments\\\\algorithm_v2_sparse_20261018_170549_139360_c7cc027b\\\\logs\\\\algorithm_v2_sparse_double_dqn_statev2_sparse_seed42_20261018_170955_517023_8327e061\\\\checkpoint.pt'",
+      "runs": [
+        {
+          "run_dir": "results\\algorithm_experiments\\algorithm_v2_sparse_20261018_170549_139360_c7cc027b\\logs\\algorithm_v2_sparse_double_dqn_statev2_sparse_seed42_20261018_170955_517023_8327e061",
+          "summary_status": "failed",
+          "summary_global_step": 60176,
+          "actual_csv_environment_steps": 60176
+        },
+        {
+          "run_dir": "results\\algorithm_experiments\\algorithm_v2_sparse_20261018_170549_139360_c7cc027b\\logs\\algorithm_v2_sparse_double_dqn_statev2_sparse_seed43_20261018_170955_560083_2321f787",
+          "summary_status": "completed",
+          "summary_global_step": 100000,
+          "actual_csv_environment_steps": 100000
+        },
+        {
+          "run_dir": "results\\algorithm_experiments\\algorithm_v2_sparse_20261018_170549_139360_c7cc027b\\logs\\algorithm_v2_sparse_double_dqn_statev2_sparse_seed44_20261018_170955_563598_e970bb91",
+          "summary_status": "completed",
+          "summary_global_step": 100000,
+          "actual_csv_environment_steps": 100000
+        },
+        {
+          "run_dir": "results\\algorithm_experiments\\algorithm_v2_sparse_20261018_170549_139360_c7cc027b\\logs\\algorithm_v2_sparse_dqn_statev2_sparse_seed42_20261018_170553_420682_51f39d94",
+          "summary_status": "completed",
+          "summary_global_step": 100000,
+          "actual_csv_environment_steps": 100000
+        },
+        {
+          "run_dir": "results\\algorithm_experiments\\algorithm_v2_sparse_20261018_170549_139360_c7cc027b\\logs\\algorithm_v2_sparse_dqn_statev2_sparse_seed43_20261018_170553_471181_3eb550b7",
+          "summary_status": "completed",
+          "summary_global_step": 100000,
+          "actual_csv_environment_steps": 100000
+        },
+        {
+          "run_dir": "results\\algorithm_experiments\\algorithm_v2_sparse_20261018_170549_139360_c7cc027b\\logs\\algorithm_v2_sparse_dqn_statev2_sparse_seed44_20261018_170553_562545_8034b49e",
+          "summary_status": "completed",
+          "summary_global_step": 100000,
+          "actual_csv_environment_steps": 100000
+        }
+      ],
+      "actual_csv_environment_steps": 560176
+    },
+    {
+      "run_id": "algorithm_v2_sparse_retry_20261018_173744_167192_364cf11c",
+      "status": "failed",
+      "error": "PermissionError: [WinError None] 拒绝访问。: 'D:\\\\Desktop\\\\Mstudy\\\\lessons\\\\RL\\\\results\\\\algorithm_experiments\\\\algorithm_v2_sparse_retry_20261018_173744_167192_364cf11c\\\\logs\\\\algorithm_v2_sparse_retry_dqn_statev2_sparse_seed42_20261018_173747_691519_bbcdeeda\\\\checkpoint.pt.tmp' -> 'D:\\\\Desktop\\\\Mstudy\\\\lessons\\\\RL\\\\results\\\\algorithm_experiments\\\\algorithm_v2_sparse_retry_20261018_173744_167192_364cf11c\\\\logs\\\\algorithm_v2_sparse_retry_dqn_statev2_sparse_seed42_20261018_173747_691519_bbcdeeda\\\\checkpoint.pt'",
+      "runs": [
+        {
+          "run_dir": "results\\algorithm_experiments\\algorithm_v2_sparse_retry_20261018_173744_167192_364cf11c\\logs\\algorithm_v2_sparse_retry_dqn_statev2_sparse_seed42_20261018_173747_691519_bbcdeeda",
+          "summary_status": "running",
+          "summary_global_step": 92322,
+          "actual_csv_environment_steps": 100000
+        },
+        {
+          "run_dir": "results\\algorithm_experiments\\algorithm_v2_sparse_retry_20261018_173744_167192_364cf11c\\logs\\algorithm_v2_sparse_retry_dqn_statev2_sparse_seed43_20261018_173747_757458_42619dc7",
+          "summary_status": "completed",
+          "summary_global_step": 100000,
+          "actual_csv_environment_steps": 100000
+        },
+        {
+          "run_dir": "results\\algorithm_experiments\\algorithm_v2_sparse_retry_20261018_173744_167192_364cf11c\\logs\\algorithm_v2_sparse_retry_dqn_statev2_sparse_seed44_20261018_173747_782540_9da688c1",
+          "summary_status": "completed",
+          "summary_global_step": 100000,
+          "actual_csv_environment_steps": 100000
+        }
+      ],
+      "actual_csv_environment_steps": 300000
+    },
+    {
+      "run_id": "e5_20261018_174445_393629_8f54c9be",
+      "status": "completed",
+      "error": null,
+      "runs": [
+        {
+          "run_dir": "results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_double_dqn_statev2_sparse_seed42_20261018_174852_781691_c80eabb2",
+          "summary_status": "completed",
+          "summary_global_step": 100000,
+          "actual_csv_environment_steps": 100000
+        },
+        {
+          "run_dir": "results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_double_dqn_statev2_sparse_seed43_20261018_174852_828191_01e04e3a",
+          "summary_status": "completed",
+          "summary_global_step": 100000,
+          "actual_csv_environment_steps": 100000
+        },
+        {
+          "run_dir": "results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_double_dqn_statev2_sparse_seed44_20261018_174852_894508_c464b1c6",
+          "summary_status": "completed",
+          "summary_global_step": 100000,
+          "actual_csv_environment_steps": 100000
+        },
+        {
+          "run_dir": "results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_dqn_statev2_sparse_seed42_20261018_174448_936203_4acef8fb",
+          "summary_status": "completed",
+          "summary_global_step": 100000,
+          "actual_csv_environment_steps": 100000
+        },
+        {
+          "run_dir": "results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_dqn_statev2_sparse_seed43_20261018_174448_982581_4f6e62eb",
+          "summary_status": "completed",
+          "summary_global_step": 100000,
+          "actual_csv_environment_steps": 100000
+        },
+        {
+          "run_dir": "results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_dqn_statev2_sparse_seed44_20261018_174448_967086_9b106e3e",
+          "summary_status": "completed",
+          "summary_global_step": 100000,
+          "actual_csv_environment_steps": 100000
+        },
+        {
+          "run_dir": "results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_dueling_dqn_statev2_sparse_seed42_20261018_175205_140785_47632479",
+          "summary_status": "completed",
+          "summary_global_step": 100000,
+          "actual_csv_environment_steps": 100000
+        },
+        {
+          "run_dir": "results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_dueling_dqn_statev2_sparse_seed43_20261018_175205_158317_f09ce796",
+          "summary_status": "completed",
+          "summary_global_step": 100000,
+          "actual_csv_environment_steps": 100000
+        },
+        {
+          "run_dir": "results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_dueling_dqn_statev2_sparse_seed44_20261018_175205_187902_83cf87af",
+          "summary_status": "completed",
+          "summary_global_step": 100000,
+          "actual_csv_environment_steps": 100000
+        }
+      ],
+      "actual_csv_environment_steps": 900000
+    }
+  ],
+  "total_attempt_environment_steps": 1760176,
+  "accepted_official_environment_steps": 900000,
+  "note": "Failed attempts are preserved but excluded from performance rankings; retry seed42 has stale running summary after final save failure."
+}

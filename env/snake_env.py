@@ -13,6 +13,7 @@
 两者只在 ``_place_snake`` 与 ``_advance`` 中同时改动，保证严格同步。
 """
 from collections import deque
+import math
 
 import numpy as np
 
@@ -27,24 +28,33 @@ _MOVING_INDEX = {"up": 3, "down": 4, "left": 5, "right": 6}
 STRAIGHT, LEFT, RIGHT = 0, 1, 2
 
 INITIAL_DIRECTION = "right"
-STATE_DIM = 11
+STATE_DIMS = {"v1": 11, "v2": 20}
 N_ACTIONS = 3
+_RING_OFFSETS = ((1, 0), (1, 1), (0, 1), (-1, 1),
+                 (-1, 0), (-1, -1), (0, -1), (1, -1))
 
 FOOD_REWARD = 10.0
 DEATH_PENALTY = -10.0
+REWARD_MODES = ("sparse", "distance", "distance_step")
 
 
 class SnakeEnv:
     """``board_size`` × ``board_size`` 网格上的相对动作贪吃蛇环境。"""
 
     def __init__(self, config):
-        if config.reward_mode != "sparse":
+        if config.reward_mode not in REWARD_MODES:
             raise NotImplementedError(
-                f"reward_mode={config.reward_mode!r} 尚未实现（Stage 5），当前只支持 'sparse'"
+                f"Unsupported reward_mode={config.reward_mode!r}; expected {REWARD_MODES}"
             )
-        if config.state_mode != "v1":
+        for name in ("distance_reward_scale", "step_penalty"):
+            value = getattr(config, name)
+            if not math.isfinite(value) or not 0 <= value < FOOD_REWARD:
+                raise ValueError(f"{name} must be finite and in [0, {FOOD_REWARD})")
+        if config.distance_reward_scale + config.step_penalty >= FOOD_REWARD:
+            raise ValueError("Combined shaping magnitude must be smaller than food reward")
+        if config.state_mode not in STATE_DIMS:
             raise NotImplementedError(
-                f"state_mode={config.state_mode!r} 尚未实现（Stage 4），当前只支持 'v1'"
+                f"Unsupported state_mode={config.state_mode!r}; expected {tuple(STATE_DIMS)}"
             )
 
         self.config = config
@@ -69,7 +79,7 @@ class SnakeEnv:
 
     @property
     def state_dim(self):
-        return STATE_DIM
+        return STATE_DIMS[self.config.state_mode]
 
     @property
     def n_actions(self):
@@ -118,11 +128,17 @@ class SnakeEnv:
 
         terminated = False
         food_reward = death_penalty = 0.0
+        distance_delta = 0.0
 
         if self._is_collision(new_head):
             terminated = True
             death_penalty = DEATH_PENALTY
         else:
+            # Compare against the old food before eating can respawn it.
+            if self.config.reward_mode != "sparse":
+                old_distance = abs(head[0] - self.food[0]) + abs(head[1] - self.food[1])
+                new_distance = abs(new_head[0] - self.food[0]) + abs(new_head[1] - self.food[1])
+                distance_delta = float(old_distance - new_distance)
             self.direction = new_direction
             ate = new_head == self.food
             self._advance(new_head, grow=ate)
@@ -138,7 +154,9 @@ class SnakeEnv:
         truncated = not terminated and self.steps >= self.config.max_steps_per_episode
         self.done = terminated or truncated
 
-        reward, components = self._compute_reward(food_reward, death_penalty)
+        reward, components = self._compute_reward(
+            food_reward, death_penalty, distance_delta=distance_delta, is_step=True,
+        )
         return self._get_state(), reward, terminated, truncated, self._make_info(components)
 
     def render(self):
@@ -183,10 +201,11 @@ class SnakeEnv:
 
     def _advance(self, new_head, grow):
         """前进一格。``grow`` 为 False 时同时弹出蛇尾，蛇长不变。"""
-        self.body.appendleft(new_head)
-        self.occupied.add(new_head)
+        # Vacate the tail before adding the head: they may be the same cell.
         if not grow:
             self.occupied.discard(self.body.pop())
+        self.body.appendleft(new_head)
+        self.occupied.add(new_head)
 
     def _place_snake(self, head):
         """把蛇摆在 ``head``，蛇身向初始朝向的反方向延伸，见 INTERFACE.md §8。"""
@@ -221,10 +240,11 @@ class SnakeEnv:
         ]
         self.food = empty[int(self.np_random.integers(len(empty)))]
 
-    def _compute_reward(self, food_reward=0.0, death_penalty=0.0):
+    def _compute_reward(self, food_reward=0.0, death_penalty=0.0, *,
+                        distance_delta=0.0, is_step=False):
         """按 ``reward_mode`` 汇总奖励分项，见 INTERFACE.md §6。
 
-        返回 ``(total, components)``。shaping 项在 Stage 5 实现，此处恒为 0。
+        返回 ``(total, components)``。reset 不计算 shaping；碰撞的距离差为 0。
         """
         components = {
             "food_reward": food_reward,
@@ -232,6 +252,10 @@ class SnakeEnv:
             "distance_reward": 0.0,
             "step_reward": 0.0,
         }
+        if is_step and self.config.reward_mode != "sparse":
+            components["distance_reward"] = self.config.distance_reward_scale * distance_delta
+            if self.config.reward_mode == "distance_step":
+                components["step_reward"] = -self.config.step_penalty
         return sum(components.values()), components
 
     def _make_info(self, components):
@@ -241,8 +265,8 @@ class SnakeEnv:
         return info
 
     def _get_state(self):
-        """State V1，11 维 float32，见 INTERFACE.md §4。"""
-        state = np.zeros(STATE_DIM, dtype=np.float32)
+        """V1 features, optionally followed by V2 distance and egocentric ring."""
+        state = np.zeros(self.state_dim, dtype=np.float32)
         row, col = self.body[0]
 
         for index, action in enumerate((STRAIGHT, LEFT, RIGHT)):
@@ -255,5 +279,14 @@ class SnakeEnv:
         state[8] = 1.0 if self.food[0] > row else 0.0
         state[9] = 1.0 if self.food[1] < col else 0.0
         state[10] = 1.0 if self.food[1] > col else 0.0
+
+        if self.config.state_mode == "v2":
+            distance = abs(self.food[0] - row) + abs(self.food[1] - col)
+            state[11] = distance / max(1, 2 * (self.config.board_size - 1))
+            dr, dc = _MOVE[self.direction]
+            for index, (forward, right) in enumerate(_RING_OFFSETS, start=12):
+                cell = (row + forward * dr + right * dc,
+                        col + forward * dc - right * dr)
+                state[index] = float(self._is_collision(cell))
 
         return state

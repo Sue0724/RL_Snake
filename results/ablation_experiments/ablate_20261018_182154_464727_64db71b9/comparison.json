@@ -1,0 +1,130 @@
+{
+  "status": "completed",
+  "run_id": "ablate_20261018_182154_464727_64db71b9",
+  "error": null,
+  "protocol": {
+    "run_type": "official",
+    "base_config": {
+      "board_size": 10,
+      "initial_length": 3,
+      "max_steps_per_episode": 500,
+      "initial_head": null,
+      "render_mode": null,
+      "seed": 42,
+      "device": "cpu",
+      "algorithm": "dqn",
+      "state_mode": "v1",
+      "reward_mode": "sparse",
+      "distance_reward_scale": 0.1,
+      "step_penalty": 0.01,
+      "gamma": 0.99,
+      "learning_rate": 0.001,
+      "batch_size": 64,
+      "buffer_size": 100000,
+      "min_buffer_size": 1000,
+      "target_update_interval": 1000,
+      "epsilon_start": 1.0,
+      "epsilon_end": 0.05,
+      "epsilon_decay": 0.9999,
+      "num_episodes": 1000,
+      "hidden_dim": 128
+    },
+    "reward_modes": [
+      "distance",
+      "distance_step"
+    ],
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "total_steps": 100000,
+    "num_episodes": 50,
+    "eval_seed": 10000,
+    "torch_threads": 1,
+    "jobs": 3,
+    "environment_revision": "tail_occupancy_fixed",
+    "primary_metric": "mean_score",
+    "std_ddof": 0
+  },
+  "training_runs": [
+    {
+      "reward_mode": "distance",
+      "seed": 42,
+      "status": "completed",
+      "run_dir": "logs/ablate_dqn_statev1_distance_seed42_20261018_182157_643169_91dc9751",
+      "checkpoint": "logs/ablate_dqn_statev1_distance_seed42_20261018_182157_643169_91dc9751/checkpoint.pt"
+    },
+    {
+      "reward_mode": "distance",
+      "seed": 43,
+      "status": "completed",
+      "run_dir": "logs/ablate_dqn_statev1_distance_seed43_20261018_182157_641169_8f27d768",
+      "checkpoint": "logs/ablate_dqn_statev1_distance_seed43_20261018_182157_641169_8f27d768/checkpoint.pt"
+    },
+    {
+      "reward_mode": "distance",
+      "seed": 44,
+      "status": "completed",
+      "run_dir": "logs/ablate_dqn_statev1_distance_seed44_20261018_182157_640163_04ff9729",
+      "checkpoint": "logs/ablate_dqn_statev1_distance_seed44_20261018_182157_640163_04ff9729/checkpoint.pt"
+    },
+    {
+      "reward_mode": "distance_step",
+      "seed": 42,
+      "status": "completed",
+      "run_dir": "logs/ablate_dqn_statev1_distance_step_seed42_20261018_182452_839057_a3d3f611",
+      "checkpoint": "logs/ablate_dqn_statev1_distance_step_seed42_20261018_182452_839057_a3d3f611/checkpoint.pt"
+    },
+    {
+      "reward_mode": "distance_step",
+      "seed": 43,
+      "status": "completed",
+      "run_dir": "logs/ablate_dqn_statev1_distance_step_seed43_20261018_182452_838051_d30eeb6b",
+      "checkpoint": "logs/ablate_dqn_statev1_distance_step_seed43_20261018_182452_838051_d30eeb6b/checkpoint.pt"
+    },
+    {
+      "reward_mode": "distance_step",
+      "seed": 44,
+      "status": "completed",
+      "run_dir": "logs/ablate_dqn_statev1_distance_step_seed44_20261018_182452_886306_bf85e8e4",
+      "checkpoint": "logs/ablate_dqn_statev1_distance_step_seed44_20261018_182452_886306_bf85e8e4/checkpoint.pt"
+    }
+  ],
+  "evaluation_dirs": {
+    "distance": "evaluations/evaluate_20261018_182448_378705_a18d084a",
+    "distance_step": "evaluations/evaluate_20261018_182750_180495_84d8d8d1"
+  },
+  "reward_modes": {
+    "distance": {
+      "num_seeds": 3,
+      "mean_score": 17.273333333333333,
+      "std_of_model_mean_scores": 1.5038025875168004,
+      "max_score": 33,
+      "mean_return": 174.50733333333298,
+      "mean_episode_length": 145.79333333333332,
+      "truncation_rate": 0.0,
+      "mean_reward_components": {
+        "food_reward": 172.73333333333335,
+        "death_penalty": -10.0,
+        "distance_reward": 11.773999999999981,
+        "step_reward": 0.0
+      }
+    },
+    "distance_step": {
+      "num_seeds": 3,
+      "mean_score": 19.613333333333333,
+      "std_of_model_mean_scores": 1.5560919710037133,
+      "max_score": 40,
+      "mean_return": 197.98993333333328,
+      "mean_episode_length": 170.40666666666667,
+      "truncation_rate": 0.0,
+      "mean_reward_components": {
+        "food_reward": 196.13333333333333,
+        "death_penalty": -10.0,
+        "distance_reward": 13.560666666666656,
+        "step_reward": -1.7040666666666642
+      }
+    }
+  }
+}

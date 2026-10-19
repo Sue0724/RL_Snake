@@ -1,0 +1,15 @@
+{
+  "slides": 12,
+  "native_charts": 3,
+  "embedded_workbooks": 3,
+  "native_tables": 2,
+  "speaker_notes": 12,
+  "content_seconds": 570,
+  "total_with_buffer_seconds": 600,
+  "source_mean_sd_pairs_verified": 16,
+  "text_overflow_candidates": 0,
+  "rendered_pages_checked": 12,
+  "render_application": "WPS Presentation",
+  "artifact_runtime": "Unavailable; native Office COM and OOXML authoring used",
+  "no_real_game_video": true
+}

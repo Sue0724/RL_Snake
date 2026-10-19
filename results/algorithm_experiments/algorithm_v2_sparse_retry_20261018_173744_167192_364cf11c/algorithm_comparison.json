@@ -1,0 +1,56 @@
+{
+  "status": "failed",
+  "error": "PermissionError: [WinError None] 拒绝访问。: 'D:\\\\Desktop\\\\Mstudy\\\\lessons\\\\RL\\\\results\\\\algorithm_experiments\\\\algorithm_v2_sparse_retry_20261018_173744_167192_364cf11c\\\\logs\\\\algorithm_v2_sparse_retry_dqn_statev2_sparse_seed42_20261018_173747_691519_bbcdeeda\\\\checkpoint.pt.tmp' -> 'D:\\\\Desktop\\\\Mstudy\\\\lessons\\\\RL\\\\results\\\\algorithm_experiments\\\\algorithm_v2_sparse_retry_20261018_173744_167192_364cf11c\\\\logs\\\\algorithm_v2_sparse_retry_dqn_statev2_sparse_seed42_20261018_173747_691519_bbcdeeda\\\\checkpoint.pt'",
+  "run_id": "algorithm_v2_sparse_retry_20261018_173744_167192_364cf11c",
+  "protocol": {
+    "run_type": "official",
+    "base_config": {
+      "board_size": 10,
+      "initial_length": 3,
+      "max_steps_per_episode": 500,
+      "initial_head": null,
+      "render_mode": null,
+      "seed": 42,
+      "device": "cpu",
+      "algorithm": "dqn",
+      "state_mode": "v2",
+      "reward_mode": "sparse",
+      "distance_reward_scale": 0.1,
+      "step_penalty": 0.01,
+      "gamma": 0.99,
+      "learning_rate": 0.001,
+      "batch_size": 64,
+      "buffer_size": 100000,
+      "min_buffer_size": 1000,
+      "target_update_interval": 1000,
+      "epsilon_start": 1.0,
+      "epsilon_end": 0.05,
+      "epsilon_decay": 0.9999,
+      "num_episodes": 1000,
+      "hidden_dim": 128
+    },
+    "algorithms": [
+      "dqn",
+      "double_dqn",
+      "dueling_dqn"
+    ],
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "total_steps": 100000,
+    "num_episodes": 50,
+    "eval_seed": 10000,
+    "torch_threads": 1,
+    "jobs": 3,
+    "holdout_seed": 20000,
+    "environment_revision": "tail_occupancy_fixed",
+    "primary_metric": "mean_score",
+    "std_ddof": 0,
+    "selection_rule": "Highest development mean score; ties use algorithm input order; no holdout reselection"
+  },
+  "training_runs": [],
+  "evaluation_dir": null,
+  "algorithms": {}
+}

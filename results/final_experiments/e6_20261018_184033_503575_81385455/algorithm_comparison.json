@@ -1,0 +1,157 @@
+{
+  "status": "completed",
+  "error": null,
+  "run_id": "e6_20261018_184033_503575_81385455",
+  "source_comparison": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\algorithm_comparison.json",
+  "source_sha256_before": {
+    "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\algorithm_comparison.json": "0c3a7e0015ce64ee6163b94cdadd8a6f766296c1d604d8d69e36cbf5af794de1",
+    "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_dqn_statev2_sparse_seed42_20261018_174448_936203_4acef8fb\\checkpoint.pt": "05ffcb9b971c20731c1682d062cae69451b66c14402ef3c0ce012cdd93bb2dca",
+    "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_dqn_statev2_sparse_seed42_20261018_174448_936203_4acef8fb\\config.json": "3dcf248a40afe8675a37e7e2935bbec6fd566cdc43eeff52821bfccd83841932",
+    "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_dqn_statev2_sparse_seed42_20261018_174448_936203_4acef8fb\\metrics.csv": "3613fccf07dfc68b53d9d30f33ef2ae655f38dc3c31d8a30e0685c66b1175748",
+    "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_dqn_statev2_sparse_seed42_20261018_174448_936203_4acef8fb\\summary.json": "daa8c7c8e9dccf05b14bd855bb42472c4cb71e966a4702ecb4f57f272b980dc8",
+    "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_dqn_statev2_sparse_seed43_20261018_174448_982581_4f6e62eb\\checkpoint.pt": "d698605e5e3116f4bc1884e7b164e814cfcd7dea948f158f9e5994e014a23093",
+    "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_dqn_statev2_sparse_seed43_20261018_174448_982581_4f6e62eb\\config.json": "6665cd48ce27d7e655ea25df13dc2ba32e97b2167853c6ea030872d1a46b2345",
+    "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_dqn_statev2_sparse_seed43_20261018_174448_982581_4f6e62eb\\metrics.csv": "5c08834dbab9912f6d18f531405759c38195e4e7db973ebddcd2831160d9aac7",
+    "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_dqn_statev2_sparse_seed43_20261018_174448_982581_4f6e62eb\\summary.json": "1aa290d82f0422a051e7e43338c0b1ae61f127ab5638882f8a70f0f269027a6d",
+    "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_dqn_statev2_sparse_seed44_20261018_174448_967086_9b106e3e\\checkpoint.pt": "205c3e06fcb5d5748af4d61737699d5c0b2a6a742116502bc36bbaaf1d3728c1",
+    "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_dqn_statev2_sparse_seed44_20261018_174448_967086_9b106e3e\\config.json": "856374babfbf90c67cefc3328bfcb194aec62d84a28d4f1f5d58a2e3fb680926",
+    "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_dqn_statev2_sparse_seed44_20261018_174448_967086_9b106e3e\\metrics.csv": "126896c10c7d1de1314ab7d944489b2a9dcbf825d61d81d4ea7fb892035d6993",
+    "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_dqn_statev2_sparse_seed44_20261018_174448_967086_9b106e3e\\summary.json": "8c0faafd5c379e0641e61944de0cf6d096872b796183451bfa920b3233a7fe11"
+  },
+  "protocol": {
+    "run_type": "official",
+    "base_config": {
+      "board_size": 10,
+      "initial_length": 3,
+      "max_steps_per_episode": 500,
+      "initial_head": null,
+      "render_mode": null,
+      "seed": 42,
+      "device": "cpu",
+      "algorithm": "dqn",
+      "state_mode": "v2",
+      "reward_mode": "sparse",
+      "distance_reward_scale": 0.1,
+      "step_penalty": 0.01,
+      "gamma": 0.99,
+      "learning_rate": 0.001,
+      "batch_size": 64,
+      "buffer_size": 100000,
+      "min_buffer_size": 1000,
+      "target_update_interval": 1000,
+      "epsilon_start": 1.0,
+      "epsilon_end": 0.05,
+      "epsilon_decay": 0.9999,
+      "num_episodes": 1000,
+      "hidden_dim": 128
+    },
+    "algorithms": [
+      "dqn"
+    ],
+    "seeds": [
+      42,
+      43,
+      44,
+      45,
+      46
+    ],
+    "total_steps": 100000,
+    "num_episodes": 50,
+    "eval_seed": 10000,
+    "holdout_seed": 30000,
+    "torch_threads": 1,
+    "jobs": 2,
+    "environment_revision": "tail_occupancy_fixed",
+    "std_ddof": 0,
+    "selection_rule": "Candidate frozen from E5; reference checkpoint fixed to seed42 before final test; no reselection",
+    "reference_seed": 42,
+    "new_training_seeds": [
+      45,
+      46
+    ],
+    "reused_training_seeds": [
+      42,
+      43,
+      44
+    ]
+  },
+  "training_runs": [
+    {
+      "algorithm": "dqn",
+      "seed": 42,
+      "status": "completed",
+      "run_dir": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_dqn_statev2_sparse_seed42_20261018_174448_936203_4acef8fb",
+      "checkpoint": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_dqn_statev2_sparse_seed42_20261018_174448_936203_4acef8fb\\checkpoint.pt",
+      "global_step": 100000,
+      "update_count": 99001,
+      "final_epsilon": 0.05,
+      "reused": true
+    },
+    {
+      "algorithm": "dqn",
+      "seed": 43,
+      "status": "completed",
+      "run_dir": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_dqn_statev2_sparse_seed43_20261018_174448_982581_4f6e62eb",
+      "checkpoint": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_dqn_statev2_sparse_seed43_20261018_174448_982581_4f6e62eb\\checkpoint.pt",
+      "global_step": 100000,
+      "update_count": 99001,
+      "final_epsilon": 0.05,
+      "reused": true
+    },
+    {
+      "algorithm": "dqn",
+      "seed": 44,
+      "status": "completed",
+      "run_dir": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_dqn_statev2_sparse_seed44_20261018_174448_967086_9b106e3e",
+      "checkpoint": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_dqn_statev2_sparse_seed44_20261018_174448_967086_9b106e3e\\checkpoint.pt",
+      "global_step": 100000,
+      "update_count": 99001,
+      "final_epsilon": 0.05,
+      "reused": true
+    },
+    {
+      "algorithm": "dqn",
+      "seed": 45,
+      "status": "completed",
+      "run_dir": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\final_experiments\\e6_20261018_184033_503575_81385455\\logs\\e6_dqn_statev2_sparse_seed45_20261018_184036_517519_3f684ab6",
+      "checkpoint": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\final_experiments\\e6_20261018_184033_503575_81385455\\logs\\e6_dqn_statev2_sparse_seed45_20261018_184036_517519_3f684ab6\\checkpoint.pt",
+      "reused": false,
+      "global_step": 100000,
+      "update_count": 99001,
+      "final_epsilon": 0.05
+    },
+    {
+      "algorithm": "dqn",
+      "seed": 46,
+      "status": "completed",
+      "run_dir": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\final_experiments\\e6_20261018_184033_503575_81385455\\logs\\e6_dqn_statev2_sparse_seed46_20261018_184036_528028_93f1b1d6",
+      "checkpoint": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\final_experiments\\e6_20261018_184033_503575_81385455\\logs\\e6_dqn_statev2_sparse_seed46_20261018_184036_528028_93f1b1d6\\checkpoint.pt",
+      "reused": false,
+      "global_step": 100000,
+      "update_count": 99001,
+      "final_epsilon": 0.05
+    }
+  ],
+  "algorithms": {
+    "dqn": {
+      "num_models": 5,
+      "num_seeds": 5,
+      "mean_score": 22.595999999999997,
+      "std_of_model_mean_scores": 1.1888414528439022,
+      "best_model": "dqn_5_seed46"
+    }
+  },
+  "selected_algorithm": "dqn",
+  "evaluation_dir": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\final_experiments\\e6_20261018_184033_503575_81385455\\evaluations\\evaluate_20261018_184328_203827_2f215d76",
+  "holdout_evaluation_dir": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\final_experiments\\e6_20261018_184033_503575_81385455\\evaluations\\evaluate_20261018_184331_633644_ae4718bd",
+  "holdout_algorithms": {
+    "dqn": {
+      "num_models": 5,
+      "num_seeds": 5,
+      "mean_score": 20.756,
+      "std_of_model_mean_scores": 2.6441603582233815,
+      "best_model": "dqn_5_seed46"
+    }
+  },
+  "source_unchanged_after_run": true
+}

@@ -1,0 +1,87 @@
+{
+  "status": "failed",
+  "error": "PermissionError: [WinError None] 拒绝访问。: 'D:\\\\Desktop\\\\Mstudy\\\\lessons\\\\RL\\\\results\\\\algorithm_experiments\\\\algorithm_v2_sparse_20261018_170549_139360_c7cc027b\\\\logs\\\\algorithm_v2_sparse_double_dqn_statev2_sparse_seed42_20261018_170955_517023_8327e061\\\\checkpoint.pt.tmp' -> 'D:\\\\Desktop\\\\Mstudy\\\\lessons\\\\RL\\\\results\\\\algorithm_experiments\\\\algorithm_v2_sparse_20261018_170549_139360_c7cc027b\\\\logs\\\\algorithm_v2_sparse_double_dqn_statev2_sparse_seed42_20261018_170955_517023_8327e061\\\\checkpoint.pt'",
+  "run_id": "algorithm_v2_sparse_20261018_170549_139360_c7cc027b",
+  "protocol": {
+    "run_type": "official",
+    "base_config": {
+      "board_size": 10,
+      "initial_length": 3,
+      "max_steps_per_episode": 500,
+      "initial_head": null,
+      "render_mode": null,
+      "seed": 42,
+      "device": "cpu",
+      "algorithm": "dqn",
+      "state_mode": "v2",
+      "reward_mode": "sparse",
+      "distance_reward_scale": 0.1,
+      "step_penalty": 0.01,
+      "gamma": 0.99,
+      "learning_rate": 0.001,
+      "batch_size": 64,
+      "buffer_size": 100000,
+      "min_buffer_size": 1000,
+      "target_update_interval": 1000,
+      "epsilon_start": 1.0,
+      "epsilon_end": 0.05,
+      "epsilon_decay": 0.9999,
+      "num_episodes": 1000,
+      "hidden_dim": 128
+    },
+    "algorithms": [
+      "dqn",
+      "double_dqn",
+      "dueling_dqn"
+    ],
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "total_steps": 100000,
+    "num_episodes": 50,
+    "eval_seed": 10000,
+    "torch_threads": 1,
+    "jobs": 3,
+    "holdout_seed": 20000,
+    "environment_revision": "tail_occupancy_fixed",
+    "primary_metric": "mean_score",
+    "std_ddof": 0,
+    "selection_rule": "Highest development mean score; ties use algorithm input order; no holdout reselection"
+  },
+  "training_runs": [
+    {
+      "algorithm": "dqn",
+      "seed": 42,
+      "status": "completed",
+      "run_dir": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\algorithm_v2_sparse_20261018_170549_139360_c7cc027b\\logs\\algorithm_v2_sparse_dqn_statev2_sparse_seed42_20261018_170553_420682_51f39d94",
+      "checkpoint": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\algorithm_v2_sparse_20261018_170549_139360_c7cc027b\\logs\\algorithm_v2_sparse_dqn_statev2_sparse_seed42_20261018_170553_420682_51f39d94\\checkpoint.pt",
+      "global_step": 100000,
+      "update_count": 99001,
+      "final_epsilon": 0.05
+    },
+    {
+      "algorithm": "dqn",
+      "seed": 43,
+      "status": "completed",
+      "run_dir": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\algorithm_v2_sparse_20261018_170549_139360_c7cc027b\\logs\\algorithm_v2_sparse_dqn_statev2_sparse_seed43_20261018_170553_471181_3eb550b7",
+      "checkpoint": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\algorithm_v2_sparse_20261018_170549_139360_c7cc027b\\logs\\algorithm_v2_sparse_dqn_statev2_sparse_seed43_20261018_170553_471181_3eb550b7\\checkpoint.pt",
+      "global_step": 100000,
+      "update_count": 99001,
+      "final_epsilon": 0.05
+    },
+    {
+      "algorithm": "dqn",
+      "seed": 44,
+      "status": "completed",
+      "run_dir": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\algorithm_v2_sparse_20261018_170549_139360_c7cc027b\\logs\\algorithm_v2_sparse_dqn_statev2_sparse_seed44_20261018_170553_562545_8034b49e",
+      "checkpoint": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\algorithm_v2_sparse_20261018_170549_139360_c7cc027b\\logs\\algorithm_v2_sparse_dqn_statev2_sparse_seed44_20261018_170553_562545_8034b49e\\checkpoint.pt",
+      "global_step": 100000,
+      "update_count": 99001,
+      "final_epsilon": 0.05
+    }
+  ],
+  "evaluation_dir": null,
+  "algorithms": {}
+}

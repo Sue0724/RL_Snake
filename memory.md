@@ -380,3 +380,206 @@
 复查记录：
 - 本次推送：`feature/stage6-algorithms` `6c70afe..4037702`；`main` 由 `f132e86`
   快进至本条记录提交；`backup/main-pre-stage6` 新建于 `f132e86`。推送后本地与远端一致。
+
+## 10-18
+
+操作类型：Code / Test / Train / Evaluate / Docs / Fix
+结果：Passed（D-01至D-07实现与接受的正式实验、分析完成；D-05两次失败保留，Stage7技术项具备证据，正式验收待团队）
+
+操作内容：
+- 用户要求将 D 的大纲追加至 ppt.md，并统一 A/B/C/D 格式；本次仅整理文档，不修改代码或原始实验数据。
+- 汇总为 29 页：A 1–5、B 6–12、C 13–19、D 20–29；依据已有 V1 接口补齐原稿缺失的第 5 页，保留队友页码、分工与实验数值。
+- 每页统一七项：核心信息、放置内容、建议图示、讲述重点、建议讲稿、建议时长、资料来源；增加图表链接、排练压缩建议。
+- 明确 B 历史环境基线、C 20k 调试、D 当前正式实验的边界；区分逐局 SD 与跨模型 SD、Score 与 Return；收敛、稳定性和机制推断保持限制。
+- 同步 PROJECT_STATUS 与个人报告大纲入口；本次不表示实际 PPT、报告或 Demo 已制作，也不自动改变团队验收状态。
+- 用户随后要求约10分钟讲完：ppt.md 改为12页主讲，单页内容共570秒，另预留30秒换人/翻页；分工为A 1–3、B 4–5、C 6–7、D 8–12，补充短讲稿与计时排练说明。
+- 原29页保存至docs/PPT_FULL_OUTLINE.md，并调整归档相对链接；主讲保留当前正式状态、奖励、探索、算法及最终五seed结论，历史数据、详细消融和测试审计转答辩备用。
+- 最后一页包含10秒真实运行展示占位，尚未录制视频，不新增现场Demo耗时；同步个人报告大纲与项目状态入口，不改代码、模型、数据或验收状态。
+- 用户要求最终模板直接交给其他智能体：ppt.md 转为自包含制作prompt，保留12页、单页时长、分工、全部主讲统计和事实限制；删除本地资料长路径、开发记录、冗余讲稿及备用材料清单。
+- 补充PPTX交付、16:9中文学术排版、可编辑统计图和演讲备注要求；无素材时棋盘须标示意，不伪造运行截图或训练曲线。原29页素材归档保留，实际PPT由后续智能体制作，本次不改程序或实验结果。
+- 用户明确要求由本助手实际制作：按ppt.md生成deliverables/Snake_RL_10min_editable.pptx与Snake_RL_10min_preview.pdf，共12页、中文备注12份，570秒内容+30秒预留，保留原生文字、示意图、2张表格及3张带SD误差棒的图表/嵌入工作簿。
+- Artifact运行库/依赖加载工具未提供，未安装替代包；改用本机WPS PowerPoint兼容COM与OOXML。先探测导出能力，AddChart接口失败后以标准图表XML和嵌入xlsx实现原生图表。未声称在微软PowerPoint中验证。
+- 修复初次包检查发现的Content_Types默认命名空间和第9页SD脚注；最终在WPS重新打开，导出PDF和12张预览，逐页查看。没有真实模型录像，棋盘均标环境示意，不冒充运行结果。
+- 生成源码、探测与检查记录保留在.ppt_build/，交付文件单独放deliverables/；更新状态说明PPT已实际生成，但报告/Demo和团队验收仍待，不自动标记阶段Passed。
+- 用户确认自己为 D，明确要求先完成奖励部分；固定 V1 + DQN 实现，不开展 V2、探索或正式综合实验。
+- 跨 A 的环境责任区补充 distance / distance_step：距离差按同一颗旧食物计算，系数默认 0.1，
+  step_penalty 默认 0.01；碰撞距离为零，步惩罚含终止/截断最后一步，reset 全零。
+- 新增系数校验、CLI/配置/checkpoint 存档；旧 sparse checkpoint 缺失新字段时沿用默认值。
+- 训练与评估追加四项逐局累计奖励，摘要记录完整局分项均值；同组评估校验奖励系数一致。
+- 新增 reward_experiment 编排和 plot CLI：复用公共 train/evaluate，模式间分组评估、相同种子、
+  统一步数预算；保存唯一目录及中断/失败状态、相对路径 manifest、逐 seed CSV 和原始日志。
+- 绘图按环境步分箱，剔除不完整局，空箱不补零或插值，展示训练 Score/Return 与评估得分。
+- 新增 49 个测试并更新奖励方案、接口、接手命令与阶段记录。
+- 按 D 要求整理 docs/D_WORK_SUMMARY.md，集中记录第一项奖励工作、设计动机、贡献边界、
+  实际验证与原始产物链接、PPT 页面提纲/讲稿及后续追加模板；在接手指南和状态页增加入口。
+  本次成果整理只更新文档，沿用已执行的验证记录，未重跑训练或测试，不新增性能结论。
+- 用户继续要求完成下一项 D 工作，实施 D-02：V2 20 维状态与 E2 状态对比；基于 A 的预案定稿，
+  保留 V1 前 11 维，增加归一化当前食物距离和随朝向旋转的八格局部占用环。
+- 修正预案“食物刷新后的距离仍为零”的不一致；下一状态描述新食物，奖励仍比较旧食物。
+- 修复 _advance 移入旧蛇尾格时 occupied 漏掉新头的问题：先移出旧尾，再加入新头；新增连续尾格移动测试。
+  该修复可能影响历史轨迹，本次 V1/V2 六模型全部在当前环境从头训练，不使用旧基线成绩充当对照。
+- 新增 state_experiment 的编排/绘图入口，复用公共 train/evaluate；提取共享绘图，奖励原 CLI/API 保留。
+- 新增 37 项状态测试、STATE_EXPERIMENT.md，并将正式数据、限制与 PPT 讲稿追加到 D_WORK_SUMMARY 第 10 节。
+- 用户同意继续正式奖励任务，完成 D-03：固定 V2 + DQN、系数 0.1 / 0.01，在当前环境重训三模式各三 seeds。
+- 增加 --jobs CPU 独立进程选项，每个进程单 Torch 线程，默认串行不变；用相同小配置验证串行/并行指标一致。
+- 新增行为复放工具：完整蛇身/朝向/食物重复才记循环，统计墙撞、自撞、超时、未进食步数，保存每类首次出现的真实局面与轨迹。
+- 每次行为分析新建目录，逐局核对原评估记录并验证来源 checkpoint 哈希；不匹配则拒绝产生完成摘要。
+- 将正式分项表、负结果、行为证据、局限与 PPT 讲稿追加到个人汇总第 11 节，更新指南与状态。
+- 用户要求继续下一项工作，完成 D-04：固定 V2 + DQN + sparse，只比较 0.9998 / 0.9999 / 0.99995 衰减。
+- 新增探索编排、绘图与 21 项测试，复用 train/evaluate，覆盖真实衰减计步、评估不衰减、串并行与中断状态。
+- 三组均从头训练，未复用历史模型；逐条审计实际 epsilon 和训练预算，生成三张正式图并追加个人汇总第 12 节。
+- 共享绘图按候选数量循环配色，避免超过三组漏画；探索 Return 不使用跨奖励定义的标签。
+- 用户要求继续下一任务并完整留档，启动 D-05 / Stage 7 E5：固定 V2 + sparse + 0.9999，三算法各三训练 seeds、100k 步。
+- 跨 C 的实验编排责任区增加可选 Config、CPU 并行、正式协议和新评估种子复核；不改算法实现。
+- 训练前新增 docs/ALGORITHM_EXPERIMENT.md，冻结开发 seeds 10000-10049、复核 seeds 20000-20049，按开发均分选候选且不按复核重选。
+- 原有与新增编排测试先运行 19 passed（15.05s）；后续训练与验证结果在本日条目继续追加。
+- 新增算法审计工具，导出逐 seed 比较表、参数量、时长和来源模型指纹；增加篡改数据拒绝测试。
+- 新建 docs/D_REPORT_PPT_OUTLINE.md，按已完成实验建立报告章节与八页汇报提纲，明确尚未完成的综合任务。
+- D-05 首轮 algorithm_v2_sparse_20261018_170549_139360_c7cc027b 失败：Double DQN seed42 在 60,176 步保存 checkpoint 原子替换时 PermissionError / Windows 拒绝访问。
+  三个 DQN 与另两个 Double DQN 日志 completed，但网格不完整且未统一评估；失败产物保留，不作为正式排名。
+  已申请沙箱外同配置全网格、新目录 algorithm_v2_sparse_retry 从头重跑，不按成绩筛 seed、不从无回放池 checkpoint 续训。
+- 获准后启动 algorithm_v2_sparse_retry_20261018_173744_167192_364cf11c，全网格从头训练，失败首轮不删除。
+- 沙箱外重跑再次在 DQN seed42 最终保存失败；experiment failed，但旧 summary 停在 running/92322，CSV 已有 100k 步。
+  未将失败产物伪装成完整模型。具体文件占用来源未证实，不能断言只是沙箱权限问题。
+- 跨公共训练入口补充最多六次 PermissionError 原子替换重试（等待 0.2/0.4/0.8/1.6/3.2 秒），
+  只写一次临时快照，不删除旧目标，不重走训练或 RNG；其他错误与持续权限错误仍抛出。
+- 修复最终保存失败时 summary 未标 failed，新增 tests/test_checkpoint_save.py 四项测试，4 passed（2.95s）。
+  首次指定 tests/test_train.py 的命令因文件不存在而未运行测试，已更正测试路径，不计为通过。
+- 保存修复后启动 e5_20261018_174445_393629_8f54c9be，同一九模型协议从头执行；最终全量 319 passed（79.37s）、8 条第三方弃用警告。
+- 修复后完整 E5 九模型与两套评估完成，运行审计、生成并检查三图；将正式结果、限制、讲稿和复现路径补入个人汇总第 13 节与报告/PPT 大纲。
+- 汇总三次尝试的实际 CSV 步数到 attempts.json，首次导出因系统默认 GBK 读取 UTF-8 失败，显式指定 UTF-8 后完成，未改原始数据。
+- 用户确认继续交互消融，启动 D-06：固定 DQN / 默认探索与系数，补跑 V1 distance / distance_step 各三个 seed，预先写明 2x3 矩阵与差中差定义。
+- 训练前核对 D-02 V1 sparse 与 D-03 V2 三奖励共 12 份配置，除状态/奖励/seed 外一致，来源 official / completed、同环境版本与预算；明确复用而不扩大独立样本数。
+- 新增状态 x 奖励聚合审计、配对差中差和三图生成工具；不改环境、算法或训练逻辑，补齐 V1 两种 shaping 六模型。
+- 完整矩阵审计后把六格、逐 seed、交互与限制追加到个人汇总第 14 节；报告/PPT 提纲扩展为九页，单列交互页，不把 E6 最终确认写成完成。
+- 用户要求继续，启动 D-07 / E6：训练前冻结 DQN+V2+sparse+0.9999，复用 E5 接受的 seeds42/43/44，新训45/46，最终测试固定30000-30049。
+- 新增 FINAL_EXPERIMENT.md，声明新增200k步、三模型复用、开发复评重复性与五seed统计口径；测试前固定seed42入口，不按测试择优，不启动Stage8。
+- 实施E6编排与逐seed绘图，复用已有审计；正式训练和两套评估后补齐个人汇总第15节及十页PPT大纲，保留新测试下降和最弱seed结果。
+
+涉及文件：
+- 本次四人大纲整合：ppt.md、docs/PROJECT_STATUS.md、docs/D_REPORT_PPT_OUTLINE.md、memory.md。
+- 实际幻灯片制作：.ppt_build/、deliverables/Snake_RL_10min_editable.pptx、deliverables/Snake_RL_10min_preview.pdf；同步项目状态与本日志。
+- 10分钟版另新增docs/PPT_FULL_OUTLINE.md，保留压缩前完整素材。
+- env/snake_env.py、common/config.py、common/metrics.py、train.py、evaluate.py。
+- experiments/reward_experiment/、tests/test_reward_shaping.py、tests/test_reward_experiment.py、tests/test_snake_env.py。
+- docs/REWARD_EXPERIMENT.md、docs/INTERFACE.md、docs/PROJECT_STATUS.md、docs/STAGE_CHECKLIST.md、README.md、QUICKSTART.md、memory.md。
+- docs/D_WORK_SUMMARY.md（D 个人贡献与 PPT 素材汇总）。
+- D-02 另涉及 experiments/state_experiment/、experiments/plotting.py、tests/test_state_v2.py、
+  tests/test_state_experiment.py、docs/STATE_EXPERIMENT.md；更新奖励脚本的 V2 可用性测试与指南。
+- D-03 新增 experiments/reward_experiment/behavior.py、tests/test_reward_behavior.py，更新奖励编排、测试及汇总文档。
+- D-04 新增 experiments/hyperparameter_experiment/run.py、plot.py、tests/test_exploration_experiment.py、
+  docs/EXPLORATION_EXPERIMENT.md；更新 experiments/plotting.py、个人汇总与项目状态记录。
+- D-05 扩展 experiments/algorithm_experiment/run.py，新增 plot.py、analyze.py、tests/test_algorithm_official.py、
+  docs/ALGORITHM_EXPERIMENT.md、docs/D_REPORT_PPT_OUTLINE.md；同步个人汇总、状态和速查页。
+- 公共 train.py 保存重试与最终失败状态修复，新增 tests/test_checkpoint_save.py；不改算法/环境/奖励/探索逻辑。
+- D-06 新增 experiments/reward_experiment/ablation.py、ablation_plot.py、tests/test_state_reward_ablation.py、docs/STATE_REWARD_ABLATION.md；同步个人汇总、大纲、奖励指南、README、速查与阶段记录。
+- D-07新增experiments/algorithm_experiment/final.py、final_plot.py、tests/test_final_experiment.py、docs/FINAL_EXPERIMENT.md；更新个人汇总、PPT大纲、状态、清单、README与速查。
+
+执行 / 验证：
+- 本次大纲整理：29 页连续，203/203 个统一字段，76 个本地链接存在，代码围栏配对，无制表符与复制残留；关键实验数值核对已有正式结果。
+- 逐项比对正式 JSON 的 22 组均值/SD 与相应页面一致，三份大纲/状态文档本地链接检查通过，git diff --check 通过；未提交或推送。
+- 本次仅作 Markdown 结构、来源和差异检查，未重跑训练、评估、pytest 或 smoke；333 passed 等为前序已执行记录，不作为本次新测试结果。
+- 实际PPT验证：validate_deck.py通过，12页/12备注/3原生图表/3嵌入工作簿/2表格、16组正式统计值一致；嵌入数据与图表缓存相符，12张1600x900页面非空，WPS自动检测溢出候选0且逐页目视通过，pdfinfo确认PDF12页。包结构与几何检查0 findings，未运行项目程序测试或新增实验。
+- PPT提示词定稿检查：12页连续、逐页570秒+30秒预留=600秒，16组均值/SD与正式JSON一致；正文不依赖本地结果/文档路径，29页归档仍存在，git diff --check通过。仅文档验证，未重跑测试/训练，未生成PPTX，未提交/推送。
+- 10分钟版检查：12页连续、84/84字段齐全，单页时长20/40/50/55/45/50/50/45/60/45/75/35秒，共570秒+30秒预留=600秒；归档29页连续，四份大纲/状态文档141个本地链接存在，16组均值/SD与正式JSON一致，代码围栏和git diff --check通过。本次未重跑程序测试或实验，未提交/推送。
+- 系统 Python 为 3.8，另有 3.10 但未装 torch；使用 Anaconda 3.12.7 创建项目 .venv，继承已有包。
+- 首次 smoke 5/6（缺 pygame），安装 pygame==2.6.1；初次专项 75 passed。
+- 初次含绘图的测试因 Anaconda MKL 与 Torch 的 libiomp5md.dll 冲突中止，未视为通过；
+  在本地 .venv 安装 NumPy 1.26.4 非 MKL wheel 解决，未设置 KMP_DUPLICATE_LIB_OK，未修改全局包。
+- 最终 smoke_test.py 6/6；SDL dummy 全量 pytest -q：229 passed，21.82s；8 条第三方弃用警告。
+- 真实 CLI：三模式各 seed42、total_steps=2000、每模型 3 局，3/3 completed，均 1,001 次更新。
+- 输出：results/reward_experiments/debug_reward_20261018_133159_843981_21c52af2/，含 comparison.json/.csv、
+  三份训练与评估原始产物；plot --bin_steps 500 生成两张 PNG，已目视检查。
+- 复评已有三个 100k sparse 模型及 Random，各使用 seeds 10000-10049；200 条逐局结果的六项摘要
+  （均分、标准差、最高分、回报、局长、截断率）与历史一致，三个 checkpoint SHA-256 不变。
+- 兼容性输出：results/reward_compatibility/evaluate_20261018_133230_934981_b11c897a/。
+- git diff --check 通过；本轮无 Git 提交、推送或分支变更。
+- D-02 专项 53 passed；无窗口全量 266 passed（19.99s），smoke 6/6，8 条第三方弃用警告。
+- 正式 CLI：state_experiment.run --seeds 42 43 44 --total_steps 100000 --eval_episodes 50
+  --eval_seed 10000 --official --experiment state_v1_v2；DQN + sparse，隐藏层 128，线程 1。
+- 六模型训练 completed，均 100k 环境步、99,001 更新、epsilon=0.05；共 600k 训练步。
+- 每模型评估 seeds 10000-10049，共 300 局，无探索/网络更新/回放写入；两组分别评估再汇总。
+- 审核配置仅 state_mode 与 seed 不同、实际步数完整、逐局 loss 有限、奖励分项累计与 Return 一致。
+- 正式产物：results/state_experiments/state_v1_v2_20261018_134610_974148_b458c91f/，
+  含 comparison.json/.csv、六份训练与评估数据及模型；plot --bin_steps 5000 生成两图，已目视检查。
+- D-03 奖励编排专项 17 passed，行为工具 3 passed；SDL dummy 全量 270 passed（50.64s），8 条第三方弃用警告；smoke 6/6。
+- 正式 CLI：reward_experiment.run --state_mode v2 --seeds 42 43 44 --total_steps 100000
+  --eval_episodes 50 --eval_seed 10000 --official --experiment reward_v2 --jobs 3 --torch_threads 1。
+- 九模型均 completed，各 100k 环境步、99,001 更新、epsilon=0.05，共 900k 步；配置仅 reward_mode 与 seed 不同。
+- 每模型独立评估 50 局，共 450 局，统一环境种子、关闭探索/更新/回放；检查预算完整、有限 loss 和奖励分项记账。
+- 正式目录：results/reward_experiments/reward_v2_20261018_152348_243907_d0be64a1/，保存九模型、原始 CSV/JSON、比较表和两张正式图。
+- behavior/analysis_20261018_153547_deb51a8a/ 逐局复放原 450 局，Score/Return/局长/分项/结束标记一致，九模型 SHA-256 不变。
+  复放不是新增独立样本；另存 metrics.csv、summary.json、examples.json 和六案例局面图，三张图均目视检查。
+- D-04 SDL dummy 全量 291 passed（58.21s），8 条第三方弃用警告，smoke 6/6；共享绘图调整后三项端到端测试通过。
+- 正式 hyperparameter_experiment.run：三衰减 x seeds 42/43/44、100k 步/模型、50 局评估、eval_seed=10000、jobs=3、torch_threads=1。
+- 九模型 completed，各 100k 环境步/99,001 更新/epsilon=0.05，共 900k 步；配置仅 epsilon_decay 与 seed 不同。
+- 全部 15,269 条训练记录 epsilon 符合已完成步数公式，预算之和完整、loss 有限、奖励记账一致。
+- 450 条独立评估种子对齐、探索/更新/回放关闭；按原始数据重算各组均值与总体标准差一致。
+- 产物：results/exploration_experiments/exploration_v2_sparse_20261018_163701_745710_520966f1/，含九模型、原始数据与三张已目视检查的正式图。
+- D-05 原/新增编排专项先 19 passed；加入审计异常测试后专项 26 passed（32.32s），最终全量 315 passed（72.61s）、8 条第三方弃用警告；smoke 6/6。
+- 保存修复及更新次数审计边界后专项 28 passed（19.18s），最后全量 319 passed（48.51s），8 条第三方弃用警告；本轮自检 6/6。
+- 接受正式 run_id：e5_20261018_174445_393629_8f54c9be，V2 + sparse + 0.9999，三算法各 seeds 42/43/44、100k 环境步/99001 更新/epsilon=0.05。
+- 每模型开发 seeds 10000-10049、新复核 seeds 20000-20049，各 50 局；每套另有 Random 50 局，共 1000 条评估，关闭探索/更新/回放。
+- analysis/audit_20261018_175556_016801_2c7aa9f6/ 审计 14,348 条训练与 1000 条评估记录，核对累计步数、epsilon、loss、奖励、来源、种子、六项摘要与选优规则。
+- 保存 summary.json、20 行逐模型 comparison.csv、attempts.json 与九模型指纹；指纹是审计时 SHA-256，不声称评估前后对比。
+- 三次尝试实际步数 560,176 / 300,000 / 900,000，总计 1,760,176；只有最后完整 900k 参与排名，不把重跑算成更多独立训练 seed。
+- 三张正式图 training_curves / development_scores / holdout_scores 从原始数据生成并目视检查；未做 Git 提交、推送或分支操作。
+- 最后检查五份主文档的 78 个本地链接均存在，git diff --check 通过；Stage 7 仍 In Progress，未自动推进 Stage 8。
+- D-06 先完整审计 12 个复用模型、62 个来源指纹；新增专项 7 passed（8.05s），全量 326 passed（53.15s），8 条第三方弃用警告，smoke 6/6。
+- 训练 run_id：ablate_20261018_182154_464727_64db71b9，V1 distance / distance_step 各 seeds 42/43/44，100k 步/模型，jobs=3、Torch 线程 1；六模型 completed，各 99001 更新/epsilon=0.05，本轮无保存异常。
+- 新增600k训练步、300局评估，环境 seeds10000-10049、纯贪心/无网络更新/回放写入；不使用 E5 复核集调参。
+- 聚合 run_id：factorial_20261018_182816_405632_23aee76b，复用 D-02 V1 sparse 三模型与 D-03 V2 三奖励九模型，形成18模型/900条评估矩阵。
+- 审计全部 28,721 条训练记录（新增 9,689 条）、900 条评估与93个来源文件指纹；核对跨源协议、配置、checkpoint、预算/更新、epsilon/loss、奖励记账、模型来源与摘要；来源在审计期间未变。
+- 产物根目录 results/ablation_experiments/：保留六份新增模型/原始日志、factorial comparison.json/.csv、三张已目视检查的正式图；全部格子截断率0。
+- 文档与绘图后再次核对93个来源指纹一致；七份主文档106个本地链接存在，git diff --check通过，未提交/推送或进入Stage8。
+- D-07运行前专项7 passed（11.03s）；最终含四图的全量333 passed（54.89s），8条第三方弃用警告，smoke6/6。
+- run_id：e6_20261018_184033_503575_81385455。新训练45/46均completed，各100k步/99001更新/epsilon=0.05，复用E5接受的DQN42/43/44，共五模型/500k步对应预算，本轮只新增200k。
+- 开发10000-10049与最终新测试30000-30049，五模型+Random各50局/组，共600条本轮执行记录；不把旧模型开发复评当新增独立seed。
+- 审计五模型8,013条训练（新增3,263）、600条评估，预算/更新/epsilon/loss/奖励、配置/checkpoint、来源与六项摘要核验通过。
+- 13个复用来源文件运行前后SHA-256一致，且E5旧三模型及Random的200条重复开发逐局记录完全复现；四张正式图已目视检查。
+- results/final_experiments/e6_20261018_184033_503575_81385455/保留manifest、final_config.json、两新增模型/日志、两评估组与四图；analysis/audit_20261018_184355_953893_304ba2f0/保留审计与12行逐模型CSV。
+- 最后检查七份主文档118个本地链接存在、git diff --check通过，未执行Git提交/推送/分支操作；后续只补充E6交叉链接，不改原始数据。
+
+关键结果：
+- 奖励实现、分项记账、旧模型加载及实验/绘图链路已有验证；D-01 的旧模型指标一致性是修复尾格前的历史验证，
+  D-02 环境修复后不声称所有旧轨迹完全一致，当前状态对比采用同版本重训。
+- 调试仅 1 个训练 seed、每模型 3 局，不据此宣称 shaping 提升或算法收敛。
+- D-02 正式 Score：V1 18.98/18.60/19.94，V2 22.96/22.22/21.38；均值 19.17→22.19，约 +15.72%。
+- 跨 seed 总体标准差 0.56→0.65，平均局长 156.92→182.53，截断率均 0；每 100 步食物数 12.22→12.15。
+  因此只报告当前条件下每局得分改善，不宣称稳定性或单位步数效率提高，不单独归因距离/局部环。
+- 默认网络参数量 V1 18,435、V2 19,587，差异已记录；状态阶段技术项 10/10 满足，仍待团队验收。
+- D-03 Score：sparse 22.19 ± 0.65、distance 19.89 ± 0.15、distance_step 21.31 ± 0.27（ddof=0），
+  后两者较基线 -10.37% / -3.94%，三个配对训练 seed 都未超过 sparse。
+- distance_step 的 Return 216.16 > sparse 211.87、最高分 43 > 35，但平均 Score 更低；不按跨奖励 Return 或最高分排名。
+- 每组 150 局，撞墙 20/24/20、自撞 130/126/130，无超时或完整状态循环，最长连续未进食 42/42/44；不外推普遍不存在循环。
+- D-03 V2 固定系数的 shaping 没有提升平均得分；仍保留数据和模型，不删 seed、不为追求正结果临时调系数。
+- D-04 快/默认/慢 Score：21.39 ± 0.96 / 22.19 ± 0.65 / 19.94 ± 0.34；快/慢相对默认 -3.61% / -10.13%。
+- 两候选三个配对 seed 均未超过默认；快组训练得分先上升并不代表最终贪心策略更好或收敛更快。
+- 默认重新训练的逐 seed 均分与 D-03 相同配置一致，不计为更多独立训练种子；当前暂保留默认 0.9999。
+- D-05 开发 DQN / Double / Dueling 均分：22.19 ± 0.65 / 19.77 ± 0.74 / 21.01 ± 1.01；
+  新复核：21.45 ± 1.49 / 19.89 ± 1.01 / 20.83 ± 0.86，Random 0.04 / 0.12。
+- 按预先开发规则保留 DQN，复核排名一致但差距缩小；Double seed44、Dueling seeds43/44 复核高于对应 DQN，不声称逐 seed 占优或更稳定。
+- 参数量 DQN/Double 19,587，Dueling 19,716，多 129；实际时长保留，但并行与测试负载不同，不作速度排名。
+- D-05 / E5 完成，E6 与交互消融未完成；整体技术/团队验收状态不自动升级，报告与 PPT 提纲明确这些缺口。
+- 后续 D-06 已完成交互消融：V1 sparse/distance/distance_step 为19.17±0.56 /17.27±1.50 /19.61±1.56；V2为22.19±0.65 /19.89±0.15 /21.31±0.27。
+- distance 的 V1/V2 平均增益 -1.90/-2.30，差中差 -0.40±2.52；distance_step 为+0.44/-0.87，差中差 -1.31±2.25，均为配对总体 SD，不是 CI 或显著性。
+- V1 distance_step 的配对差+0.06/+3.14/-1.88；两个交互均有正负 seed，不声称可靠塑形收益、稳定交互或 V2 距离冗余因果机制。
+- 当前六格均分最高仍 V2 sparse，维持已有候选；新增6模型与复用12模型计数分开，不把900条汇总记为900条新增评估。
+- E6五seed开发22.60±1.19，最终新测试20.76±2.64，Random0.04/0.12；均为跨模型均分总体SD，不是CI。
+- 最终测试逐seed：42=22.78、43=20.60、44=16.54、45=19.66、46=24.20；保留seed44下降，未按最高的seed46重选入口。
+- 新样本均分较开发低8.14%、跨模型波动更大，不单独归因过拟合或分布转移；平均Return197.56、局长169.12、截断率0，单局最高43不用于选优。
+- Stage7技术清单13/13有证据，团队正式验收仍Pending；未进入Stage8，报告/PPT与Demo实际制作尚待。
+
+发现的问题：
+- 正式多 seed 奖励、行为与探索分析已完成，Stage 5 技术项满足，正式验收仍待团队确认。
+- V2 实现、正式状态实验与分析已完成，待团队验收；Stage 6 的团队确认仍待处理。此次推进来自用户明确指令。
+- .venv 为本机继承 Anaconda 的验证环境，不可直接作为跨机器依赖锁定文件。
+- Windows checkpoint 替换的具体占用来源未证实；有上限重试与最终失败状态修复已测试，完整正式网格通过，仍不能保证所有文件系统错误均可恢复。
+- 两个历史失败目录保留，其中 retry seed42 的旧模型摘要 running 与 CSV 100k 不一致，attempts.json 已登记；不能拿该模型当完整正式结果。
+- D-06 的均值差和配对交互方向不一致，只有三训练 seed，不能作显著性判断；V2仍含两类新增特征及1152参数差异，未单独验证距离冗余机制。
+- E6虽扩展至五seed，新测试均分仍有16.54-24.20差异且低于开发；未证明收敛或普遍稳定，不能用新测试再挑模型/调参。
+
+后续影响：
+- E0-E6及交互消融完成，用户已指定制作并交付12页PPTX/PDF初版；下一项为团队验收、课程报告、真实Demo和四人计时排练。冻结候选DQN+V2+sparse+0.9999与入口seed42已留档，不自动确认阶段Passed。
+- 前序状态/奖励/探索基于 DQN 顺序选择，当前算法比较不是各算法独立调参上限；不宣称机制归因或全局最优。
+- 前序比较三seed、E6最终五seed，均单预算、预定系数；最终测试已使用，未来继续调参须新保留种子，不宣称显著性、普遍最优或所有shaping均无效。

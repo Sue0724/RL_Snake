@@ -1,0 +1,47 @@
+{
+  "run_id": "evaluate_20261018_133204_027564_467b6d2a",
+  "metrics_scope": "evaluation",
+  "status": "completed",
+  "protocol": {
+    "num_episodes": 3,
+    "evaluation_seeds": [
+      10000,
+      10001,
+      10002
+    ],
+    "device": "cpu",
+    "torch_threads": 1,
+    "exploration": false,
+    "network_update": false,
+    "replay_write": false,
+    "compare_random": false
+  },
+  "models": [
+    {
+      "model_id": "dqn_1_seed42",
+      "algorithm": "dqn",
+      "training_seed": 42,
+      "checkpoint": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\reward_experiments\\debug_reward_20261018_133159_843981_21c52af2\\logs\\debug_reward_dqn_statev1_distance_seed42_20261018_133202_476353_ed35cb04\\checkpoint.pt",
+      "num_episodes": 3,
+      "mean_score": 17.666666666666668,
+      "std_score": 6.182412330330469,
+      "max_score": 23,
+      "mean_return": 178.86666666666625,
+      "mean_episode_length": 159.66666666666666,
+      "truncation_rate": 0.0,
+      "mean_reward_components": {
+        "food_reward": 176.66666666666666,
+        "death_penalty": -10.0,
+        "distance_reward": 12.199999999999976,
+        "step_reward": 0.0
+      }
+    }
+  ],
+  "error": null,
+  "dqn_across_models": {
+    "num_models": 1,
+    "mean_score": 17.666666666666668,
+    "std_of_model_mean_scores": 0.0
+  },
+  "wall_clock_time": 0.028380100149661303
+}

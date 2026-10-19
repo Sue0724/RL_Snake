@@ -13,7 +13,7 @@ import torch
 
 from algorithms.factory import create_agent, validate_agent_config
 from common.config import build_parser, config_from_args
-from common.metrics import RunLogger
+from common.metrics import REWARD_FIELDS, RunLogger
 from common.replay_buffer import ReplayBuffer
 from common.utils import set_global_seed
 from env.snake_env import SnakeEnv
@@ -43,7 +43,15 @@ def save_checkpoint(agent, run_dir):
     """同一次 run 的 checkpoint 为最新快照；其他 run 的文件不受影响。"""
     temporary = Path(run_dir) / "checkpoint.pt.tmp"
     agent.save(temporary)
-    temporary.replace(Path(run_dir) / "checkpoint.pt")
+    # Windows scanners can briefly hold the destination without delete sharing.
+    for attempt in range(6):
+        try:
+            temporary.replace(Path(run_dir) / "checkpoint.pt")
+            break
+        except PermissionError:
+            if attempt == 5:
+                raise
+            time.sleep(0.2 * (2 ** attempt))
 
 
 def train(config, *, output_dir="results/logs", experiment="debug_baseline",
@@ -81,6 +89,7 @@ def train(config, *, output_dir="results/logs", experiment="debug_baseline",
         save_checkpoint(agent, logger.run_dir)
         episode = 1
         episode_return = 0.0
+        reward_components = dict.fromkeys(REWARD_FIELDS, 0.0)
         episode_length = 0
         loss_sum = 0.0
         loss_count = 0
@@ -96,6 +105,7 @@ def train(config, *, output_dir="results/logs", experiment="debug_baseline",
                 "update_count": agent.update_count, "terminated": terminated,
                 "truncated": truncated, "episode_complete": complete,
                 "wall_clock_time": time.perf_counter() - started,
+                **reward_components,
             })
 
         status = "completed"
@@ -107,6 +117,8 @@ def train(config, *, output_dir="results/logs", experiment="debug_baseline",
                 agent.on_env_step()
                 state = next_state
                 episode_return += reward
+                for name in REWARD_FIELDS:
+                    reward_components[name] += info[name]
                 episode_length += 1
 
                 ready = len(buffer) >= max(config.min_buffer_size, config.batch_size)
@@ -140,6 +152,7 @@ def train(config, *, output_dir="results/logs", experiment="debug_baseline",
                     state, _ = env.reset()
                     episode += 1
                     episode_return = loss_sum = 0.0
+                    reward_components = dict.fromkeys(REWARD_FIELDS, 0.0)
                     loss_count = 0
                     terminated = truncated = False
         except KeyboardInterrupt:
@@ -153,7 +166,12 @@ def train(config, *, output_dir="results/logs", experiment="debug_baseline",
             # 失败时保留此前快照，避免覆盖成损坏的模型。
             raise
 
-        save_checkpoint(agent, logger.run_dir)
+        try:
+            save_checkpoint(agent, logger.run_dir)
+        except Exception as error:
+            logger.save_summary("failed", agent, time.perf_counter() - started,
+                                error=f"{type(error).__name__}: {error}")
+            raise
         logger.save_summary(status, agent, time.perf_counter() - started)
         print(f"训练状态：{status}；模型：{logger.run_dir / 'checkpoint.pt'}", flush=True)
         return logger.run_dir, status

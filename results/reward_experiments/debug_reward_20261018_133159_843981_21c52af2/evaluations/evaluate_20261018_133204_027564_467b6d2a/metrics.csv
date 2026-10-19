@@ -1,0 +1,4 @@
+model_id,algorithm,training_seed,evaluation_seed,episode,score,episode_return,episode_length,terminated,truncated,food_reward,death_penalty,distance_reward,step_reward
+dqn_1_seed42,dqn,42,10000,1,21,213.09999999999954,168,True,False,210.0,-10.0,13.09999999999997,0.0
+dqn_1_seed42,dqn,42,10001,2,23,236.69999999999936,204,True,False,230.0,-10.0,16.699999999999967,0.0
+dqn_1_seed42,dqn,42,10002,3,9,86.79999999999987,107,True,False,90.0,-10.0,6.799999999999992,0.0

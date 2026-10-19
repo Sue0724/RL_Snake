@@ -12,7 +12,7 @@ import numpy as np
 import torch
 
 from algorithms.factory import create_agent, load_agent
-from common.metrics import write_json
+from common.metrics import REWARD_FIELDS, write_json
 from common.utils import set_global_seed
 from env.snake_env import SnakeEnv
 
@@ -20,11 +20,12 @@ from env.snake_env import SnakeEnv
 ENV_FIELDS = (
     "board_size", "initial_length", "max_steps_per_episode", "initial_head",
     "state_mode", "reward_mode",
+    "distance_reward_scale", "step_penalty",
 )
 FIELDS = (
     "model_id", "algorithm", "training_seed", "evaluation_seed", "episode",
     "score", "episode_return", "episode_length", "terminated", "truncated",
-)
+) + REWARD_FIELDS
 
 
 def positive_int(text):
@@ -44,6 +45,9 @@ def score_summary(rows):
         "mean_return": float(np.mean([r["episode_return"] for r in rows])),
         "mean_episode_length": float(np.mean([r["episode_length"] for r in rows])),
         "truncation_rate": float(np.mean([r["truncated"] for r in rows])),
+        "mean_reward_components": {
+            name: float(np.mean([row[name] for row in rows])) for name in REWARD_FIELDS
+        },
     }
 
 
@@ -61,10 +65,13 @@ def evaluate_agent(agent, config, seeds, model_id, algorithm, writer, stream):
                 dataclasses.replace(config, algorithm="random", seed=seed),
             ) if algorithm == "random" else agent
             episode_return = 0.0
+            reward_components = dict.fromkeys(REWARD_FIELDS, 0.0)
             while True:
                 action = policy.select_action(state, training=False)
                 state, reward, terminated, truncated, info = env.step(action)
                 episode_return += reward
+                for name in REWARD_FIELDS:
+                    reward_components[name] += info[name]
                 if terminated or truncated:
                     break
             row = {
@@ -74,6 +81,7 @@ def evaluate_agent(agent, config, seeds, model_id, algorithm, writer, stream):
                 "score": info["score"], "episode_return": episode_return,
                 "episode_length": info["steps"], "terminated": terminated,
                 "truncated": truncated,
+                **reward_components,
             }
             rows.append(row)
             writer.writerow(row)

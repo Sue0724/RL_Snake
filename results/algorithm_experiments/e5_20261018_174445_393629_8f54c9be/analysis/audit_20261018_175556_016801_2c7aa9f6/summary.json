@@ -1,0 +1,162 @@
+{
+  "status": "completed",
+  "source": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\algorithm_comparison.json",
+  "training": [
+    {
+      "algorithm": "dqn",
+      "training_seed": 42,
+      "records": 1584,
+      "parameter_count": 19587,
+      "wall_clock_time": 239.05487630004063,
+      "checkpoint": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_dqn_statev2_sparse_seed42_20261018_174448_936203_4acef8fb\\checkpoint.pt",
+      "sha256": "05ffcb9b971c20731c1682d062cae69451b66c14402ef3c0ce012cdd93bb2dca"
+    },
+    {
+      "algorithm": "dqn",
+      "training_seed": 43,
+      "records": 1598,
+      "parameter_count": 19587,
+      "wall_clock_time": 239.4659421001561,
+      "checkpoint": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_dqn_statev2_sparse_seed43_20261018_174448_982581_4f6e62eb\\checkpoint.pt",
+      "sha256": "d698605e5e3116f4bc1884e7b164e814cfcd7dea948f158f9e5994e014a23093"
+    },
+    {
+      "algorithm": "dqn",
+      "training_seed": 44,
+      "records": 1568,
+      "parameter_count": 19587,
+      "wall_clock_time": 238.46465979982167,
+      "checkpoint": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_dqn_statev2_sparse_seed44_20261018_174448_967086_9b106e3e\\checkpoint.pt",
+      "sha256": "205c3e06fcb5d5748af4d61737699d5c0b2a6a742116502bc36bbaaf1d3728c1"
+    },
+    {
+      "algorithm": "double_dqn",
+      "training_seed": 42,
+      "records": 1616,
+      "parameter_count": 19587,
+      "wall_clock_time": 187.34761760011315,
+      "checkpoint": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_double_dqn_statev2_sparse_seed42_20261018_174852_781691_c80eabb2\\checkpoint.pt",
+      "sha256": "099040f040dec6065f0292f9ebcd22c4af7cc86dd2ac2efcb98802488eb4fb72"
+    },
+    {
+      "algorithm": "double_dqn",
+      "training_seed": 43,
+      "records": 1555,
+      "parameter_count": 19587,
+      "wall_clock_time": 189.9021723996848,
+      "checkpoint": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_double_dqn_statev2_sparse_seed43_20261018_174852_828191_01e04e3a\\checkpoint.pt",
+      "sha256": "6f697ccc77e73b7d5246b9376a4e4c35e20f2d5ba94129b144669d51f7ee8e80"
+    },
+    {
+      "algorithm": "double_dqn",
+      "training_seed": 44,
+      "records": 1608,
+      "parameter_count": 19587,
+      "wall_clock_time": 187.17475220002234,
+      "checkpoint": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_double_dqn_statev2_sparse_seed44_20261018_174852_894508_c464b1c6\\checkpoint.pt",
+      "sha256": "cc8e496238ef90fedddbde619354e2c8b34ce502a76dacd57eb81e5f213ed756"
+    },
+    {
+      "algorithm": "dueling_dqn",
+      "training_seed": 42,
+      "records": 1623,
+      "parameter_count": 19716,
+      "wall_clock_time": 204.4612933001481,
+      "checkpoint": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_dueling_dqn_statev2_sparse_seed42_20261018_175205_140785_47632479\\checkpoint.pt",
+      "sha256": "627d0f386191a15c42040b7a5d0175076e97695f76ad489b7c2599d4825c5155"
+    },
+    {
+      "algorithm": "dueling_dqn",
+      "training_seed": 43,
+      "records": 1579,
+      "parameter_count": 19716,
+      "wall_clock_time": 207.25224039983004,
+      "checkpoint": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_dueling_dqn_statev2_sparse_seed43_20261018_175205_158317_f09ce796\\checkpoint.pt",
+      "sha256": "76bb7bd17d81565ec0e5cd4db4022ca3509ffbffe0335e4a718ec928c2d32787"
+    },
+    {
+      "algorithm": "dueling_dqn",
+      "training_seed": 44,
+      "records": 1617,
+      "parameter_count": 19716,
+      "wall_clock_time": 205.40789940021932,
+      "checkpoint": "D:\\Desktop\\Mstudy\\lessons\\RL\\results\\algorithm_experiments\\e5_20261018_174445_393629_8f54c9be\\logs\\e5_dueling_dqn_statev2_sparse_seed44_20261018_175205_187902_83cf87af\\checkpoint.pt",
+      "sha256": "7b685ebbe0d9884facc08cea9754228e8bfca57fe2f7a5d6d12db05439b8d216"
+    }
+  ],
+  "groups": {
+    "development": {
+      "dqn": {
+        "mean_score": 22.186666666666667,
+        "std_of_model_mean_scores": 0.6454627969311811,
+        "mean_return": 211.86666666666667,
+        "mean_episode_length": 182.53333333333333,
+        "truncation_rate": 0,
+        "max_score": 35.0
+      },
+      "double_dqn": {
+        "mean_score": 19.773333333333333,
+        "std_of_model_mean_scores": 0.7437442810237651,
+        "mean_return": 187.73333333333332,
+        "mean_episode_length": 163.16666666666666,
+        "truncation_rate": 0,
+        "max_score": 38.0
+      },
+      "dueling_dqn": {
+        "mean_score": 21.013333333333332,
+        "std_of_model_mean_scores": 1.005893743007789,
+        "mean_return": 200.13333333333333,
+        "mean_episode_length": 172.65333333333334,
+        "truncation_rate": 0,
+        "max_score": 40.0
+      },
+      "random": {
+        "mean_score": 0.04,
+        "std_of_model_mean_scores": 0.0,
+        "mean_return": -9.6,
+        "mean_episode_length": 11.86,
+        "truncation_rate": 0,
+        "max_score": 1.0
+      }
+    },
+    "holdout": {
+      "dqn": {
+        "mean_score": 21.446666666666665,
+        "std_of_model_mean_scores": 1.4918742872269397,
+        "mean_return": 204.46666666666667,
+        "mean_episode_length": 171.62666666666667,
+        "truncation_rate": 0,
+        "max_score": 41.0
+      },
+      "double_dqn": {
+        "mean_score": 19.893333333333334,
+        "std_of_model_mean_scores": 1.0131578795473533,
+        "mean_return": 188.93333333333334,
+        "mean_episode_length": 162.24,
+        "truncation_rate": 0,
+        "max_score": 41.0
+      },
+      "dueling_dqn": {
+        "mean_score": 20.826666666666668,
+        "std_of_model_mean_scores": 0.8588881701879986,
+        "mean_return": 198.26666666666668,
+        "mean_episode_length": 172.57333333333332,
+        "truncation_rate": 0,
+        "max_score": 40.0
+      },
+      "random": {
+        "mean_score": 0.12,
+        "std_of_model_mean_scores": 0.0,
+        "mean_return": -8.8,
+        "mean_episode_length": 9.9,
+        "truncation_rate": 0,
+        "max_score": 1.0
+      }
+    }
+  },
+  "selected_algorithm": "dqn",
+  "selection_split": "development",
+  "training_records": 14348,
+  "evaluation_records": 1000,
+  "note": "Hashes fingerprint current source files, not a before/after evaluation comparison."
+}

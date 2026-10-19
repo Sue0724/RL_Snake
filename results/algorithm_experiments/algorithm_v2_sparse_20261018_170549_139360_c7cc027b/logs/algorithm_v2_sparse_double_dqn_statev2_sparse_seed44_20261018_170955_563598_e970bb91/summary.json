@@ -1,0 +1,34 @@
+{
+  "run_id": "algorithm_v2_sparse_double_dqn_statev2_sparse_seed44_20261018_170955_563598_e970bb91",
+  "algorithm": "double_dqn",
+  "seed": 44,
+  "state_mode": "v2",
+  "reward_mode": "sparse",
+  "status": "completed",
+  "metrics_scope": "training",
+  "run_settings": {
+    "budget_type": "environment_steps",
+    "total_steps": 100000,
+    "log_every": 10,
+    "checkpoint_every": 100,
+    "torch_threads": 1,
+    "experiment": "algorithm_v2_sparse"
+  },
+  "completed_episodes": 1607,
+  "global_step": 100000,
+  "update_count": 99001,
+  "epsilon": 0.05,
+  "wall_clock_time": 242.08061250019819,
+  "mean_score": 6.9340385812072185,
+  "std_score": 7.0706721417528104,
+  "max_score": 34,
+  "mean_return": 59.340385812072185,
+  "mean_episode_length": 62.14996888612321,
+  "mean_reward_components": {
+    "food_reward": 69.34038581207218,
+    "death_penalty": -10.0,
+    "distance_reward": 0.0,
+    "step_reward": 0.0
+  },
+  "error": null
+}

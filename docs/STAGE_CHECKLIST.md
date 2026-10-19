@@ -100,7 +100,7 @@
 - [x] play.py 可加载模型（--agent model --checkpoint；配置恢复、纯贪心、渲染及退出已自动验证）
 - [x] algorithm 可配置切换（公共入口按配置分派；DQN 可训练/加载，Random 仅评估/演示；未实现算法明确报错）
 - [x] state_mode 可配置（Config / CLI / checkpoint 已接入；目前仅实现 v1）
-- [x] reward_mode 可配置（Config / CLI / checkpoint 已接入；目前仅实现 sparse）
+- [x] reward_mode 可配置（Config / CLI / checkpoint 已接入；10-18 起支持 sparse / distance / distance_step）
 - [x] seed 可配置（训练 seeds 42/43/44，独立评估 seeds 10000～10049）
 - [x] 日志自动保存（各 run 已生成 config.json / metrics.csv / summary.json）
 - [x] checkpoint 自动保存（周期及结束保存已有实现，训练模型已用于独立评估）
@@ -113,7 +113,7 @@
 
 - play.py 已支持 checkpoint 模型演示；允许覆盖 seed / device / render_mode / fps，拒绝覆盖模型环境和训练参数。窗口关闭、Q / Esc、Ctrl+C 均可退出，环境正常释放。
 - 公共 Agent 创建/加载与 algorithm 分派已完成：`algorithms/factory.py` 接入训练、评估及随机演示。后续算法实现属于 Stage 6，本阶段的勾选表示分派机制完成，不表示三种可训练算法已齐备。
-- state_mode / reward_mode 勾选表示配置已接通，不表示已有多个可用版本；State V2 与 Shaped Reward 分别属于 Stage 4 / 5。
+- 10-18 D 已实现 V1/V2 状态与三种 reward_mode；配置接通不代表效果结论，状态与奖励各自控制变量实验。
 - 配置来源及覆盖规则已写入 INTERFACE §14、README 与 QUICKSTART 第八节；训练→保存→评估→演示完整链已在测试中验证，相同 seed 下演示成绩与评估一致。
 - 公共入口新增 14 项测试，无窗口全量回归 130 passed；短程训练→保存→加载→评估通过。既有 100k 模型复评的 200 条逐局记录及模型摘要与原结果一致，来源 checkpoint 哈希未改变；复评输出仅放临时目录。
 - 模型演示新增17项测试，play专项22 passed；最终无窗口全量回归147 passed。现有seed42的100k模型用评估seed10000运行真实play CLI，score=22、steps=149，与独立评估记录一致，checkpoint哈希未改变。
@@ -126,43 +126,47 @@
 
 负责人：D（10-10 由 A 调整为 D；与 Stage 5、Stage 7 合并为同一条实验流水线，在 Stage 6 之后执行）
 
-- [ ] 至少两个状态版本
-- [ ] 仅改变 state
-- [ ] 相同训练预算
-- [ ] 相同 seed 集合
-- [ ] 至少 3 seeds
-- [ ] 原始日志保存
-- [ ] 曲线生成
-- [ ] 汇总指标生成
-- [ ] 有结果分析
-- [ ] 无明显不公平设置
+- [x] 至少两个状态版本（V1 11 维 / V2 20 维）
+- [x] 仅改变 state（奖励 sparse、DQN、探索和其他配置相同）
+- [x] 相同训练预算（六模型各 100k 环境步）
+- [x] 相同 seed 集合（42/43/44）
+- [x] 至少 3 seeds
+- [x] 原始日志保存（含六份训练/评估产物与 checkpoint）
+- [x] 曲线生成（共享绘图脚本从原始日志生成）
+- [x] 汇总指标生成（comparison.json / comparison.csv）
+- [x] 有结果分析（D_WORK_SUMMARY 第 10 节）
+- [x] 无明显不公平设置（两个状态在同一尾格修复环境重训；参数量差异已披露）
 
-验收结论：`Pending`
+验收结论：技术项 10/10 满足，`Pending`（待团队确认，不自动标记阶段 Passed）。
 
 问题：
 
-- 待填写
+- 全量 266 passed；600k 总训练步、300 局独立评估完成。正式结果 V1 19.17 ± 0.56、V2 22.19 ± 0.65。
+- 20 维同时增加距离和局部环，且输入层多 1,152 参数；只评价整体方案，未证明统计显著性或收敛。
 
 ---
 
 ## Stage 5：Reward / Exploration
 
-- [ ] Sparse Reward 基准存在
-- [ ] 至少一种 Shaped Reward
-- [ ] reward_mode 可配置
-- [ ] 每项 reward 量级合理
-- [ ] Score 与 Return 同时统计
-- [ ] 检查是否出现绕圈 / 苟活
-- [ ] 至少一种 exploration 对比
-- [ ] 至少 3 seeds
-- [ ] 曲线完成
-- [ ] 分析完成
+- [x] Sparse Reward 基准存在（原三 100k 模型复评指标一致、哈希不变）
+- [x] 至少一种 Shaped Reward（distance / distance_step，边界与短程验证通过）
+- [x] reward_mode 可配置（含两项系数，CLI / checkpoint 已接通）
+- [x] 每项 reward 量级合理（本轮系数通过边界校验并记录分项；合理量级不等于性能改善）
+- [x] Score 与 Return 同时统计（训练/评估均增加四个累计奖励分项）
+- [x] 检查是否出现绕圈 / 苟活（450 局物理状态复放，本批无完整循环/超时）
+- [x] 至少一种 exploration 对比（固定 V2 + sparse，三种 epsilon 衰减参数）
+- [x] 至少 3 seeds（各模式 42/43/44，100k 步/模型、50 局评估）
+- [x] 奖励与探索曲线完成（原始数据可重生成，探索另含实际 epsilon 曲线）
+- [x] 奖励与探索分析完成（保留负结果，区分训练与贪心评估）
 
-验收结论：`Pending`
+验收结论：`Pending`（10-18 十项技术条件满足，正式奖励、行为与探索分析完成，待团队验收确认）
 
 问题：
 
-- 待填写
+- 本轮全量 291 passed，自检 6/6；奖励九模型 900k 训练步、450 局正式评估及逐局行为复放完成。
+- sparse 22.19 ± 0.65、distance 19.89 ± 0.15、distance_step 21.31 ± 0.27；负结果保留。
+- 探索另训练九模型 900k 步、评估 450 局；快/默认/慢均分 21.39 ± 0.96 / 22.19 ± 0.65 / 19.94 ± 0.34。
+- 暂保留默认 0.9999，不以训练曲线先上升或最高分选优；Stage 5 不自动通过，Stage 7 已按用户指令进入 E5。
 
 ---
 
@@ -203,24 +207,31 @@
 
 ## Stage 7：综合实验
 
-- [ ] Random baseline
-- [ ] DQN baseline
-- [ ] State experiment
-- [ ] Reward experiment
-- [ ] Hyperparameter / exploration experiment
-- [ ] Algorithm experiment
-- [ ] Best configuration
-- [ ] 统一训练预算
-- [ ] 多 seed
-- [ ] 保存原始数据
-- [ ] 生成最终图
-- [ ] 所有结论可被数据支持
+- [x] Random baseline（E5 两评估集，各 50 局，0.04 / 0.12）
+- [x] DQN baseline（当前环境 V1 与 V2 正式结果，不混用修复前成绩）
+- [x] State experiment（D-02）
+- [x] Reward experiment（D-03）
+- [x] Hyperparameter / exploration experiment（D-04）
+- [x] Algorithm experiment（D-05 / E5，九模型及新种子复核）
+- [x] State x Reward 交互消融（D-06，完整 2x3 矩阵与逐 seed 差中差）
+- [x] Best configuration（已测开发候选中固定DQN+V2+sparse+默认探索，E6五seed验证，不声称全局最优）
+- [x] 统一训练预算（接受的正式模型均 100k 环境步，失败尝试单独登记）
+- [x] 多 seed（前序42/43/44，E6扩展至42-46）
+- [x] 保存原始数据（配置、CSV、JSON、checkpoint 与图表可重生成）
+- [x] 生成最终图（前序比较/交互与E6四图可由原始数据重生成）
+- [x] 所有结论可被数据支持（来源索引、逐seed表、负结果与结论限制完整）
 
-验收结论：`Pending`
+验收结论：技术项13/13有证据，`Pending`（待团队正式确认，不自动标Passed）。
 
 问题：
 
-- 待填写
+- E5、交互矩阵、E6见D_WORK_SUMMARY第13/14/15节和大纲；最终全量333 passed，自检6/6。
+- 开发 DQN/Double/Dueling 均分 22.19/19.77/21.01，新复核 21.45/19.89/20.83；暂保留 DQN，不声称逐 seed 占优或更稳定。
+- 两次保存故障保留，修复后完整九模型、900k 步及含 Random 的 1000 条评估审计通过。
+- 交互消融新增六模型 600k 步/300 局，审计复用十二模型后形成完整 18 模型/900 局矩阵，未重复计数。
+- V1 distance_step 小幅均值正差与 V2 负差并不构成稳定交互证据；保留全部 seed 与限制。
+- E6新测试五seed均分20.76±2.64，Random0.12；保留16.54的较弱seed44，未按测试换入口，最终配置与全部来源已留档。
+- 技术条件满足，正式验收仍待团队确认；Stage8实际报告/PPT与Demo未开展，不自动进入下一阶段。
 
 ---
 

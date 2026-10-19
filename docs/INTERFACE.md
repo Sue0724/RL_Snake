@@ -119,11 +119,11 @@ target = reward + (1 - terminated) * gamma * max_a Q_target(next_state, a)
 
 `danger_*` 必须与 `step()` 共用同一个判定函数。若 `danger_*` 用"含蛇尾"的保守版本，状态就会把"其实能走"的方向标成危险，等于给网络喂错标签。
 
-### State V2（预定方案，20 维 `float32`）
+### State V2（10-18 定稿并实现，20 维 `float32`）
 
-> **本节为预定方案，尚未冻结。** 由 A 于 10-07 提出；10-10 起 Stage 4（状态实验）及本节方案的定稿与实施均转由 D 负责，仍在 Stage 6 之后执行。其他成员如有不同意见，按 `AI_DEVELOPMENT_RULES.md` §20 提出并修改本节；Stage 4 开工前定稿。
->
-> 属于规范变更：实施前需完成 §20 流程（说明原因、列出影响文件、等待确认）。
+> 由 A 于 10-07 提出，10-10 起交由 D 定稿与实施。10-18 用户要求继续完成下一项工作，
+> 按既有 D 待办实施 V2 与 E2 状态实验。保持原定 11+1+8 维方案，修正食物刷新后的距离语义。
+> 影响环境、状态实验、绘图、测试及文档；Agent API 与 Config key 不变，V1 的前 11 维语义保留。
 
 V2 在 V1 的 11 维之上**追加**维度，**不修改** V1 已冻结的 11 维语义。
 
@@ -144,7 +144,9 @@ V2 在 V1 的 11 维之上**追加**维度，**不修改** V1 已冻结的 11 �
 - 用 Manhattan 而非欧氏距离：蛇每步只沿网格移动一格，格子数才是真实步数成本。
 - 除以 `2 * (board_size - 1)`：这是棋盘上的最大 Manhattan 距离，值域恰好落在 `[0, 1]`，不需要按棋盘裁剪或估计 min-max。
 - 与 `[7:11]` 的分工：`food_up/down/left/right` 只给方向，本维只给距离，两者不重复。食物在正上方时 `food_up=1` 恒成立，距离是 1 格还是 8 格由本维区分。
-- 吃到食物的那一步本维为 0。
+- 返回状态始终描述当前环境里的食物：吃到食物并刷新后，本维按新食物计算，与 food_* 方向位一致；
+  不强制置 0。只有填满棋盘、未生成新食物时，保留的旧食物坐标等于蛇头，本维为 0。
+- 此处与奖励距离差不同：奖励比较同一颗旧食物；下一状态必须描述已刷新后的环境。
 
 #### 索引 12–19：`local_ring`
 
@@ -170,16 +172,19 @@ V1 有两个结构性盲区：
 #### 已知代价
 
 - **一次加了两类信息，Stage 4 只能回答「V2 整体是否优于 V1」，无法归因到距离或局部环中的哪一类。**
-- 选择一次加两类的理由：`docs/PROJECT_PLAN.md` 已把 V2 定位为「State V1 + 距离 / 局部空间信息」；训练预算有限，只加一类很可能跑出无差异的零结果，Stage 4 的验收项「有结果分析」会落空。
+- 选择一次加两类的理由：沿用项目计划中的「State V1 + 距离 / 局部空间信息」整体方案；不预设其效果。
+  无差异或负结果同样是有效实验结果，不能以是否提升作为实验完成标准。
 - 缓解（不在 Stage 4 范围）：如需归因，可在 Stage 7 拆出 V2a（12 维，仅距离）与 V2b（19 维，仅局部环）补跑。
 - **本节最可能的修改点**：若团队更看重单变量可归因性，可在 Stage 4 开工前改为只加其中一类。
 - 维度 11 → 20 会改变输入层容量。对比时 `hidden_dim` 等超参数保持不变，并在报告中说明这一点。
 
-#### 实现要点（Stage 4 实施时）
+#### 实现要点（10-18 已实施）
 
-- `env/snake_env.py`：`STATE_DIM` 由模块级常量改为按 `state_mode` 取值的映射；`_get_state()` 按 `state_mode` 分派；`__init__` 中 `state_mode != "v1"` 的分支增加 `"v2"`。
+- `env/snake_env.py`：`STATE_DIMS` 为维度映射；`_get_state()` 按 state_mode 分派。
 - `env.state_dim` 必须返回当前模式对应的维度，DQN 依它建网络（不得硬编码，见 §12「实现须知」第 2 条）。
-- `tests/test_snake_env.py` 中写死 `(11,)` 的断言改为按模式取值；V1 的既有行为与测试必须全部保持通过——V2 是追加，不是替换。
+- V1 测试继续固定 11 维；新增 V2 专项测试覆盖形状、旋转、边缘、蛇尾和食物刷新。
+- 修正移入旧蛇尾时 occupied 集合丢失新蛇头的问题：先移出旧尾，再加入新头；始终保持 occupied == set(body)。
+  这是环境正确性修复，可能影响包含该局面的历史轨迹；状态实验两个版本均在修复后重新训练。
 
 ---
 
@@ -221,7 +226,16 @@ reward == food_reward + death_penalty + distance_reward + step_reward
 
 ### shaping 模式
 
-`"distance"` 与 `"distance_step"` 的具体系数在 Stage 5 定义并冻结。Stage 0 只冻结：
+10-18 经 D 要求实现 `"distance"` 与 `"distance_step"`：
+
+- `distance_reward_scale` 默认 0.1，距离项为该系数乘以移动前后到同一颗旧食物的曼哈顿距离差（格子数）。
+- `step_penalty` 默认 0.01，仅 distance_step 每个有效动作扣除此值，包含死亡/截断的最后一步。
+- 碰撞距离项为 0；吃食物的距离差为 +1，之后生成的新食物不参与本步距离项。
+- reset 四个分项全部为 0；胜利不加死亡惩罚；sparse 行为保持不变。
+- 两系数有限、非负，和小于 10；系数属于实验起点，尚无正式性能结论。
+- 这是启发式 shaping，不保证最优策略不变；详见 `docs/REWARD_EXPERIMENT.md`。
+
+原有约定继续适用：
 
 - 切换 key 为 `reward_mode`
 - 各 shaping 项分别写入 `info` 对应字段
@@ -335,6 +349,8 @@ render_mode             默认 None
 
 这五个 key 与算法 key 合并在 `common/config.py` 的同一个 `@dataclass Config` 中，组织、覆盖与存档方式见 `AI_DEVELOPMENT_RULES.md` §12。`initial_head` 的命令行写法为 `--initial_head 4,6`。
 
+Stage 5 新增环境奖励配置：`distance_reward_scale=0.1`、`step_penalty=0.01`，两项自动生成 CLI 参数并写入配置及 checkpoint。旧 checkpoint 缺失时采用默认值。同组评估同时校验两项一致。
+
 探索率默认值为 `epsilon_start=1.0`、`epsilon_end=0.05`、`epsilon_decay=0.9999`，按已完成的训练环境步骤指数衰减，跨 episode 延续，评估时不衰减。完整执行语义以 `AI_DEVELOPMENT_RULES.md` §12「已冻结：`epsilon_decay` 的衰减语义」为准。
 
 ---
@@ -397,6 +413,7 @@ global_step
 `train.py` 在上述七项之外记录 `run_id`、`algorithm`、`seed`、`state_mode`、
 `reward_mode`、`update_count`、`terminated`、`truncated`、`episode_complete` 和
 `wall_clock_time`。`loss` 为本局成功更新的均值；没有更新时留空。
+10-18 起另追加四项本局累计奖励：`food_reward`、`death_penalty`、`distance_reward`、`step_reward`，总和等于 `episode_return`；摘要增加 `mean_reward_components`（仅完整局均值）。
 `epsilon` 为记录这一局时的衰减后取值。两个结束标记保留环境原值。
 固定步数预算在局中耗尽时，记录不完整局并标记 `episode_complete=False`，
 不虚构环境终止/截断。
@@ -597,6 +614,8 @@ agent, runtime_config = load_agent(checkpoint_path, device="cpu", render_mode=No
 | 10-10 | 新增 §14 模型演示：checkpoint 配置来源、允许覆盖的参数、纯贪心及退出约定。 |
 | 10-10 | 公共加载改为单次读取并委托 restore_checkpoint；新增 CheckpointError，统一评估/演示 CLI 的预期加载错误提示。 |
 | 10-10 | Stage 6 注册 `double_dqn` / `dueling_dqn`；Double DQN 由 Online 选动作、Target 评估，Dueling 网络按 `Q=V+A-mean(A)` 聚合。 |
+| 10-18 | 经 D 要求先实现奖励部分：新增两种 shaping、两项系数；训练/评估日志追加累计奖励分项，摘要追加分项均值；旧 sparse 模型兼容。 |
+| 10-18 | D 继续状态任务：V2 20 维实现；距离始终对应当前食物，补充八方向占用环与旧蛇尾格占用修复；两个状态重新训练比较，不混用历史基线。 |
 
 
 ## 13. 独立评估入口
@@ -611,6 +630,7 @@ agent, runtime_config = load_agent(checkpoint_path, device="cpu", render_mode=No
 CSV 包含模型标识、训练/评估 seed、episode、score、episode_return、episode_length、
 terminated、truncated；摘要标明 metrics_scope=evaluation，包含各模型的五项核心汇总、
 截断率及跨模型平均分统计。标准差使用总体标准差（ddof=0）。
+10-18 起 CSV 追加四个本局累计奖励分项，模型摘要增加 mean_reward_components。
 同组环境配置须一致；失败或中断保留部分 CSV，并明确摘要状态，运行方式见 QUICKSTART 第七节。
 
 

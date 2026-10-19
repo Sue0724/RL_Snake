@@ -1,0 +1,34 @@
+{
+  "run_id": "ablate_dqn_statev1_distance_step_seed44_20261018_182452_886306_bf85e8e4",
+  "algorithm": "dqn",
+  "seed": 44,
+  "state_mode": "v1",
+  "reward_mode": "distance_step",
+  "status": "completed",
+  "metrics_scope": "training",
+  "run_settings": {
+    "budget_type": "environment_steps",
+    "total_steps": 100000,
+    "log_every": 10,
+    "checkpoint_every": 100,
+    "torch_threads": 1,
+    "experiment": "ablate"
+  },
+  "completed_episodes": 1553,
+  "global_step": 100000,
+  "update_count": 99001,
+  "epsilon": 0.05,
+  "wall_clock_time": 176.19179160008207,
+  "mean_score": 7.163554410817772,
+  "std_score": 6.9621577235217815,
+  "max_score": 32,
+  "mean_return": 65.9726400515133,
+  "mean_episode_length": 64.3586606567933,
+  "mean_reward_components": {
+    "food_reward": 71.63554410817773,
+    "death_penalty": -10.0,
+    "distance_reward": 4.980682549903405,
+    "step_reward": -0.6435866065679333
+  },
+  "error": null
+}

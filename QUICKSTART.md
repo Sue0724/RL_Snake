@@ -48,7 +48,7 @@ env.render()
 | 3 / 4 / 5 / 6 | `moving_up` / `moving_down` / `moving_left` / `moving_right`（one-hot） |
 | 7 / 8 / 9 / 10 | `food_up` / `food_down` / `food_left` / `food_right`（**不互斥**，左上同时为 1） |
 
-**State V2（20 维，预定方案，未冻结）**：V1 的 11 维 + `food_distance` + 蛇头周围 8 格 `local_ring`，
+**State V2（20 维，10-18 已实现）**：V1 的 11 维 + `food_distance` + 蛇头周围 8 格 `local_ring`，
 `state_mode="v2"` 启用。完整规格见 `docs/INTERFACE.md` §4。
 
 ⚠️ **建网络一律写 `DQNAgent(env.state_dim, env.n_actions, config)`，不要写死 `11` 和 `3`。**
@@ -353,6 +353,13 @@ python3 evaluate.py --checkpoints results/logs/baseline_dqn_statev1_sparse_seed*
 | 当前进度 | `docs/PROJECT_STATUS.md` |
 | 阶段验收 | `docs/STAGE_CHECKLIST.md` |
 | 操作日志 | `memory.md` |
+| D 的奖励方案、实验命令与绘图 | `docs/REWARD_EXPERIMENT.md` |
+| D 的 V1/V2 状态方案与实验 | `docs/STATE_EXPERIMENT.md` |
+| D 的探索衰减实验 | `docs/EXPLORATION_EXPERIMENT.md` |
+| D 的三算法正式比较 | `docs/ALGORITHM_EXPERIMENT.md` |
+| D 的报告与 PPT 大纲 | `docs/D_REPORT_PPT_OUTLINE.md` |
+| D 的状态与奖励交互消融 | `docs/STATE_REWARD_ABLATION.md` |
+| D 的E6最终五seed验证 | `docs/FINAL_EXPERIMENT.md` |
 
 
 ---

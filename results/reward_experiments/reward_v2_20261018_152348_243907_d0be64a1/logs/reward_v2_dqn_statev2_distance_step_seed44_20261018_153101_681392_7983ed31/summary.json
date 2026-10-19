@@ -1,0 +1,34 @@
+{
+  "run_id": "reward_v2_dqn_statev2_distance_step_seed44_20261018_153101_681392_7983ed31",
+  "algorithm": "dqn",
+  "seed": 44,
+  "state_mode": "v2",
+  "reward_mode": "distance_step",
+  "status": "completed",
+  "metrics_scope": "training",
+  "run_settings": {
+    "budget_type": "environment_steps",
+    "total_steps": 100000,
+    "log_every": 10,
+    "checkpoint_every": 100,
+    "torch_threads": 1,
+    "experiment": "reward_v2"
+  },
+  "completed_episodes": 1534,
+  "global_step": 100000,
+  "update_count": 99001,
+  "epsilon": 0.05,
+  "wall_clock_time": 235.27266560029238,
+  "mean_score": 7.338983050847458,
+  "std_score": 7.281977932979551,
+  "max_score": 35,
+  "mean_return": 67.81300521512395,
+  "mean_episode_length": 65.10756192959583,
+  "mean_reward_components": {
+    "food_reward": 73.38983050847457,
+    "death_penalty": -10.0,
+    "distance_reward": 5.074250325945235,
+    "step_reward": -0.6510756192959585
+  },
+  "error": null
+}

@@ -1,0 +1,34 @@
+{
+  "run_id": "exploration_v2_sparse_decay0p99995_dqn_statev2_sparse_seed42_20261018_164526_093903_157253e9",
+  "algorithm": "dqn",
+  "seed": 42,
+  "state_mode": "v2",
+  "reward_mode": "sparse",
+  "status": "completed",
+  "metrics_scope": "training",
+  "run_settings": {
+    "budget_type": "environment_steps",
+    "total_steps": 100000,
+    "log_every": 10,
+    "checkpoint_every": 100,
+    "torch_threads": 1,
+    "experiment": "exploration_v2_sparse_decay0p99995"
+  },
+  "completed_episodes": 2143,
+  "global_step": 100000,
+  "update_count": 99001,
+  "epsilon": 0.05,
+  "wall_clock_time": 236.2879511998035,
+  "mean_score": 4.799346710219319,
+  "std_score": 6.082022923309429,
+  "max_score": 27,
+  "mean_return": 37.993467102193186,
+  "mean_episode_length": 46.628091460569294,
+  "mean_reward_components": {
+    "food_reward": 47.993467102193186,
+    "death_penalty": -10.0,
+    "distance_reward": 0.0,
+    "step_reward": 0.0
+  },
+  "error": null
+}
